@@ -1,0 +1,18 @@
+﻿using Vein360.API.EndPoints;
+
+namespace Vein360.API
+{
+    public static class EndPointsExtensions
+    {
+        public static void MapEndpoints(this WebApplication app) 
+        {
+            app.MapDonationEndpoints();
+            app.MapProductEndpoints();
+            app.MapContainerTypeEndpoints();
+            app.MapContainerEndpoints();
+            app.MapLabelEndpoints();
+            app.MapAccountEndpoints();
+            
+        }
+    }
+}

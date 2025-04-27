@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Vein360.Application.Dtos
+{
+    public class DonationContainerTypeDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}
