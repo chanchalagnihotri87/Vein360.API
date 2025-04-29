@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - vein360-api
+name: Build and deploy ASP.Net Core app to Azure Web App - vein-360-api
 
 on:
   push:
@@ -54,15 +54,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_071113AEFFBA4CAAB873E5A55FEBAEB5 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_04784B622F9E4AFEB08394D352ED14FE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_72B769A177D84A9E891A4852E47864C0 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9D4442FFC8934FC1A37AE24C5BA1DE3C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_94AFC33E050A45EB949B908BFF3A7E8E }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF502F85309A42809202EDE6DA996B81 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'vein360-api'
+          app-name: 'vein-360-api'
           slot-name: 'Production'
           package: .
           
