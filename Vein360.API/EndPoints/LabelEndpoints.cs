@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Vein360.Application.Service.StorageService;
 
 namespace Vein360.API.EndPoints
 {
@@ -6,17 +8,10 @@ namespace Vein360.API.EndPoints
     {
         public static void MapLabelEndpoints(this WebApplication app)
         {
-            app.MapGet("/label/{fileName}", async (string fileName, CancellationToken cancellationToken) =>
+            app.MapGet("/label/{fileName}", [Authorize] async (string fileName, CancellationToken cancellationToken, IStorageService storageService) =>
             {
                 var mimeType = "application/pdf";
-                var rootPath = System.IO.Directory.GetCurrentDirectory();
-                var labelsPath = System.IO.Path.Combine(rootPath, "Labels");
-
-                string filePath = System.IO.Path.Combine(labelsPath, fileName);
-                if (!System.IO.File.Exists(filePath))
-                    return Results.NotFound();
-
-                return Results.File(filePath, contentType: mimeType);
+                return Results.File(await storageService.GetLabel(fileName), contentType: mimeType);
             });
         }
     }

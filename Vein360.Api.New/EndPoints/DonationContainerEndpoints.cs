@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vein360.Application.Dtos;
 using Vein360.Application.Features.DonationContainers.DeleteDonationContainer;
@@ -15,7 +14,7 @@ namespace Vein360.API.EndPoints
     {
         public static void MapContainerEndpoints(this WebApplication app)
         {
-            app.MapGet("/donationcontainers", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donationcontainers", async (IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var containers = await mediator.Send(new GetAllDonationContainerRequest(), cancellationToken);
                 return Results.Ok(containers);
@@ -24,7 +23,7 @@ namespace Vein360.API.EndPoints
             .Produces<List<DonationConatinerDto>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status500InternalServerError);
 
-            app.MapGet("/donationcontainers/available", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donationcontainers/available", async (IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var containers = await mediator.Send(new GetAvailableDonationContainerRequest(), cancellationToken);
                 return Results.Ok(containers);
@@ -34,20 +33,20 @@ namespace Vein360.API.EndPoints
            .Produces(StatusCodes.Status500InternalServerError);
 
 
-            app.MapPost("/donationcontainers/{containerTypeId}", [Authorize] async (int containerTypeId, IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapPost("/donationcontainers/{containerTypeId}", async (int containerTypeId, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 await mediator.Send(new RequestForContainerRequest(containerTypeId), cancellationToken);
 
                 return Results.Ok();
             });
 
-            app.MapDelete("/donationcontainers/{id}", [Authorize] async (int id, IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapDelete("/donationcontainers/{id}", async (int id, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 await mediator.Send(new DeleteDonationContainerRequest(id), cancellationToken);
                 return Results.Ok();
             });
 
-            app.MapPatch("/donationcontainers/receive/{id}", [Authorize] async (int id, IMediator mediator) =>
+            app.MapPatch("/donationcontainers/receive/{id}", async (int id, IMediator mediator) =>
             {
                 await mediator.Send(new ReceiveDonationContainerRequest(id));
 

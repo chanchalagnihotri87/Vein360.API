@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using System.Threading;
 using Vein360.Application.Features.ContainerTypes.GetAllContainerTypes;
 
@@ -9,7 +8,7 @@ namespace Vein360.API.EndPoints
     {
         public static void MapContainerTypeEndpoints(this WebApplication app)
         {
-            app.MapGet("/containertypes", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>{
+            app.MapGet("/containertypes", async (IMediator mediator, CancellationToken cancellationToken) =>{
 
                 var containerTypes = await mediator.Send(new GetAllContainerTypesRequest(), cancellationToken);
 

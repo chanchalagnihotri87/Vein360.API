@@ -13,10 +13,7 @@ using Vein360.Shipment;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
-
-var corsOrigin = builder.Configuration.GetRequiredSection("CorsOrigin").Value!;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>
@@ -28,15 +25,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                ValidateLifetime = false,
                ValidateIssuerSigningKey = false,
                ValidIssuer = "chanchal",
-               ValidAudience = corsOrigin,
+               ValidAudience = "http://localhost:4200",
                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("chanchalchanchalchanchalchanchalchanchalchanchalchanchalchanchal"))
            };
        });
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddCors();
-
 
 builder.Services.ConfigurePersistence(builder.Configuration);
 
@@ -44,17 +38,19 @@ builder.Services.ConfigureApplication();
 
 builder.Services.ConfigureShipment(builder.Configuration);
 
-builder.Services.ConfigureStorage(builder.Environment.IsDevelopment());
+builder.Services.ConfigureStorage();
 
 builder.Services.RegisterMapsterConfiguration();
 
 TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
@@ -77,6 +73,7 @@ app.MapGet("/weatherforecast", () =>
 });
 
 
+
 app.MapGet("/authenticate", () =>
 {
     var token = new JwtSecurityToken(
@@ -84,7 +81,7 @@ app.MapGet("/authenticate", () =>
         expires: DateTime.Now.AddDays(1),
         signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("chanchalchanchalchanchalchanchalchanchalchanchalchanchalchanchal")), SecurityAlgorithms.HmacSha256),
         issuer: "chanchal",
-        audience: corsOrigin);
+        audience: "http://localhost:4200");
 
     return new JwtSecurityTokenHandler().WriteToken(token);
 });
@@ -94,15 +91,8 @@ app.MapGet("/dashboard", [Authorize] () =>
     return Results.Ok("success");
 });
 
-app.MapEndpoints();
 
-app.UseCors(config =>
-{
-    config.
-    WithOrigins(corsOrigin).
-    AllowAnyHeader().
-    AllowAnyMethod();
-});
+app.MapEndpoints();
 
 app.Run();
 

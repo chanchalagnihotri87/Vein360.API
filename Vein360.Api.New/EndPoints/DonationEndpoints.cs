@@ -24,28 +24,28 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(donations);
             });
 
-            app.MapGet("/donations/{id}", [Authorize] async (int id, IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donations/{id}", async (int id, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var donation = await mediator.Send(new GetDonationRequest { Id = id }, cancellationToken);
 
                 return donation is not null ? Results.Ok(donation) : Results.NotFound();
             });
 
-            app.MapPost("/donations", [Authorize] async ([FromBody] CreateDonationRequestData donation, IMediator mediator) =>
+            app.MapPost("/donations", async ([FromBody] CreateDonationRequestData donation, IMediator mediator) =>
             {
                 await mediator.Send(donation.Adapt<CreateDonationRequest>());
 
                 return Results.Ok();
             });
 
-            app.MapDelete("/donations/{id}", [Authorize] async (int id, IMediator mediator) =>
+            app.MapDelete("/donations/{id}", async (int id, IMediator mediator) =>
             {
                 await mediator.Send(new DeleteDonationRequest { DonationId = id });
 
                 return Results.Ok();
             });
 
-            app.MapPatch("/donations/dispatch/{id}", [Authorize] async (int id, IMediator mediator) =>
+            app.MapPatch("/donations/dispatch/{id}", async (int id, IMediator mediator) =>
             {
                 await mediator.Send(new DispatchDonationRequest(id));
 

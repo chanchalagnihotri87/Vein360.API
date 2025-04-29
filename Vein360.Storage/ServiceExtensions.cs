@@ -6,9 +6,16 @@ namespace Vein360.Shipment
 {
     public static class ServiceExtensions
     {
-        public static IServiceCollection ConfigureStorage(this IServiceCollection services)
+        public static IServiceCollection ConfigureStorage(this IServiceCollection services, bool isDevelopment)
         {
-            services.AddScoped<IStorageService, StorageService>();
+            if (isDevelopment)
+            {
+                services.AddScoped<IStorageService, LocalStorageService>();
+            }
+            else
+            {
+                services.AddScoped<IStorageService, AzureLocalStorageService>();
+            }
 
             return services;
         }

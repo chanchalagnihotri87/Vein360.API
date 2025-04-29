@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Vein360.Application.Features.Products.GetAllProducts;
 
 namespace Vein360.API.EndPoints
@@ -8,7 +7,7 @@ namespace Vein360.API.EndPoints
     {
         public static void MapProductEndpoints(this WebApplication app)
         {
-            app.MapGet("/products", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/products", async (IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var donations = await mediator.Send(new GetAllProductsRequest(), cancellationToken);
 

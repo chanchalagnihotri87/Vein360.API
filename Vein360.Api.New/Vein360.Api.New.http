@@ -1,0 +1,6 @@
+@Vein360.Api.New_HostAddress = http://localhost:5093
+
+GET {{Vein360.Api.New_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
