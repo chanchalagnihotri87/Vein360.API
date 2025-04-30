@@ -17,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 var corsOrigin = builder.Configuration.GetRequiredSection("CorsOrigin").Value!;
+var jwtSecret = builder.Configuration.GetRequiredSection("JWTSecret").Value!;
+var jwtIssuer = builder.Configuration.GetRequiredSection("JWTIssuer").Value!;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>
@@ -27,9 +29,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                ValidateAudience = true,
                ValidateLifetime = false,
                ValidateIssuerSigningKey = false,
-               ValidIssuer = "chanchal",
+               ValidIssuer = jwtIssuer,
                ValidAudience = corsOrigin,
-               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("chanchalchanchalchanchalchanchalchanchalchanchalchanchalchanchal"))
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
            };
        });
 
@@ -57,42 +59,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
-
-
-app.MapGet("/authenticate", () =>
-{
-    var token = new JwtSecurityToken(
-        claims: new List<Claim> { new Claim(ClaimTypes.Name, "Chanchal") },
-        expires: DateTime.Now.AddDays(1),
-        signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("chanchalchanchalchanchalchanchalchanchalchanchalchanchalchanchal")), SecurityAlgorithms.HmacSha256),
-        issuer: "chanchal",
-        audience: corsOrigin);
-
-    return new JwtSecurityTokenHandler().WriteToken(token);
-});
-
-app.MapGet("/dashboard", [Authorize] () =>
-{
-    return Results.Ok("success");
-});
 
 app.MapEndpoints();
 

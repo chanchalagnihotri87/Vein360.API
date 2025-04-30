@@ -23,8 +23,8 @@ namespace Vein360.API.EndPoints
                 var token = new JwtSecurityToken(
                              claims: new List<Claim> { new Claim(ClaimTypes.Name, "Chanchal") },
                              expires: DateTime.Now.AddDays(1),
-                             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("chanchalchanchalchanchalchanchalchanchalchanchalchanchalchanchal")), SecurityAlgorithms.HmacSha256),
-                             issuer: "chanchal",
+                             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetRequiredSection("JWTSecret").Value!)), SecurityAlgorithms.HmacSha256),
+                             issuer: configuration.GetRequiredSection("JWTIssuer").Value!,
                              audience: configuration.GetRequiredSection("CorsOrigin").Value!);
 
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
