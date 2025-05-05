@@ -18,18 +18,9 @@ namespace Vein360.API.EndPoints
         {
             app.MapPost("/accounts/signin", async (SignInRequestData request, IMediator mediator, IConfiguration configuration) =>
             {
-                await mediator.Send(request.Adapt<SignInRequest>());
+                var token = await mediator.Send(request.Adapt<SignInRequest>());
 
-                var token = new JwtSecurityToken(
-                             claims: new List<Claim> { new Claim(ClaimTypes.Name, "Chanchal") },
-                             expires: DateTime.Now.AddDays(1),
-                             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetRequiredSection("JWTSecret").Value!)), SecurityAlgorithms.HmacSha256),
-                             issuer: configuration.GetRequiredSection("JWTIssuer").Value!,
-                             audience: configuration.GetRequiredSection("CorsOrigin").Value!);
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-                return Results.Ok(tokenString);
+                return Results.Ok(token);
             });
         }
     }

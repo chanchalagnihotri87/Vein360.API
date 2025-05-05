@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vein360.Application.Dtos
+namespace Vein360.Application.Common.Dtos
 {
-  public  class Vein360ContainerTypeDto
+    public class ContainerTypeDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string? Description { get; set; }
-        public string? Image { get; set; }
-        public int Capacity { get; set; }
     }
 }

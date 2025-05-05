@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vein360.Application.Dtos;
+using Vein360.Application.Common.Dtos;
 using Vein360.Application.Features.DonationContainers.DeleteDonationContainer;
 using Vein360.Application.Features.DonationContainers.GetAllDonationContainers;
 using Vein360.Application.Features.DonationContainers.GetAvailableDonationContainers;

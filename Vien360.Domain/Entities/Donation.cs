@@ -24,6 +24,7 @@ namespace Vien360.Domain.Entities
         public int DonorId { get; set; }
         public DonationContainer? DonationContainer { get; set; }
         public required ICollection<DonationProduct> Products { get; set; }
+        public Vein360User Donor { get; set; }
 
         public List<string> ProductTypes
         {

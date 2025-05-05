@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Vein360.Application.Dtos;
+using Vein360.Application.Common.Dtos;
 using Vein360.Application.Service.ShipmentService;
 using Vien360.Domain.Enums;
 

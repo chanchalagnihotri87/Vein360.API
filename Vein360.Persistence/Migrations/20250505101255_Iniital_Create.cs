@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Vein360.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Create : Migration
+    public partial class Iniital_Create : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -122,6 +122,12 @@ namespace Vein360.Persistence.Migrations
                         principalTable: "Vein360Containers",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_DonationContainers_Vein360Users_DonorId",
+                        column: x => x.DonorId,
+                        principalTable: "Vein360Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_DonationContainers_Vien360ContainerTypes_ContainerTypeId",
                         column: x => x.ContainerTypeId,
                         principalTable: "Vien360ContainerTypes",
@@ -158,6 +164,12 @@ namespace Vein360.Persistence.Migrations
                         column: x => x.DonationContainerId,
                         principalTable: "DonationContainers",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Donations_Vein360Users_DonorId",
+                        column: x => x.DonorId,
+                        principalTable: "Vein360Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -307,6 +319,11 @@ namespace Vein360.Persistence.Migrations
                 column: "ContainerTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonationContainers_DonorId",
+                table: "DonationContainers",
+                column: "DonorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DonationProduct_DonationId",
                 table: "DonationProduct",
                 column: "DonationId");
@@ -320,6 +337,11 @@ namespace Vein360.Persistence.Migrations
                 name: "IX_Donations_DonationContainerId",
                 table: "Donations",
                 column: "DonationContainerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Donations_DonorId",
+                table: "Donations",
+                column: "DonorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Donations_IsDeleted",
@@ -350,9 +372,6 @@ namespace Vein360.Persistence.Migrations
                 name: "DonationProduct");
 
             migrationBuilder.DropTable(
-                name: "Vein360Users");
-
-            migrationBuilder.DropTable(
                 name: "Donations");
 
             migrationBuilder.DropTable(
@@ -363,6 +382,9 @@ namespace Vein360.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Vein360Containers");
+
+            migrationBuilder.DropTable(
+                name: "Vein360Users");
 
             migrationBuilder.DropTable(
                 name: "Vien360ContainerTypes");

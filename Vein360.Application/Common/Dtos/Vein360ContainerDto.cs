@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Vien360.Domain.Entities;
 using Vien360.Domain.Enums;
 
-namespace Vein360.Application.Dtos
+namespace Vein360.Application.Common.Dtos
 {
   public  class Vein360ContainerDto
     {

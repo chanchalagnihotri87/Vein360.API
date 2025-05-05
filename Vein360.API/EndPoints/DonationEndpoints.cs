@@ -2,7 +2,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vein360.Application.Dtos;
+using System.Security.Claims;
+using Vein360.Application.Common.Dtos;
+
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
 using Vein360.Application.Features.Donations.DispatchDonation;
@@ -17,7 +19,7 @@ namespace Vein360.API.EndPoints
     {
         public static void MapDonationEndpoints(this WebApplication app)
         {
-            app.MapGet("/donations", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donations", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
             {
                 var donations = await mediator.Send(new GetAllDonationsRequest(), cancellationToken);
 

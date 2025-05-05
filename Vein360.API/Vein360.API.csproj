@@ -8,10 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Vein360.Application\Vein360.Application.csproj" />
+    <ProjectReference Include="..\Vein360.Authentication\Vein360.Authentication.csproj" />
     <ProjectReference Include="..\Vein360.Persistence\Vein360.Persistence.csproj" />
     <ProjectReference Include="..\Vein360.Shipment\Vein360.Shipment.csproj" />
     <ProjectReference Include="..\Vein360.Storage\Vein360.Storage.csproj" />

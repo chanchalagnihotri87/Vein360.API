@@ -12,8 +12,8 @@ using Vein360.Persistence;
 namespace Vein360.Persistence.Migrations
 {
     [DbContext(typeof(Vein360Context))]
-    [Migration("20250425080906_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20250505101255_Iniital_Create")]
+    partial class Iniital_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,8 @@ namespace Vein360.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DonationContainerId");
+
+                    b.HasIndex("DonorId");
 
                     b.HasIndex("IsDeleted");
 
@@ -191,6 +193,8 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("ContainerId");
 
                     b.HasIndex("ContainerTypeId");
+
+                    b.HasIndex("DonorId");
 
                     b.ToTable("DonationContainers");
 
@@ -886,7 +890,15 @@ namespace Vein360.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("DonationContainerId");
 
+                    b.HasOne("Vien360.Domain.Entities.Vein360User", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("DonationContainer");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Vien360.Domain.Entities.DonationContainer", b =>
@@ -901,9 +913,17 @@ namespace Vein360.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Vien360.Domain.Entities.Vein360User", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Container");
 
                     b.Navigation("ContainerType");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Vien360.Domain.Entities.DonationProduct", b =>

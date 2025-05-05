@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vein360.Application.Dtos;
+using Vein360.Application.Common.Dtos;
 using Vein360.Application.Repository.ProductRepository;
 
 namespace Vein360.Application.Features.Products.GetAllProducts

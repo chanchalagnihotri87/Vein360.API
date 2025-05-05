@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.Accounts.SignIn
 {
-    public record SignInRequest(string email, string password) : IRequest
+    public record SignInRequest(string email, string password) : IRequest<string>
     {
     }
 }

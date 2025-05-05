@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vein360.Application.Factories;
+using Vein360.Application.Common.Extensions;
+using Vein360.Application.Common.Factories;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.DonationsRepository;
+using Vein360.Application.Service.AuthenticationService;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Application.Service.StorageService;
 using Vien360.Domain.Entities;
@@ -15,18 +17,19 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 {
     public class CreateDonationRequestHandler : IRequestHandler<CreateDonationRequest>
     {
-        private const int USER_ID = 1;
         private readonly IShipmentService _shipmentService;
         private readonly IDonationRepository _donationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStorageService _storageService;
+        private readonly IAuthInfoService _authInfo;
 
-        public CreateDonationRequestHandler(IShipmentService shipmentService, IDonationRepository donationRepository, IUnitOfWork unitOfWork, IStorageService storageService)
+        public CreateDonationRequestHandler(IShipmentService shipmentService, IDonationRepository donationRepository, IUnitOfWork unitOfWork, IStorageService storageService, IAuthInfoService authInfo)
         {
             _shipmentService = shipmentService;
             _donationRepository = donationRepository;
             _unitOfWork = unitOfWork;
             _storageService = storageService;
+            _authInfo= authInfo;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
@@ -34,7 +37,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             Donation donation = DonationFactory.CreateDonation(request.ContainerType,
                                                                request.ContainerId,
                                                                request.Weight,
-                                                               request.Products, USER_ID);
+                                                               request.Products, _authInfo.UserId);
 
             _donationRepository.Create(donation);
 

@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Vein360.API;
 using Vein360.Application;
+using Vein360.Authentication;
 using Vein360.Persistence;
 using Vein360.Shipment;
 
@@ -40,6 +41,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors();
 
 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 builder.Services.ConfigurePersistence(builder.Configuration);
 
 builder.Services.ConfigureApplication();
@@ -47,6 +50,8 @@ builder.Services.ConfigureApplication();
 builder.Services.ConfigureShipment(builder.Configuration);
 
 builder.Services.ConfigureStorage(builder.Environment.IsDevelopment());
+
+builder.Services.ConfigureAuthentication();
 
 builder.Services.RegisterMapsterConfiguration();
 

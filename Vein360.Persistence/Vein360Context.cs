@@ -95,7 +95,7 @@ namespace Vein360.Persistence
                 new DonationProduct { Id = 13, DonationId = 5, ProductId = 1, Units = 1 }, new DonationProduct { Id = 14, DonationId = 5, ProductId = 2, Units = 1 }, new DonationProduct { Id = 15, DonationId = 5, ProductId = 4, Units = 1 });
 
             modelBuilder.Entity<Vein360User>().HasData(
-                new Vein360User() { Id = 1, Email="chanchalagnihotri1987@gmail.com", Password="chanchal" });
+                new Vein360User() { Id = 1, Email = "chanchalagnihotri1987@gmail.com", Password = "chanchal", CreatedDate = new DateTime(2025, 4, 16) });
         }
     }
 }

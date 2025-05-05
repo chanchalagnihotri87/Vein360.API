@@ -18,5 +18,6 @@ namespace Vien360.Domain.Entities
 
         public Vein360ContainerType? ContainerType { get; set; }
         public Vein360Container? Container { get; set; }
+        public Vein360User Donor { get; set; }
     }
 }

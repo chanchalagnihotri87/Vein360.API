@@ -8,6 +8,10 @@ namespace Vien360.Domain.Common
 {
     public class BaseEntity
     {
+        public BaseEntity()
+        {
+            
+        }
         public int Id { get; set; }
         public DateTimeOffset CreatedDate { get; set; } = DateTime.Now;
         public DateTimeOffset? UpdatedDate { get; set; } = null;

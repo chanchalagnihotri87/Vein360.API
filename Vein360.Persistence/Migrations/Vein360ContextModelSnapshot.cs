@@ -76,6 +76,8 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("DonationContainerId");
 
+                    b.HasIndex("DonorId");
+
                     b.HasIndex("IsDeleted");
 
                     b.ToTable("Donations");
@@ -188,6 +190,8 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("ContainerId");
 
                     b.HasIndex("ContainerTypeId");
+
+                    b.HasIndex("DonorId");
 
                     b.ToTable("DonationContainers");
 
@@ -883,7 +887,15 @@ namespace Vein360.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("DonationContainerId");
 
+                    b.HasOne("Vien360.Domain.Entities.Vein360User", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("DonationContainer");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Vien360.Domain.Entities.DonationContainer", b =>
@@ -898,9 +910,17 @@ namespace Vein360.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Vien360.Domain.Entities.Vein360User", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Container");
 
                     b.Navigation("ContainerType");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Vien360.Domain.Entities.DonationProduct", b =>
