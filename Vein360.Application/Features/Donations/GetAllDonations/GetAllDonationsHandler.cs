@@ -30,7 +30,7 @@ namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
                                                                    cancellationToken, 
                                                                    dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
 
-            var response = dontaions.ToList().Adapt<List<GetAllDonationsResponse>>();
+            var response = dontaions.OrderByDescending(x=> x.Id).Adapt<List<GetAllDonationsResponse>>();
 
             return await Task.FromResult(response);
         }
