@@ -1,16 +1,9 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Vein360.Application.Common.Dtos;
 using Vein360.Application.Service.ShipmentService;
-using Vien360.Domain.Enums;
+using Vein360.Domain.Enums;
 
 namespace Vein360.Shipment.Service
 {
@@ -23,11 +16,11 @@ namespace Vein360.Shipment.Service
         }
 
 
-        public async Task<ShipmentDetailDto> CreateShipmentAsync(ContainerType containerType, int containerId, int weight)
+        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(ContainerType containerType, int? containerId, double weight)
         {
             var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
 
-            LabelRequestData labelRequestData = GetLabelRequestData(containerType, containerId, weight);
+            LabelRequestData labelRequestData = CreateContainerLabelRequestData(containerType, containerId, weight);
 
             ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
 
@@ -35,58 +28,63 @@ namespace Vein360.Shipment.Service
 
 
             //Local Methods
-            LabelRequestData GetLabelRequestData(ContainerType containerType, int containerId, int weight)
+            LabelRequestData CreateContainerLabelRequestData(ContainerType containerType, int? containerId, double weight)
             {
                 LabelRequestData labelRequestData = null;
 
                 if (containerType == ContainerType.FedexContainer)
                 {
-                    string packagingType = FedexHelper.GetFedexPackagingCode(containerId);
+                    string packagingType = FedexHelper.GetFedexPackagingCode(containerId.Value);
+                    weight = FedexHelper.GetFedexPackageWeight(containerId.Value);
 
-                    labelRequestData = this.GetLabelRequestData(packagingType, weight);
+
+                    labelRequestData = GetLabelRequestData(packagingType, weight);
                 }
                 else
                 {
-                    labelRequestData = this.GetLabelRequestData();
+                    labelRequestData = GetLabelRequestData(weight: weight);
                 }
 
                 return labelRequestData;
             }
+
+
         }
 
-        private async Task<ShipmentDetailDto> CreateShipmentAsync(string accessToken, LabelRequestData labelRequestData)
+        public async Task<ShipmentDetailDto> CreateDonationContainerShipmentAsync(double weight)
         {
-            ShipmentDetailDto shipmentDetail = null;
+            var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
 
-            try
-            {
-                var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
-                response.EnsureSuccessStatusCode();
-                string content = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<ShipmentResponseModel>(content);
-                if (data != null)
-                {
-                    shipmentDetail = new ShipmentDetailDto
-                    {
-                        TransactionId = data.transactionId,
-                        MasterTrackingNumber = data.masterTrackingNumber,
-                        TrackingNumber = data.trackingNumber,
-                        EncodedLabel = data?.encodedLabelData,
-                        LabelTrackingNumber = data?.labelTrackingNumber
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            LabelRequestData labelRequestData = GetLabelRequestData(weight: weight);
+
+            ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
 
             return shipmentDetail;
+
+
         }
 
-        private LabelRequestData GetLabelRequestData(string packagingType = "YOUR_PACKAGING", int weight = 10)
+
+        public async Task CancelShipmentAsync(long trackingNumber)
+        {
+            var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
+
+            var requestData = new CancelShipmentModel
+            {
+                AccountNumber = new AccountNumber { Value = fedexCredential.AccountNumber },
+                TrackingNumber = trackingNumber
+            };
+
+            var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
+            var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        #region Private Methods
+
+        private LabelRequestData GetLabelRequestData(string packagingType = "YOUR_PACKAGING", double weight = 10)
         {
 
             var labelRequestData = new LabelRequestData();
@@ -161,7 +159,7 @@ namespace Vein360.Shipment.Service
                 {
                     Weight = new Weight
                     {
-                        Value = weight,
+                        Value = Convert.ToInt32(Math.Ceiling(weight)),
                         Units = "LB"
                     }
                 }
@@ -173,6 +171,38 @@ namespace Vein360.Shipment.Service
             };
 
             return labelRequestData;
+        }
+
+        private async Task<ShipmentDetailDto> CreateShipmentAsync(string accessToken, LabelRequestData labelRequestData)
+        {
+            ShipmentDetailDto shipmentDetail = null;
+
+            try
+            {
+                var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
+                response.EnsureSuccessStatusCode();
+                string content = await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ShipmentResponseModel>(content);
+                if (data != null)
+                {
+                    shipmentDetail = new ShipmentDetailDto
+                    {
+                        TransactionId = data.transactionId,
+                        MasterTrackingNumber = data.masterTrackingNumber,
+                        TrackingNumber = data.trackingNumber,
+                        EncodedLabel = data?.encodedLabelData,
+                        LabelTrackingNumber = data?.labelTrackingNumber
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return shipmentDetail;
         }
 
 
@@ -204,22 +234,6 @@ namespace Vein360.Shipment.Service
         }
 
 
-        public async Task CancelShipmentAsync(long trackingNumber)
-        {
-            var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
-
-            var requestData = new CancelShipmentModel
-            {
-                AccountNumber = new AccountNumber { Value = fedexCredential.AccountNumber },
-                TrackingNumber = trackingNumber
-            };
-
-            var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
-            var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
-
-            response.EnsureSuccessStatusCode();
-        }
-
+        #endregion
     }
 }

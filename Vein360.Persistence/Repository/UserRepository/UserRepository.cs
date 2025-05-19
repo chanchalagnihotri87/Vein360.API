@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vein360.Application.Repository.UserRepository;
-using Vien360.Domain.Entities;
+﻿using Vein360.Application.Repository.UserRepository;
 
 namespace Vein360.Persistence.Repository.UserRepository
 {

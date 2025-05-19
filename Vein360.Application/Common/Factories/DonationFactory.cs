@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vein360.Application.Common.Dtos;
-using Vein360.Application.Features.Donations.CreateDonation;
-using Vien360.Domain.Entities;
-using Vien360.Domain.Enums;
+﻿using Vein360.Domain.Entities;
 
 namespace Vein360.Application.Common.Factories
 {
     public class DonationFactory
     {
-        public static Donation CreateDonation(ContainerType containerType, int containerId, int weight, List<DonationProductItemDto> products, int userId)
+        public static Donation CreateDonation(ContainerType containerType, int? containerId, double? length, double? width, double? height, List<DonationProductItemDto> products, int userId)
         {
             return new Donation
             {
                 ContainerType = containerType,
-                DonationContainerId = containerType == ContainerType.Vien360Container ? containerId : null,
+                DonationContainerId = containerType == ContainerType.Vein360Container ? containerId : null,
                 FedexContainerId = containerType == ContainerType.FedexContainer ? containerId : null,
-                Weight = weight,
-                Status = DonationStatus.Pending,
+                Length = length,
+                Width = width,
+                Height = height,
+                Status = DonationStatus.Donated,
                 DonorId = userId,
                 Products = products.Select(product => new DonationProduct { ProductId = product.ProductId, Units = product.Units }).ToHashSet(),
             };

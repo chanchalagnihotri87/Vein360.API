@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vien360.Domain\Vien360.Domain.csproj" />
+    <ProjectReference Include="..\Vien360.Domain\Vein360.Domain.csproj" />
   </ItemGroup>
 
 </Project>

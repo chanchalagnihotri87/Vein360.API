@@ -1,12 +1,6 @@
-﻿using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using MediatR;
 using Vein360.Application.Features.Accounts.SignIn;
+using Vein360.Domain.Enums;
 
 namespace Vein360.API.EndPoints
 {
@@ -16,9 +10,30 @@ namespace Vein360.API.EndPoints
 
         public static void MapAccountEndpoints(this WebApplication app)
         {
-            app.MapPost("/accounts/signin", async (SignInRequestData request, IMediator mediator, IConfiguration configuration) =>
+            app.MapPost("/accounts/admin/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
             {
-                var token = await mediator.Send(request.Adapt<SignInRequest>());
+                var request = new SignInRequest(requestData.Email, requestData.Password, RoleType.Admin);
+
+                var token = await mediator.Send(request);
+
+                return Results.Ok(token);
+            });
+
+            app.MapPost("/accounts/donor/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
+            {
+                var request = new SignInRequest(requestData.Email, requestData.Password, RoleType.Donor);
+
+                var token = await mediator.Send(request);
+
+                return Results.Ok(token);
+            });
+
+            app.MapPost("/accounts/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
+            {
+
+                var request = new SignInRequest(requestData.Email, requestData.Password, RoleType.Donor);
+
+                var token = await mediator.Send(request);
 
                 return Results.Ok(token);
             });

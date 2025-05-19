@@ -10,9 +10,14 @@ using Vein360.Application.Repository.Vein360ContainerTypeRepository;
 
 namespace Vein360.Application.Features.ContainerTypes.GetAllContainerTypes
 {
-    public class GetAllContainerTypesRequestHandler(IVein360ContainerTypeRepository containerTypeRepo) : IRequestHandler<GetAllContainerTypesRequest, List<ContainerTypeDto>>
+    public class GetAllContainerTypesRequestHandler : IRequestHandler<GetAllContainerTypesRequest, List<ContainerTypeDto>>
     {
-        private readonly IVein360ContainerTypeRepository _containerTypeRepo = containerTypeRepo;
+        private readonly IVein360ContainerTypeRepository _containerTypeRepo;
+
+        public GetAllContainerTypesRequestHandler(IVein360ContainerTypeRepository containerTypeRepo)
+        {
+            _containerTypeRepo = containerTypeRepo;
+        }
 
         public async Task<List<ContainerTypeDto>> Handle(GetAllContainerTypesRequest request, CancellationToken cancellationToken)
         {

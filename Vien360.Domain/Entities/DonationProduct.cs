@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vien360.Domain.Entities
+﻿namespace Vein360.Domain.Entities
 {
    public class DonationProduct
     {
@@ -12,6 +6,8 @@ namespace Vien360.Domain.Entities
         public int DonationId { get; set; }
         public int ProductId { get; set; }
         public int Units { get; set; }
+        public int Accepted { get; set; }
+        public int Rejected { get; set; }
         public Donation Donation { get; set; }
         public Product Product { get; set; }
     }

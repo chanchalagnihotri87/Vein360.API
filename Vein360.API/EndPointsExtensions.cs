@@ -8,6 +8,7 @@ namespace Vein360.API
         {
             app.MapDonationEndpoints();
             app.MapProductEndpoints();
+            app.MapDonationContainerEndpoints();
             app.MapContainerTypeEndpoints();
             app.MapContainerEndpoints();
             app.MapLabelEndpoints();

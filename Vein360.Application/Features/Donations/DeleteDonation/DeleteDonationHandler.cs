@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,12 +28,17 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
 
         public async Task Handle(DeleteDonationRequest request, CancellationToken cancellationToken)
         {
-            var donation = await _donationRepo.GetByIdAsync(request.DonationId);
+            var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken, x => x.Include(x => x.DonationContainer).ThenInclude(x => x.Container));
 
 
-            if (donation.TrackingNumber.IsNotNull())
+            if (donation.IsNotProcessed() && donation.TrackingNumber.IsNotNull())
             {
                 await _shipmentService.CancelShipmentAsync(donation.TrackingNumber!.Value);
+            }
+
+            if (donation.IsVein360ContainerDonation() && donation.IsNotProcessed())
+            {
+                donation.DonationContainer.MarkAsUnfilled();
             }
 
             _donationRepo.Delete(donation);

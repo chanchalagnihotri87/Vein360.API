@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Vien360.Domain.Common;
+using Vein360.Domain.Common;
 
 namespace Vein360.Application.Repository
 {

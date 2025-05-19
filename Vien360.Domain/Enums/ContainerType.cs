@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-namespace Vien360.Domain.Enums
+namespace Vein360.Domain.Enums
 {
-   public enum ContainerType
+    public enum ContainerType
     {
-        [Description("Vien360 Container")]
-        Vien360Container = 1,
+        [Description("Vein360 Container")]
+        Vein360Container = 1,
         [Description("Fedex Container")]
         FedexContainer = 2,
+        [Description("Own Custom Packing")]
+        OwnCustomPacking = 3
     }
 }

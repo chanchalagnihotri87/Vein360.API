@@ -21,7 +21,9 @@ namespace Vein360.Application.Features.DonationContainers.GetAllDonationContaine
 
         public async Task<List<DonationConatinerDto>> Handle(GetAllDonationContainerRequest request, CancellationToken cancellationToken)
         {
-            var containers = await _donationContainerRepo.GetAllAsync(cancellationToken, cnt => cnt.Include(x => x.ContainerType), cnt => cnt.Include(x => x.Container).ThenInclude(y => y.ContainerType));
+            var containers = await _donationContainerRepo.GetAllAsync(cancellationToken, 
+                                                                      cnt => cnt.Include(x => x.ContainerType),
+                                                                      cnt => cnt.Include(x => x.Container).ThenInclude(y => y.ContainerType));
 
             return containers.OrderByDescending(x => x.Id).Adapt<List<DonationConatinerDto>>();
         }

@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vein360.Application.Repository;
+using Vein360.Application.Repository.ContainerRepository;
 using Vein360.Application.Repository.DonationContainerRepository;
 using Vein360.Application.Repository.DonationsRepository;
 using Vein360.Application.Repository.ProductRepository;
 using Vein360.Application.Repository.UserRepository;
 using Vein360.Application.Repository.Vein360ContainerTypeRepository;
 using Vein360.Persistence.Repository;
+using Vein360.Persistence.Repository.ContainerRepository;
 using Vein360.Persistence.Repository.DonationConatinerRepository;
 using Vein360.Persistence.Repository.DonationRepository;
 using Vein360.Persistence.Repository.ProductRepository;
@@ -35,8 +37,7 @@ namespace Vein360.Persistence
             services.AddScoped<IDonationContainerRepository, DonationContainerRepository>();
             services.AddScoped<IVein360ContainerTypeRepository, Vein360ContainerTypeRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-
-
+            services.AddScoped<IContainerRepository, ContainerRepository>();
         }
     }
 }

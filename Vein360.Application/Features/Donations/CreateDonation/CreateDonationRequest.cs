@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vein360.Application.Common.Dtos;
-using Vien360.Domain.Enums;
-
-namespace Vein360.Application.Features.Donations.CreateDonation
+﻿namespace Vein360.Application.Features.Donations.CreateDonation
 {
     public record CreateDonationRequest : IRequest
     {
         public ContainerType ContainerType { get; set; }
-        public int ContainerId { get; set; }
-        public int Weight { get; set; } // in pounds
+        public int? ContainerId { get; set; }
+        public double? length { get; set; } // in inches
+        public double? width { get; set; } // in inches
+        public double? height { get; set; } // in inches
         public List<DonationProductItemDto> Products { get; set; }
     }
 }

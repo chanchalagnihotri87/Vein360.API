@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vien360.Domain.Common
+﻿namespace Vein360.Domain.Common
 {
     public class BaseEntity
     {

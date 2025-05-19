@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vein360.Application
+namespace Vein360.Domain.Enums.Extensions
 {
     public static class EnumExtensions
     {
@@ -36,7 +36,7 @@ namespace Vein360.Application
 
         public static int AsInt(this Enum value)
         {
-            return (int)((object)value);
+            return (int)(object)value;
         }
     }
 }

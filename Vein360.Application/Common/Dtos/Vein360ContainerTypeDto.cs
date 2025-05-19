@@ -12,6 +12,6 @@ namespace Vein360.Application.Common.Dtos
         public string Name { get; set; }
         public string? Description { get; set; }
         public string? Image { get; set; }
-        public int Capacity { get; set; }
+        public int EstimatedWeight { get; set; }
     }
 }

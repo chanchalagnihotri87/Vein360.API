@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Application", "Vein360.Application\Vein360.Application.csproj", "{D2C33F9F-7A40-9905-C5E4-033FE9988FE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vien360.Domain", "Vien360.Domain\Vien360.Domain.csproj", "{780498C3-7461-5F46-7DC6-BE124AC5CB90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Domain", "Vien360.Domain\Vein360.Domain.csproj", "{780498C3-7461-5F46-7DC6-BE124AC5CB90}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Persistence", "Vein360.Persistence\Vein360.Persistence.csproj", "{970606CB-FE95-0F4C-27E5-D847A3B33A7F}"
 EndProject

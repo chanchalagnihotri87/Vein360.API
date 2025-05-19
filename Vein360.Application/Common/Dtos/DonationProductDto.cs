@@ -10,5 +10,7 @@ namespace Vein360.Application.Common.Dtos
     {
         public int Id { get; set; }
         public int DonationId { get; set; }
+        public int Accepted { get; set; }
+        public int Rejected { get; set; }
     }
 }

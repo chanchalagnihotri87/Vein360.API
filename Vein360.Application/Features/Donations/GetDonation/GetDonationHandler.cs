@@ -12,13 +12,17 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonation
     public class GetDonationHandler : IRequestHandler<GetDonationRequest, GetDonationResponse>
     {
         private readonly IDonationRepository _donationRepo;
+
         public GetDonationHandler(IDonationRepository donationRepo)
         {
             _donationRepo = donationRepo;
         }
         public async Task<GetDonationResponse> Handle(GetDonationRequest request, CancellationToken cancellationToken)
         {
-            var donation = await _donationRepo.GetByIdAsync(request.Id, cancellationToken, dnt => dnt.Include(x => x.Products), dnt => dnt.Include(x => x.DonationContainer));
+            var donation = await _donationRepo.GetByIdAsync(request.Id, 
+                                                            cancellationToken, 
+                                                            dnt => dnt.Include(x => x.Products), 
+                                                            dnt => dnt.Include(x => x.DonationContainer));
 
             return donation.Adapt<GetDonationResponse>();
         }

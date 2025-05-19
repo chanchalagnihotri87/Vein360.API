@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var corsOrigin = builder.Configuration.GetRequiredSection("CorsOrigin").Value!;
+var corsOrigins = builder.Configuration.GetRequiredSection("CorsOrigin").Value!.Split(",");
 var jwtSecret = builder.Configuration.GetRequiredSection("JWTSecret").Value!;
 var jwtIssuer = builder.Configuration.GetRequiredSection("JWTIssuer").Value!;
 
@@ -31,7 +31,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                ValidateLifetime = false,
                ValidateIssuerSigningKey = false,
                ValidIssuer = jwtIssuer,
-               ValidAudience = corsOrigin,
+               ValidAudience = string.Join(",", corsOrigins),
                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
            };
        });
@@ -70,7 +70,7 @@ app.MapEndpoints();
 app.UseCors(config =>
 {
     config.
-    WithOrigins(corsOrigin).
+    WithOrigins(corsOrigins).
     AllowAnyHeader().
     AllowAnyMethod();
 });

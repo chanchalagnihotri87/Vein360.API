@@ -37,7 +37,6 @@ namespace Vein360.Storage.Service
 
             await blob.UploadAsync(memoryStream, true);
 
-            //var client = await container.UploadBlobAsync(blobName, memoryStream);
 
             return blobName;
         }
