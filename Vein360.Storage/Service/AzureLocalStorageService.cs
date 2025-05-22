@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,8 @@ namespace Vein360.Storage.Service
     public class AzureLocalStorageService : IStorageService
     {
         private readonly IConfiguration _configuration;
-        private const string containerName = "labels";
+        private const string labelContainerName = "labels";
+        private const string productContainerName = "products";
 
         public AzureLocalStorageService(IConfiguration configuration)
         {
@@ -63,7 +65,7 @@ namespace Vein360.Storage.Service
 
         }
 
-        private async Task<BlobContainerClient> GetBlobContainerClient()
+        private async Task<BlobContainerClient> GetBlobContainerClient(string containerName = labelContainerName)
         {
             try
             {
@@ -78,6 +80,44 @@ namespace Vein360.Storage.Service
                 throw;
             }
 
+        }
+
+        public async Task<string> StoreProductImageAsync(IFormFile formFile)
+        {
+            var blobName = $"{Guid.NewGuid().ToString()}_{DateTime.Now.Ticks.ToString()}.{Path.GetExtension(formFile.FileName)}";
+
+            var container = await GetBlobContainerClient(productContainerName);
+
+
+            //Main code to store blob in Azure Storage
+
+            var blob = container.GetBlobClient(blobName);
+
+            using (var memoryStream = formFile.OpenReadStream())
+            {
+                await blob.UploadAsync(memoryStream, true);
+            }
+
+
+            return blobName;
+        }
+
+        public async Task<byte[]> GetProductImageAsync(string imageFileName)
+        {
+            var container = await GetBlobContainerClient(productContainerName);
+
+            var blob = container.GetBlobClient(imageFileName);
+
+
+            if (blob.ExistsAsync().Result)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    blob.DownloadTo(ms);
+                    return ms.ToArray();
+                }
+            }
+            return [];
         }
     }
 }

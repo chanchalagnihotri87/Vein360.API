@@ -7,6 +7,7 @@ using Vein360.Application.Common.Dtos;
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
 using Vein360.Application.Features.Donations.ProcessDonation;
+using Vein360.Application.Features.Donations.Statistic;
 using Vein360.Application.Features.Donations.UpdateDonation;
 using Vein360.Application.Features.DonationsFeatures.GetAllDonations;
 using Vein360.Application.Features.DonationsFeatures.GetDonation;
@@ -58,9 +59,16 @@ namespace Vein360.API.EndPoints
 
             app.MapPatch("/donations/process", [Authorize] async ([FromBody] ProcessDonationRequestData request, IMediator mediator) =>
             {
-              var response= await mediator.Send(request.Adapt<ProcessDonationRequest>());
+                var response = await mediator.Send(request.Adapt<ProcessDonationRequest>());
 
                 return Results.Ok(response);
+            });
+
+            app.MapGet("/donations/statistic", [Authorize] async (IMediator mediator) =>
+            {
+                var statistic = await mediator.Send(new DonationStatisticRequest());
+
+                return Results.Ok(statistic);
             });
         }
     }

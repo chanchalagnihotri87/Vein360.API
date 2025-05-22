@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,28 @@ namespace Vein360.Application.Service.StorageService
     {
         Task<byte[]> GetLabel(string labelFileName);
         Task<string> StoreLabelAsync(long labelTrackingNumber, string encodedLabelData);
+        Task<string> StoreProductImageAsync(IFormFile formFile);
+        Task<byte[]> GetProductImageAsync(string imageFileName);
+
+        string GetMimeType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName).ToLower();
+
+            switch (extension)
+            {
+                case ".pdf":
+                    return "application/pdf";
+                case ".jpg":
+                case ".jpeg":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                case ".gif":
+                    return "image/gif";
+                default:
+                    return "text/plain";
+            }
+
+        }
     }
 }

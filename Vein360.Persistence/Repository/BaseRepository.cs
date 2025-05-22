@@ -46,7 +46,7 @@ namespace Vein360.Persistence.Repository
         }
 
 
-        public async Task<IQueryable<T>> GetAllAsQueryable()
+        public IQueryable<T> GetAllAsQueryable()
         {
             return context.Set<T>().Where(x => !x.IsDeleted).AsQueryable();
         }
@@ -60,6 +60,12 @@ namespace Vein360.Persistence.Repository
         {
             return await context.Set<T>().AddIncludes(includes).Where(x => !x.IsDeleted).ToHashSetAsync(cancellationToken);
         }
+
+        public ICollection<TResult> GetAllAsync<TResult>(Func<T, TResult> selector, CancellationToken cancellationToken)
+        {
+            return context.Set<T>().Where(x => !x.IsDeleted).AsQueryable().Select(selector).ToHashSet();
+        }
+
         public async Task<ICollection<T>> GetAllIncludingDeletedAsync(CancellationToken cancellationToken = default)
         {
             return await context.Set<T>().ToHashSetAsync(cancellationToken);
