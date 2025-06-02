@@ -6,7 +6,7 @@ namespace Vein360.Storage.Service
 {
     public class LocalStorageService : IStorageService
     {
-        public async Task<string> StoreLabelAsync(long labelTrackingNumber, string encodedLabelData)
+        public async Task<string> StoreEncodedLabelAsync(long labelTrackingNumber, string encodedLabelData)
         {
 
             if (encodedLabelData.IsNullOrEmpty())
@@ -29,6 +29,38 @@ namespace Vein360.Storage.Service
                 var fileData = Convert.FromBase64String(encodedLabelData);
                 await fileStream.WriteAsync(fileData, 0, fileData.Length);
             }
+
+            return fileName;
+        }
+
+        public async Task<string> StoreUrlLabelAsync(long labelTrackingNumber, string labelUrl)
+        {
+            if (labelUrl.IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            var rootPath = Directory.GetCurrentDirectory();
+            var labelsPath = Path.Combine(rootPath, "Labels");
+
+            string fileName = $"{labelTrackingNumber}_{DateTime.Now.Ticks.ToString()}.pdf";
+
+            if (!Directory.Exists(labelsPath))
+            {
+                Directory.CreateDirectory(labelsPath);
+            }
+
+            using (var client = new HttpClient())
+            {
+                using (var localLabelFileStream = new System.IO.FileStream(System.IO.Path.Combine(labelsPath, fileName), System.IO.FileMode.Create, System.IO.FileAccess.Write))
+                {
+                    using (var fedexLabelStream = await client.GetStreamAsync(labelUrl))
+                    {
+                        fedexLabelStream.CopyTo(localLabelFileStream);
+                    }
+                }
+            }
+
 
             return fileName;
         }
@@ -80,6 +112,5 @@ namespace Vein360.Storage.Service
 
             return [];
         }
-
     }
 }

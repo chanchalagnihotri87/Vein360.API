@@ -10,6 +10,7 @@ using Vein360.API;
 using Vein360.Application;
 using Vein360.Authentication;
 using Vein360.Persistence;
+using Vein360.Replenishment;
 using Vein360.Shipment;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,10 @@ builder.Services.ConfigureShipment(builder.Configuration);
 builder.Services.ConfigureStorage(builder.Environment.IsDevelopment());
 
 builder.Services.ConfigureAuthentication();
+
+builder.Services.ConfigureReplenishment();
+
+
 
 builder.Services.RegisterMapsterConfiguration();
 

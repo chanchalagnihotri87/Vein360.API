@@ -10,8 +10,10 @@ namespace Vein360.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
+
             builder.Property(x => x.Description).HasMaxLength(500);
 
+            builder.HasIndex(x => x.IsDeleted);
 
         }
     }

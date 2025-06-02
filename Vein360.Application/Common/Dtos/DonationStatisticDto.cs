@@ -9,7 +9,6 @@ namespace Vein360.Application.Common.Dtos
     public class DonationStatisticDto
     {
         public int TotalProducts { get; set; }
-        public int AcceptedProducts { get; set; }
-        public int RejectedProducts { get; set; }
+        public double TotalEarning { get; set; }
     }
 }

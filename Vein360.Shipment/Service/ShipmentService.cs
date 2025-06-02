@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Vein360.Application.Common.Dtos;
 using Vein360.Application.Service.ShipmentService;
+using Vein360.Domain.Common;
 using Vein360.Domain.Enums;
 
 namespace Vein360.Shipment.Service
@@ -16,11 +17,11 @@ namespace Vein360.Shipment.Service
         }
 
 
-        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(ContainerType containerType, int? containerId, double weight)
+        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(PackageType packageType, int? fedexPackingType, double weight, IShippingAddress shippingAddress)
         {
             var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
 
-            LabelRequestData labelRequestData = CreateContainerLabelRequestData(containerType, containerId, weight);
+            LabelRequestData labelRequestData = CreateDonationLabelRequestData(packageType, fedexPackingType, weight, shippingAddress);
 
             ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
 
@@ -28,21 +29,21 @@ namespace Vein360.Shipment.Service
 
 
             //Local Methods
-            LabelRequestData CreateContainerLabelRequestData(ContainerType containerType, int? containerId, double weight)
+            LabelRequestData CreateDonationLabelRequestData(PackageType packageType, int? fedexPackingType, double weight, IShippingAddress shippingAddress)
             {
                 LabelRequestData labelRequestData = null;
 
-                if (containerType == ContainerType.FedexContainer)
+                if (packageType == PackageType.FedexPacking)
                 {
-                    string packagingType = FedexHelper.GetFedexPackagingCode(containerId.Value);
-                    weight = FedexHelper.GetFedexPackageWeight(containerId.Value);
+                    string packagingType = FedexHelper.GetFedexPackagingCode(fedexPackingType!.Value);
+                    weight = FedexHelper.GetFedexPackageWeight(fedexPackingType!.Value);
 
 
-                    labelRequestData = GetLabelRequestData(packagingType, weight);
+                    labelRequestData = GetLabelRequestData(packagingType, weight, shippingAddress);
                 }
                 else
                 {
-                    labelRequestData = GetLabelRequestData(weight: weight);
+                    labelRequestData = GetLabelRequestData(weight: weight, shippingAddress: shippingAddress);
                 }
 
                 return labelRequestData;
@@ -51,6 +52,7 @@ namespace Vein360.Shipment.Service
 
         }
 
+        //TODO: Need to remove later
         public async Task<ShipmentDetailDto> CreateDonationContainerShipmentAsync(double weight)
         {
             var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
@@ -60,8 +62,6 @@ namespace Vein360.Shipment.Service
             ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
 
             return shipmentDetail;
-
-
         }
 
 
@@ -84,7 +84,7 @@ namespace Vein360.Shipment.Service
 
         #region Private Methods
 
-        private LabelRequestData GetLabelRequestData(string packagingType = "YOUR_PACKAGING", double weight = 10)
+        private LabelRequestData GetLabelRequestData(string packagingType = "YOUR_PACKAGING", double weight = 10, IShippingAddress shippingAddress = null)
         {
 
             var labelRequestData = new LabelRequestData();
@@ -92,26 +92,48 @@ namespace Vein360.Shipment.Service
 
             labelRequestData.RequestedShipment = new RequestedShipment();
 
-
-            labelRequestData.RequestedShipment.Shipper = new Shipper
+            if (shippingAddress != null)
             {
-                Contact = new Contact
+                labelRequestData.RequestedShipment.Shipper = new Shipper
                 {
-                    PersonName = "SHIPPER NAME",
-                    CompanyName = "Shipper Company Name",
-                    PhoneNumber = 9012638716
-                },
-                Address = new Address
+                    Contact = new Contact
+                    {
+                        PersonName = "",
+                        CompanyName = shippingAddress.CompanyName,
+                        PhoneNumber = Convert.ToInt64(shippingAddress.Phone)
+                    },
+                    Address = new Address
+                    {
+                        StreetLines = new List<string> { shippingAddress.StreetLine },
+                        City = shippingAddress.City,
+                        StateOrProvinceCode = shippingAddress.State,
+                        PostalCode = Convert.ToInt64(shippingAddress.PostalCode),
+                        CountryCode = shippingAddress.Country
+                    }
+                };
+
+            }
+            else
+            {
+                labelRequestData.RequestedShipment.Shipper = new Shipper
                 {
-                    StreetLines = new List<string> { "SHIPPER STREET LINE 1" },
-                    City = "HARRISON",
-                    StateOrProvinceCode = "AR",
-                    PostalCode = 72601,
-                    CountryCode = "US"
-                }
-            };
+                    Contact = new Contact
+                    {
+                        PersonName = "SHIPPER NAME",
+                        CompanyName = "Shipper Company Name",
+                        PhoneNumber = 9012638716
+                    },
+                    Address = new Address
+                    {
+                        StreetLines = new List<string> { "SHIPPER STREET LINE 1" },
+                        City = "HARRISON",
+                        StateOrProvinceCode = "AR",
+                        PostalCode = 72601,
+                        CountryCode = "US"
+                    }
+                };
 
-
+            }
             labelRequestData.RequestedShipment.Recipients = [ new Receiver
             {
                 Contact = new Contact
@@ -193,6 +215,7 @@ namespace Vein360.Shipment.Service
                         MasterTrackingNumber = data.masterTrackingNumber,
                         TrackingNumber = data.trackingNumber,
                         EncodedLabel = data?.encodedLabelData,
+                        LabelUrl = data?.labelUrl,
                         LabelTrackingNumber = data?.labelTrackingNumber
                     };
                 }

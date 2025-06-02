@@ -13,5 +13,6 @@ namespace Vein360.Application.Common.Dtos
         public string TrackingNumber { get; set; }
         public string LabelTrackingNumber { get; set; }
         public string EncodedLabel { get; set; }
+        public string LabelUrl { get; set; }
     }
 }

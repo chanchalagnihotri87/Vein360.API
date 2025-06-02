@@ -9,11 +9,17 @@ using Vein360.Application.Features.DonationContainers.GetAvailableDonationContai
 using Vein360.Application.Features.DonationContainers.GetDonationContainer;
 using Vein360.Application.Features.DonationContainers.RejectDonationContainer;
 using Vein360.Application.Features.DonationContainers.RequestForContainer;
+using Vein360.Application.Features.DonationContainers.ShipDonationContainer;
 
 namespace Vein360.API.EndPoints
 {
     public static class DonationContainerEndpoints
     {
+
+        public record ContainerRequestData(int ContainerTypeId, int Units, int ClinicId);
+
+        public record ApproveContainerRequestData(int DonationContainerId, int ApprovedUnits);
+
         public static void MapDonationContainerEndpoints(this WebApplication app)
         {
             app.MapGet("/donationcontainers", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
@@ -37,17 +43,17 @@ namespace Vein360.API.EndPoints
 
             app.MapGet("/donationcontainers/{id}", [Authorize] async (int id, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var containers = await mediator.Send(new GetDonationContainerRequest(id), cancellationToken);
-                return Results.Ok(containers);
+                var container = await mediator.Send(new GetDonationContainerRequest(id), cancellationToken);
+                return Results.Ok(container);
             })
            .WithName("GetDonationContainer")
            .Produces<DonationConatinerDto>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status500InternalServerError);
 
 
-            app.MapPost("/donationcontainers/{containerTypeId}", [Authorize] async (int containerTypeId, IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapPost("/donationcontainers", [Authorize] async (ContainerRequestData request, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                await mediator.Send(new RequestForContainerRequest(containerTypeId), cancellationToken);
+                await mediator.Send(new RequestForContainerRequest(request.ContainerTypeId, request.Units, request.ClinicId), cancellationToken);
 
                 return Results.Ok();
             });
@@ -59,15 +65,21 @@ namespace Vein360.API.EndPoints
             });
 
 
-            app.MapPatch("/donationcontainers/approve/{id}/{containerId}", [Authorize] async (int id, int containerId, IMediator mediator) =>
+            app.MapPatch("/donationcontainers/approve", [Authorize] async (ApproveContainerRequestData request, IMediator mediator) =>
             {
-                await mediator.Send(new ApproveDonationContainerRequest(id, containerId));
+                await mediator.Send(new ApproveDonationContainerRequest(request.DonationContainerId, request.ApprovedUnits));
                 return Results.Ok();
             });
 
             app.MapPatch("/donationcontainers/reject/{id}", [Authorize] async (int id, IMediator mediator) =>
             {
                 await mediator.Send(new RejectDonationContainerRequest(id));
+                return Results.Ok();
+            });
+
+            app.MapPatch("/donationcontainers/{ReplenishmentOrderId}/ship", [Authorize] async (long ReplenishmentOrderId, ShippedDonationContainerDto shipmentDetail, IMediator mediator) =>
+            {
+                await mediator.Send(new ShipDonationContainerRequest(ReplenishmentOrderId, shipmentDetail));
                 return Results.Ok();
             });
         }

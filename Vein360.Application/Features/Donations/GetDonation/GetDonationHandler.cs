@@ -19,10 +19,11 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonation
         }
         public async Task<GetDonationResponse> Handle(GetDonationRequest request, CancellationToken cancellationToken)
         {
-            var donation = await _donationRepo.GetByIdAsync(request.Id, 
-                                                            cancellationToken, 
-                                                            dnt => dnt.Include(x => x.Products), 
-                                                            dnt => dnt.Include(x => x.DonationContainer));
+            var donation = await _donationRepo.GetAsync(x => x.Id == request.Id,
+                                                            cancellationToken,
+                                                            dnt=> dnt.Include(dnt=> dnt.Clinic),
+                                                            dnt=> dnt.Include(dnt=> dnt.ContainerType),
+                                                            dnt => dnt.Include(x => x.Products));
 
             return donation.Adapt<GetDonationResponse>();
         }

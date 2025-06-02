@@ -23,12 +23,7 @@ namespace Vein360.Application.Features.DonationContainers.DeleteDonationContaine
 
         public async Task Handle(DeleteDonationContainerRequest request, CancellationToken cancellationToken)
         {
-            var donationContainer = await _donationContainerRepo.GetAsync(x => x.Id == request.ContainerId, cancellationToken, x => x.Include(x => x.Container));
-
-            if (donationContainer.Status == DonationContainerStatus.Approved)
-            {
-                donationContainer.Container.MarkAsAvailable();
-            }
+            var donationContainer = await _donationContainerRepo.GetAsync(x => x.Id == request.ContainerId, cancellationToken);
 
             _donationContainerRepo.Delete(donationContainer);
 

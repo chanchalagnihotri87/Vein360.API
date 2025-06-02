@@ -23,7 +23,9 @@ namespace Vein360.Shipment
             output?.transactionShipments?.FirstOrDefault()?.completedShipmentDetail?.completedPackageDetails.FirstOrDefault()?.trackingIds.FirstOrDefault()?.trackingNumber;
 
         public string encodedLabelData =>
-    output?.transactionShipments?.FirstOrDefault()?.pieceResponses?.FirstOrDefault()?.packageDocuments.FirstOrDefault().encodedLabel.ToString();
+    output?.transactionShipments?.FirstOrDefault()?.pieceResponses?.FirstOrDefault()?.packageDocuments.FirstOrDefault().encodedLabel?.ToString();
+
+        public string labelUrl => output?.transactionShipments?.FirstOrDefault()?.pieceResponses?.FirstOrDefault()?.packageDocuments.FirstOrDefault().url;
 
         public string labelTrackingNumber =>
     output?.transactionShipments?.FirstOrDefault()?.pieceResponses?.FirstOrDefault()?.trackingNumber;

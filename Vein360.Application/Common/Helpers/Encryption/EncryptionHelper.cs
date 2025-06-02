@@ -3,7 +3,7 @@ using System.Data;
 using System.Security.Cryptography;
 using System.IO;
 using System.Text;
-namespace Vein360.Application.Common.Helpers
+namespace Vein360.Application.Common.Helpers.Encryption
 {
     public class EncryptionHelper
     {

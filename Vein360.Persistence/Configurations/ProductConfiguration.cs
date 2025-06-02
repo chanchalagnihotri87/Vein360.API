@@ -13,6 +13,7 @@ namespace Vein360.Persistence.Configurations
             builder.Property(p => p.Image).IsRequired().HasMaxLength(200);
             builder.Property(p => p.Type).HasConversion<int>();
             builder.Property(p => p.Price).HasPrecision(18, 2);
+            builder.HasIndex(x => x.IsDeleted);
         }
     }
 }

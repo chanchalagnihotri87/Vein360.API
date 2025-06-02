@@ -7,16 +7,20 @@ using Vein360.Application.Common.Dtos;
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
 using Vein360.Application.Features.Donations.ProcessDonation;
+using Vein360.Application.Features.Donations.SortDonation;
 using Vein360.Application.Features.Donations.Statistic;
+using Vein360.Application.Features.Donations.UpdateContainerId;
 using Vein360.Application.Features.Donations.UpdateDonation;
 using Vein360.Application.Features.DonationsFeatures.GetAllDonations;
 using Vein360.Application.Features.DonationsFeatures.GetDonation;
 
 namespace Vein360.API.EndPoints
 {
-    public record CreateDonationRequestData(int ContainerType, int? ContainerId, double? Length, double? Width, double? Height, List<DonationProductItemDto> Products);
-    public record UpdateDonationRequestData(int Id, int ContainerType, int? ContainerId, double? Length, double? Width, double? Height, List<DonationProductDto> Products);
+    public record CreateDonationRequestData(int ClinicId, int PackageType, int? ContainerTypeId, int? FedexPackagingTypeId, string TrackingNumber, List<DonationProductItemDto> Products);
+    public record UpdateDonationRequestData(int Id, double Amount);
     public record ProcessDonationRequestData(int DonationId, List<ProcessedProductDto> Products);
+    public record SortDonationRequestData(List<SortedDonationProductDto> Products, double TotalAmount);
+
     public static class DonationEndpoints
     {
         public static void MapDonationEndpoints(this WebApplication app)
@@ -69,6 +73,20 @@ namespace Vein360.API.EndPoints
                 var statistic = await mediator.Send(new DonationStatisticRequest());
 
                 return Results.Ok(statistic);
+            });
+
+            app.MapPatch("/donations/{trackingNumber}/container/{containerId}", [Authorize] async (long trackingNumber, long containerId, IMediator mediator) =>
+            {
+                await mediator.Send(new UpdateContainerIdRequest(trackingNumber, containerId));
+
+                return Results.Ok();
+            });
+
+            app.MapPatch("/donations/{containerId}/sort", [Authorize] async (long containerId, SortDonationRequestData request, IMediator mediator) =>
+            {
+                await mediator.Send(new SortDonationRequest(containerId, request.Products, request.TotalAmount));
+
+                return Results.Ok();
             });
         }
     }

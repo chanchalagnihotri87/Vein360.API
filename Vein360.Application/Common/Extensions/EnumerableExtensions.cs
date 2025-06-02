@@ -12,5 +12,10 @@ namespace Vein360.Application.Common.Extensions
         {
             return enumerable != null && enumerable.Any();
         }
+
+        public static bool HasItems(this IEnumerable<long> enumerable)
+        {
+            return enumerable != null && enumerable.Any();
+        }
     }
 }

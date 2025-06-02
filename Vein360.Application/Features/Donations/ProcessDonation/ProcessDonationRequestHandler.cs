@@ -23,8 +23,7 @@ namespace Vein360.Application.Features.Donations.ProcessDonation
         {
             var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId,
                                                         cancellationToken,
-                                                        dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product),
-                                                        dnt => dnt.Include(x => x.DonationContainer).ThenInclude(x => x.Container));
+                                                        dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
             if (donation != null)
             {
                 foreach (var donationProduct in donation.Products)
@@ -35,21 +34,13 @@ namespace Vein360.Application.Features.Donations.ProcessDonation
                         if (product != null)
                         {
                             donationProduct.Accepted = product.Accepted;
-                            donationProduct.Rejected = product.Rejected;
+                            //donationProduct.Rejected = product.Rejected;
                         }
                     }
                 }
 
                 donation.Status = DonationStatus.Processed;
             }
-
-            if (donation.ContainerType == ContainerType.Vein360Container && donation.DonationContainer != null)
-            {
-                donation.DonationContainer.MarkAsProcessed();
-            }
-
-
-
 
             await _unitOfWork.SaveAsync(cancellationToken);
 

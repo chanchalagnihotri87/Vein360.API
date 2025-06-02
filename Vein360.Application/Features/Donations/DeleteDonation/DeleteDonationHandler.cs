@@ -28,7 +28,7 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
 
         public async Task Handle(DeleteDonationRequest request, CancellationToken cancellationToken)
         {
-            var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken, x => x.Include(x => x.DonationContainer).ThenInclude(x => x.Container));
+            var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken);
 
 
             if (donation.IsNotProcessed() && donation.TrackingNumber.IsNotNull())
@@ -36,10 +36,6 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
                 await _shipmentService.CancelShipmentAsync(donation.TrackingNumber!.Value);
             }
 
-            if (donation.IsVein360ContainerDonation() && donation.IsNotProcessed())
-            {
-                donation.DonationContainer.MarkAsUnfilled();
-            }
 
             _donationRepo.Delete(donation);
 

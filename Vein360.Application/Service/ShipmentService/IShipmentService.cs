@@ -1,8 +1,10 @@
-﻿namespace Vein360.Application.Service.ShipmentService
+﻿using Vein360.Domain.Common;
+
+namespace Vein360.Application.Service.ShipmentService
 {
     public interface IShipmentService
     {
-        Task<ShipmentDetailDto> CreateDonationShipmentAsync(ContainerType containerType, int? containerId, double weight);
+        Task<ShipmentDetailDto> CreateDonationShipmentAsync(PackageType packageType, int? fedexPackingType, double weight, IShippingAddress shippingAddress);
         Task<ShipmentDetailDto> CreateDonationContainerShipmentAsync(double weight);
         Task CancelShipmentAsync(long trackingNumber);
     }

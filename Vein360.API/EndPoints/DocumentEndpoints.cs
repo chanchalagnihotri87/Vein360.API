@@ -4,11 +4,11 @@ using Vein360.Application.Service.StorageService;
 
 namespace Vein360.API.EndPoints
 {
-    public static class LabelEndpoints
+    public static class DocumentEndpoints
     {
-        public static void MapLabelEndpoints(this WebApplication app)
+        public static void MapDocumentEndpoints(this WebApplication app)
         {
-            app.MapGet("/label/{fileName}", [Authorize] async (string fileName, CancellationToken cancellationToken, IStorageService storageService) =>
+            app.MapGet("documents/label/{fileName}", [Authorize] async (string fileName, CancellationToken cancellationToken, IStorageService storageService) =>
             {
                 var mimeType = "application/pdf";
                 return Results.File(await storageService.GetLabel(fileName), contentType: mimeType);

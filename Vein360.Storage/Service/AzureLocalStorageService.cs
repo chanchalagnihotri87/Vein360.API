@@ -22,7 +22,7 @@ namespace Vein360.Storage.Service
             _configuration = configuration;
         }
 
-        public async Task<string> StoreLabelAsync(long labelTrackingNumber, string encodedLabelData)
+        public async Task<string> StoreEncodedLabelAsync(long labelTrackingNumber, string encodedLabelData)
         {
             var blobName = $"{labelTrackingNumber}_{DateTime.Now.Ticks.ToString()}.pdf";
 
@@ -31,6 +31,28 @@ namespace Vein360.Storage.Service
 
 
             using var memoryStream = new MemoryStream(Convert.FromBase64String(encodedLabelData));
+
+
+            //Main code to store blob in Azure Storage
+
+            var blob = container.GetBlobClient(blobName);
+
+            await blob.UploadAsync(memoryStream, true);
+
+
+            return blobName;
+        }
+
+
+        public async Task<string>  StoreUrlLabelAsync(long labelTrackingNumber, string labelUrl)
+        {
+            var blobName = $"{labelTrackingNumber}_{DateTime.Now.Ticks.ToString()}.pdf";
+
+
+            var container = await GetBlobContainerClient();
+
+            using var client = new HttpClient();
+            using var memoryStream = await client.GetStreamAsync(labelUrl);
 
 
             //Main code to store blob in Azure Storage

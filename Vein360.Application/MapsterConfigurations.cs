@@ -8,13 +8,7 @@ namespace Vein360.Application
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<Donation, GetDonationResponse>
-                .NewConfig()
-                .Map(dest => dest.ContainerId, src => src.ContainerType == ContainerType.FedexContainer ? src.FedexContainerId : src.DonationContainerId);
-
-            TypeAdapterConfig<DonationContainer, DonationConatinerDto>
-                .NewConfig()
-                .Map(dest => dest.ContainerType, src => src.Container != null ? src.Container.ContainerType : src.ContainerType);
+            
         }
     }
 }

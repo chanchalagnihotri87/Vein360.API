@@ -14,6 +14,7 @@ namespace Vein360.Persistence.Configurations
             builder.HasOne(x => x.ContainerType).WithMany().HasForeignKey(x => x.ContainerTypeId);
 
             builder.HasIndex(x => x.IsDeleted);
+
         }
     }
 }

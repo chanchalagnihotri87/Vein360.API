@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Vein360.Application\Vein360.Application.csproj" />
     <ProjectReference Include="..\Vein360.Authentication\Vein360.Authentication.csproj" />
     <ProjectReference Include="..\Vein360.Persistence\Vein360.Persistence.csproj" />
+    <ProjectReference Include="..\Vein360.Replenishment\Vein360.Replenishment.csproj" />
     <ProjectReference Include="..\Vein360.Shipment\Vein360.Shipment.csproj" />
     <ProjectReference Include="..\Vein360.Storage\Vein360.Storage.csproj" />
   </ItemGroup>

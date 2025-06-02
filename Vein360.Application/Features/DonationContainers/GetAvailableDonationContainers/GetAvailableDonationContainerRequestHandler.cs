@@ -10,8 +10,7 @@ namespace Vein360.Application.Features.DonationContainers.GetAvailableDonationCo
         {
             var donationContainers = await _donationContainerRepo.GetManyAsync(x => x.Status == DonationContainerStatus.Approved, 
                                                                                cancellationToken,
-                                                                               x => x.Include(y => y.ContainerType), 
-                                                                               x => x.Include(y => y.Container).ThenInclude(z => z.ContainerType));
+                                                                               x => x.Include(y => y.ContainerType));
 
             return donationContainers.Adapt<List<DonationConatinerDto>>();
         }

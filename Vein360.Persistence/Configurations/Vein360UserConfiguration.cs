@@ -8,10 +8,16 @@ namespace Vein360.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Vein360User> builder)
         {
             builder.HasKey(x => x.Id);
+
             builder.Property(x => x.Name).IsRequired();
+
             builder.Property(x => x.Email).IsRequired();
+
             builder.HasIndex(x => x.Email).IsUnique();
+
             builder.Property(x => x.Password).IsRequired();
+
+            builder.HasIndex(x => x.IsDeleted);
         }
     }
 }

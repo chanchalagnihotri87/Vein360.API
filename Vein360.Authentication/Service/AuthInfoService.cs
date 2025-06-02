@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Vein360.Application.Common.Helpers;
+using Vein360.Application.Common.Helpers.Encryption;
 using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.Authentication.Service

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.DonationContainers.RequestForContainer
 {
-    public record RequestForContainerRequest(int ContainerTypeId) : IRequest
+    public record RequestForContainerRequest(int ContainerTypeId, int Units, int ClinicId) : IRequest
     {
     }
 }

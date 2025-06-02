@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Storage", "Vein360.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Authentication", "Vein360.Authentication\Vein360.Authentication.csproj", "{D9BB606A-74A2-440C-AA2E-E867A4CC6BF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vein360.Replenishment", "Vein360.Replenishment\Vein360.Replenishment.csproj", "{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{D9BB606A-74A2-440C-AA2E-E867A4CC6BF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9BB606A-74A2-440C-AA2E-E867A4CC6BF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9BB606A-74A2-440C-AA2E-E867A4CC6BF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +72,7 @@ Global
 		{E20947D7-19CB-6B77-6BF6-47DB7F74C27E} = {67A32C33-0D78-4A48-BA18-2D36E487FAC6}
 		{DD65AF59-5898-9CEF-7AA1-224E300C6B38} = {67A32C33-0D78-4A48-BA18-2D36E487FAC6}
 		{D9BB606A-74A2-440C-AA2E-E867A4CC6BF5} = {67A32C33-0D78-4A48-BA18-2D36E487FAC6}
+		{D2E591ED-C6AF-44B9-BBD1-80F68B8E5E25} = {67A32C33-0D78-4A48-BA18-2D36E487FAC6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4D157CF0-25D6-4C15-80A5-79872A191FED}

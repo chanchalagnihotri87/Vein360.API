@@ -40,44 +40,11 @@ namespace Vein360.Application.Features.Donations.UpdateDonation
         {
             Donation donation = await _donationRepository.GetAsync(x => x.Id == request.Id, cancellationToken, x => x.Include(x => x.Products).ThenInclude(x => x.Product));
 
-            donation.ContainerType = request.ContainerType;
-            donation.DonationContainerId = request.ContainerId;
-            donation.Length = request.length;
-            donation.Width = request.width;
-            donation.Height = request.height;
+            donation.Amount = request.Amount;
 
-            foreach (var donationProduct in donation.Products)
-            {
-                var requestProduct = request.Products.FirstOrDefault(x => x.Id == donationProduct.Id);
-
-                if (requestProduct == null)
-                {
-                    donation.Products.Remove(donationProduct);
-                    continue;
-                }
-
-                donationProduct.ProductId = requestProduct.ProductId;
-                donationProduct.Units = requestProduct.Units;
-                donationProduct.Accepted = requestProduct.Accepted;
-                donationProduct.Rejected = requestProduct.Rejected;
-
-            }
-
-            foreach (var requestProduct in request.Products.Where(x => x.Id == 0))
-            {
-                donation.Products.Add(new DonationProduct
-                {
-                    ProductId = requestProduct.ProductId,
-                    Units = requestProduct.Units,
-                    Accepted = requestProduct.Accepted,
-                    Rejected = requestProduct.Rejected
-                });
-            }
-
-
+            _donationRepository.Update(donation);
 
             await _unitOfWork.SaveAsync(cancellationToken);
-
 
             return donation.Adapt<GetAllDonationsResponse>();
         }

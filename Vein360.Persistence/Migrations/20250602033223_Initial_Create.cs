@@ -104,17 +104,47 @@ namespace Vein360.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Clinics",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClinicCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClinicName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StreetLine = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: false),
+                    City = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: false),
+                    State = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
+                    PostalCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Clinics", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Clinics_Vein360Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Vein360Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DonationContainers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ContainerTypeId = table.Column<int>(type: "int", nullable: false),
-                    ContainerId = table.Column<int>(type: "int", nullable: true),
-                    FedexTransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MasterTrackingNumber = table.Column<long>(type: "bigint", nullable: true),
-                    TrackingNumber = table.Column<long>(type: "bigint", nullable: true),
-                    LabelFileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClinicId = table.Column<int>(type: "int", nullable: false),
+                    RequestedUnits = table.Column<int>(type: "int", nullable: false),
+                    ApprovedUnits = table.Column<int>(type: "int", nullable: true),
+                    ReplenishmentOrderId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     DonorId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
@@ -126,16 +156,17 @@ namespace Vein360.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_DonationContainers", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_DonationContainers_Clinics_ClinicId",
+                        column: x => x.ClinicId,
+                        principalTable: "Clinics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_DonationContainers_Vein360ContainerTypes_ContainerTypeId",
                         column: x => x.ContainerTypeId,
                         principalTable: "Vein360ContainerTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DonationContainers_Vein360Containers_ContainerId",
-                        column: x => x.ContainerId,
-                        principalTable: "Vein360Containers",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DonationContainers_Vein360Users_DonorId",
                         column: x => x.DonorId,
@@ -150,18 +181,19 @@ namespace Vein360.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ContainerType = table.Column<int>(type: "int", nullable: false),
-                    DonationContainerId = table.Column<int>(type: "int", nullable: true),
-                    FedexContainerId = table.Column<int>(type: "int", nullable: true),
+                    ClinicId = table.Column<int>(type: "int", nullable: false),
+                    PackageType = table.Column<int>(type: "int", nullable: false),
+                    ContainerTypeId = table.Column<int>(type: "int", nullable: true),
+                    FedexPackagingTypeId = table.Column<int>(type: "int", nullable: true),
                     FedexTransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MasterTrackingNumber = table.Column<long>(type: "bigint", nullable: true),
                     TrackingNumber = table.Column<long>(type: "bigint", nullable: true),
+                    UseOldLabel = table.Column<bool>(type: "bit", nullable: false),
                     LabelFileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Length = table.Column<double>(type: "float", nullable: true),
-                    Width = table.Column<double>(type: "float", nullable: true),
-                    Height = table.Column<double>(type: "float", nullable: true),
                     DonorId = table.Column<int>(type: "int", nullable: false),
+                    ContainerId = table.Column<long>(type: "bigint", nullable: true),
+                    Amount = table.Column<double>(type: "float", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -171,14 +203,45 @@ namespace Vein360.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Donations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Donations_DonationContainers_DonationContainerId",
-                        column: x => x.DonationContainerId,
-                        principalTable: "DonationContainers",
+                        name: "FK_Donations_Clinics_ClinicId",
+                        column: x => x.ClinicId,
+                        principalTable: "Clinics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Donations_Vein360ContainerTypes_ContainerTypeId",
+                        column: x => x.ContainerTypeId,
+                        principalTable: "Vein360ContainerTypes",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Donations_Vein360Users_DonorId",
                         column: x => x.DonorId,
                         principalTable: "Vein360Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShippingLabels",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TrackingNumber = table.Column<long>(type: "bigint", nullable: false),
+                    ClinicId = table.Column<int>(type: "int", nullable: false),
+                    Used = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShippingLabels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ShippingLabels_Clinics_ClinicId",
+                        column: x => x.ClinicId,
+                        principalTable: "Clinics",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -193,7 +256,11 @@ namespace Vein360.Persistence.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Units = table.Column<int>(type: "int", nullable: false),
                     Accepted = table.Column<int>(type: "int", nullable: false),
-                    Rejected = table.Column<int>(type: "int", nullable: false)
+                    RejectedClogged = table.Column<int>(type: "int", nullable: false),
+                    RejectedDamaged = table.Column<int>(type: "int", nullable: false),
+                    RejectedFunction = table.Column<int>(type: "int", nullable: false),
+                    RejectedKinked = table.Column<int>(type: "int", nullable: false),
+                    RejectedOther = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -241,9 +308,13 @@ namespace Vein360.Persistence.Migrations
                 values: new object[] { 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, "chanchalagnihotri1987@gmail.com", true, false, true, "Chanchal Kumar", "chanchal", null });
 
             migrationBuilder.InsertData(
-                table: "DonationContainers",
-                columns: new[] { "Id", "ContainerId", "ContainerTypeId", "CreatedDate", "DeletedDate", "DonorId", "FedexTransactionId", "IsDeleted", "LabelFileName", "MasterTrackingNumber", "Status", "TrackingNumber", "UpdatedDate" },
-                values: new object[] { 1, null, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 1, null, null });
+                table: "Clinics",
+                columns: new[] { "Id", "City", "ClinicCode", "ClinicName", "Country", "CreatedDate", "DeletedDate", "IsDeleted", "Phone", "PostalCode", "State", "StreetLine", "UpdatedDate", "UserId" },
+                values: new object[,]
+                {
+                    { 1, "HARRISON", "Clinic-0001", "ABC Clinic", "US", new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, "9876543210", "72601", "AR", "CLINIC STREET LINE 1", null, 1 },
+                    { 2, "HARRISON", "Clinic-0002", "XYZ Clinic", "US", new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, "9876543210", "72601", "AR", "CLINIC STREET LINE 1", null, 1 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Vein360Containers",
@@ -270,60 +341,88 @@ namespace Vein360.Persistence.Migrations
 
             migrationBuilder.InsertData(
                 table: "DonationContainers",
-                columns: new[] { "Id", "ContainerId", "ContainerTypeId", "CreatedDate", "DeletedDate", "DonorId", "FedexTransactionId", "IsDeleted", "LabelFileName", "MasterTrackingNumber", "Status", "TrackingNumber", "UpdatedDate" },
+                columns: new[] { "Id", "ApprovedUnits", "ClinicId", "ContainerTypeId", "CreatedDate", "DeletedDate", "DonorId", "IsDeleted", "ReplenishmentOrderId", "RequestedUnits", "Status", "UpdatedDate" },
                 values: new object[,]
                 {
-                    { 2, 2, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null },
-                    { 3, 3, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null },
-                    { 4, 4, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 3, 794971829663L, null },
-                    { 5, 5, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 3, 794971829663L, null },
-                    { 6, 5, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 3, 794971829663L, null },
-                    { 7, 5, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 3, 794971829663L, null },
-                    { 8, 8, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 3, 794971829663L, null },
-                    { 9, 9, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null },
-                    { 10, 10, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null },
-                    { 11, 11, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null },
-                    { 12, 12, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, false, null, null, 2, 794971829663L, null }
+                    { 1, null, 1, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1001L, 10, 1, null },
+                    { 2, 9, 1, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1002L, 9, 2, null },
+                    { 3, 8, 1, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1003L, 8, 2, null },
+                    { 4, 7, 1, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1004L, 7, 3, null },
+                    { 5, 6, 1, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1005L, 6, 3, null },
+                    { 6, 5, 1, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1006L, 5, 3, null },
+                    { 7, 4, 2, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1007L, 4, 3, null },
+                    { 8, 3, 2, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1008L, 3, 3, null },
+                    { 9, 4, 2, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1009L, 4, 3, null },
+                    { 10, 5, 2, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1010L, 5, 2, null },
+                    { 11, 6, 2, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1011L, 6, 2, null },
+                    { 12, 7, 2, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, false, 1012L, 7, 2, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Donations",
-                columns: new[] { "Id", "ContainerType", "CreatedDate", "DeletedDate", "DonationContainerId", "DonorId", "FedexContainerId", "FedexTransactionId", "Height", "IsDeleted", "LabelFileName", "Length", "MasterTrackingNumber", "Status", "TrackingNumber", "UpdatedDate", "Width" },
+                columns: new[] { "Id", "Amount", "ClinicId", "ContainerId", "ContainerTypeId", "CreatedDate", "DeletedDate", "DonorId", "FedexPackagingTypeId", "FedexTransactionId", "IsDeleted", "LabelFileName", "MasterTrackingNumber", "PackageType", "Status", "TrackingNumber", "UpdatedDate", "UseOldLabel" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 4, 1, null, null, null, false, "label.pdf", null, null, 1, 1234567890L, null, null },
-                    { 2, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 9, 1, null, null, null, false, "label.pdf", null, null, 1, 1234567891L, null, null },
-                    { 3, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 10, 1, null, null, null, false, "label.pdf", null, null, 2, 1234567891L, null, null },
-                    { 4, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 11, 1, null, null, null, false, "label.pdf", null, null, 3, 1234567891L, null, null },
-                    { 5, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 8, 1, null, null, null, false, "label.pdf", null, null, 1, 1234567891L, null, null }
+                    { 1, 0.0, 1, null, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, null, false, "label.pdf", null, 2, 1, 1234567890L, null, false },
+                    { 2, 0.0, 1, null, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, null, false, "label.pdf", null, 2, 1, 1234567891L, null, false },
+                    { 3, 0.0, 1, null, 3, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, null, false, "label.pdf", null, 2, 3, 1234567892L, null, false },
+                    { 4, 0.0, 2, null, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, null, false, "label.pdf", null, 2, 4, 1234567893L, null, false },
+                    { 5, 0.0, 2, null, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, 1, null, null, false, "label.pdf", null, 2, 1, 1234567894L, null, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ShippingLabels",
+                columns: new[] { "Id", "ClinicId", "CreatedDate", "DeletedDate", "IsDeleted", "TrackingNumber", "UpdatedDate", "Used" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543211L, null, false },
+                    { 2, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543212L, null, false },
+                    { 3, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543213L, null, false },
+                    { 4, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543214L, null, false },
+                    { 5, 1, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543215L, null, false },
+                    { 6, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543216L, null, false },
+                    { 7, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543217L, null, false },
+                    { 8, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543218L, null, false },
+                    { 9, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543219L, null, false },
+                    { 10, 2, new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)), null, false, 9876543220L, null, false }
                 });
 
             migrationBuilder.InsertData(
                 table: "DonationProduct",
-                columns: new[] { "Id", "Accepted", "DonationId", "ProductId", "Rejected", "Units" },
+                columns: new[] { "Id", "Accepted", "DonationId", "ProductId", "RejectedClogged", "RejectedDamaged", "RejectedFunction", "RejectedKinked", "RejectedOther", "Units" },
                 values: new object[,]
                 {
-                    { 1, 0, 1, 1, 0, 1 },
-                    { 2, 0, 1, 2, 0, 1 },
-                    { 3, 0, 1, 3, 0, 1 },
-                    { 4, 0, 2, 1, 0, 1 },
-                    { 5, 0, 2, 3, 0, 1 },
-                    { 6, 0, 2, 5, 0, 1 },
-                    { 7, 0, 3, 1, 0, 1 },
-                    { 8, 0, 3, 4, 0, 1 },
-                    { 9, 0, 3, 5, 0, 1 },
-                    { 10, 0, 4, 1, 0, 1 },
-                    { 11, 0, 4, 5, 0, 1 },
-                    { 12, 0, 4, 2, 0, 1 },
-                    { 13, 0, 5, 1, 0, 1 },
-                    { 14, 0, 5, 2, 0, 1 },
-                    { 15, 0, 5, 4, 0, 1 }
+                    { 1, 0, 1, 1, 0, 0, 0, 0, 0, 1 },
+                    { 2, 0, 1, 2, 0, 0, 0, 0, 0, 1 },
+                    { 3, 0, 1, 3, 0, 0, 0, 0, 0, 1 },
+                    { 4, 0, 2, 1, 0, 0, 0, 0, 0, 1 },
+                    { 5, 0, 2, 3, 0, 0, 0, 0, 0, 1 },
+                    { 6, 0, 2, 5, 0, 0, 0, 0, 0, 1 },
+                    { 7, 0, 3, 1, 0, 0, 0, 0, 0, 1 },
+                    { 8, 0, 3, 4, 0, 0, 0, 0, 0, 1 },
+                    { 9, 0, 3, 5, 0, 0, 0, 0, 0, 1 },
+                    { 10, 0, 4, 1, 0, 0, 0, 0, 0, 1 },
+                    { 11, 0, 4, 5, 0, 0, 0, 0, 0, 1 },
+                    { 12, 0, 4, 2, 0, 0, 0, 0, 0, 1 },
+                    { 13, 0, 5, 1, 0, 0, 0, 0, 0, 1 },
+                    { 14, 0, 5, 2, 0, 0, 0, 0, 0, 1 },
+                    { 15, 0, 5, 4, 0, 0, 0, 0, 0, 1 }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DonationContainers_ContainerId",
+                name: "IX_Clinics_IsDeleted",
+                table: "Clinics",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clinics_UserId",
+                table: "Clinics",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DonationContainers_ClinicId",
                 table: "DonationContainers",
-                column: "ContainerId");
+                column: "ClinicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DonationContainers_ContainerTypeId",
@@ -336,6 +435,11 @@ namespace Vein360.Persistence.Migrations
                 column: "DonorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonationContainers_IsDeleted",
+                table: "DonationContainers",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DonationProduct_DonationId",
                 table: "DonationProduct",
                 column: "DonationId");
@@ -346,9 +450,14 @@ namespace Vein360.Persistence.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Donations_DonationContainerId",
+                name: "IX_Donations_ClinicId",
                 table: "Donations",
-                column: "DonationContainerId");
+                column: "ClinicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Donations_ContainerTypeId",
+                table: "Donations",
+                column: "ContainerTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Donations_DonorId",
@@ -361,6 +470,27 @@ namespace Vein360.Persistence.Migrations
                 column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_IsDeleted",
+                table: "Products",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShippingLabels_ClinicId",
+                table: "ShippingLabels",
+                column: "ClinicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShippingLabels_IsDeleted",
+                table: "ShippingLabels",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShippingLabels_TrackingNumber",
+                table: "ShippingLabels",
+                column: "TrackingNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vein360Containers_ContainerTypeId",
                 table: "Vein360Containers",
                 column: "ContainerTypeId");
@@ -371,17 +501,36 @@ namespace Vein360.Persistence.Migrations
                 column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Vein360ContainerTypes_IsDeleted",
+                table: "Vein360ContainerTypes",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vein360Users_Email",
                 table: "Vein360Users",
                 column: "Email",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vein360Users_IsDeleted",
+                table: "Vein360Users",
+                column: "IsDeleted");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "DonationContainers");
+
+            migrationBuilder.DropTable(
                 name: "DonationProduct");
+
+            migrationBuilder.DropTable(
+                name: "ShippingLabels");
+
+            migrationBuilder.DropTable(
+                name: "Vein360Containers");
 
             migrationBuilder.DropTable(
                 name: "Donations");
@@ -390,16 +539,13 @@ namespace Vein360.Persistence.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "DonationContainers");
-
-            migrationBuilder.DropTable(
-                name: "Vein360Containers");
-
-            migrationBuilder.DropTable(
-                name: "Vein360Users");
+                name: "Clinics");
 
             migrationBuilder.DropTable(
                 name: "Vein360ContainerTypes");
+
+            migrationBuilder.DropTable(
+                name: "Vein360Users");
         }
     }
 }

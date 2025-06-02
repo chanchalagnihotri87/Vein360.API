@@ -10,7 +10,8 @@ namespace Vein360.Application.Service.StorageService
     public interface IStorageService
     {
         Task<byte[]> GetLabel(string labelFileName);
-        Task<string> StoreLabelAsync(long labelTrackingNumber, string encodedLabelData);
+        Task<string> StoreEncodedLabelAsync(long labelTrackingNumber, string encodedLabelData);
+        Task<string> StoreUrlLabelAsync(long labelTrackingNumber, string labelUrl);
         Task<string> StoreProductImageAsync(IFormFile formFile);
         Task<byte[]> GetProductImageAsync(string imageFileName);
 

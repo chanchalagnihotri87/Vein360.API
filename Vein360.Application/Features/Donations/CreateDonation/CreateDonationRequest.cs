@@ -2,11 +2,11 @@
 {
     public record CreateDonationRequest : IRequest
     {
-        public ContainerType ContainerType { get; set; }
-        public int? ContainerId { get; set; }
-        public double? length { get; set; } // in inches
-        public double? width { get; set; } // in inches
-        public double? height { get; set; } // in inches
+        public int ClinicId { get; set; }
+        public PackageType PackageType { get; set; }
+        public int? ContainerTypeId { get; set; }
+        public int? FedexPackagingTypeId { get; set; }
+        public long? TrackingNumber { get; set; }
         public List<DonationProductItemDto> Products { get; set; }
     }
 }

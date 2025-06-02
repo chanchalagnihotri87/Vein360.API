@@ -25,6 +25,8 @@ namespace Vein360.Application.Features.DonationContainers.RequestForContainer
             {
                 DonorId = _authInfo.UserId,
                 ContainerTypeId = request.ContainerTypeId,
+                RequestedUnits = request.Units,
+                ClinicId = request.ClinicId,
                 Status = DonationContainerStatus.Requested
             };
 

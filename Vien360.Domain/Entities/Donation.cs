@@ -5,22 +5,26 @@ namespace Vein360.Domain.Entities
 {
     public class Donation : BaseEntity
     {
-        public ContainerType ContainerType { get; set; }
-        public int? DonationContainerId { get; set; }
-        public int? FedexContainerId { get; set; }
+        public int ClinicId { get; set; }
+        public PackageType PackageType { get; set; }
+        public int? ContainerTypeId { get; set; }
+        public int? FedexPackagingTypeId { get; set; }
         public string? FedexTransactionId { get; set; }
         public long? MasterTrackingNumber { get; set; }
         public long? TrackingNumber { get; set; }
+        public bool UseOldLabel { get; set; }
         public string? LabelFileName { get; set; }
         public DonationStatus Status { get; set; }
-        public double? Length { get; set; }
-        public double? Width { get; set; }
-        public double? Height { get; set; }
         public int DonorId { get; set; }
-        public DonationContainer? DonationContainer { get; set; }
+        public long? ContainerId { get; set; }
+        public double Amount { get; set; }
         public required ICollection<DonationProduct> Products { get; set; }
+        public Vein360ContainerType ContainerType { get; set; }
         public Vein360User Donor { get; set; }
+        public Clinic Clinic { get; set; }
 
+
+        #region GetProperties
         public List<string> ProductTypes
         {
             get
@@ -37,12 +41,14 @@ namespace Vein360.Domain.Entities
 
         public bool IsVein360ContainerDonation()
         {
-            return ContainerType == ContainerType.Vein360Container;
+            return PackageType == PackageType.Vein360Container;
         }
 
         public bool IsNotProcessed()
         {
             return Status != DonationStatus.Processed && Status != DonationStatus.Paid;
         }
+        #endregion
+
     }
 }

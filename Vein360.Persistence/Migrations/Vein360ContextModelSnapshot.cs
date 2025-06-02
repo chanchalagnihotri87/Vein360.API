@@ -22,6 +22,108 @@ namespace Vein360.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Vein360.Domain.Entities.Clinic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
+                    b.Property<string>("ClinicCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClinicName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("StreetLine")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
+                    b.Property<DateTimeOffset?>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Clinics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            City = "HARRISON",
+                            ClinicCode = "Clinic-0001",
+                            ClinicName = "ABC Clinic",
+                            Country = "US",
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            Phone = "9876543210",
+                            PostalCode = "72601",
+                            State = "AR",
+                            StreetLine = "CLINIC STREET LINE 1",
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            City = "HARRISON",
+                            ClinicCode = "Clinic-0002",
+                            ClinicName = "XYZ Clinic",
+                            Country = "US",
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            Phone = "9876543210",
+                            PostalCode = "72601",
+                            State = "AR",
+                            StreetLine = "CLINIC STREET LINE 1",
+                            UserId = 1
+                        });
+                });
+
             modelBuilder.Entity("Vein360.Domain.Entities.Donation", b =>
                 {
                     b.Property<int>("Id")
@@ -30,7 +132,16 @@ namespace Vein360.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ContainerType")
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ContainerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("ContainerTypeId")
                         .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -39,20 +150,14 @@ namespace Vein360.Persistence.Migrations
                     b.Property<DateTimeOffset?>("DeletedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("DonationContainerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("DonorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FedexContainerId")
+                    b.Property<int?>("FedexPackagingTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("FedexTransactionId")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("Height")
-                        .HasColumnType("float");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -60,11 +165,11 @@ namespace Vein360.Persistence.Migrations
                     b.Property<string>("LabelFileName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("Length")
-                        .HasColumnType("float");
-
                     b.Property<long?>("MasterTrackingNumber")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("PackageType")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -75,12 +180,14 @@ namespace Vein360.Persistence.Migrations
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<double?>("Width")
-                        .HasColumnType("float");
+                    b.Property<bool>("UseOldLabel")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DonationContainerId");
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("ContainerTypeId");
 
                     b.HasIndex("DonorId");
 
@@ -92,62 +199,77 @@ namespace Vein360.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            ContainerType = 1,
+                            Amount = 0.0,
+                            ClinicId = 1,
+                            ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
-                            DonationContainerId = 4,
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
+                            PackageType = 2,
                             Status = 1,
-                            TrackingNumber = 1234567890L
+                            TrackingNumber = 1234567890L,
+                            UseOldLabel = false
                         },
                         new
                         {
                             Id = 2,
-                            ContainerType = 1,
+                            Amount = 0.0,
+                            ClinicId = 1,
+                            ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
-                            DonationContainerId = 9,
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
+                            PackageType = 2,
                             Status = 1,
-                            TrackingNumber = 1234567891L
+                            TrackingNumber = 1234567891L,
+                            UseOldLabel = false
                         },
                         new
                         {
                             Id = 3,
-                            ContainerType = 1,
+                            Amount = 0.0,
+                            ClinicId = 1,
+                            ContainerTypeId = 3,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
-                            DonationContainerId = 10,
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            Status = 2,
-                            TrackingNumber = 1234567891L
+                            PackageType = 2,
+                            Status = 3,
+                            TrackingNumber = 1234567892L,
+                            UseOldLabel = false
                         },
                         new
                         {
                             Id = 4,
-                            ContainerType = 1,
+                            Amount = 0.0,
+                            ClinicId = 2,
+                            ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
-                            DonationContainerId = 11,
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            Status = 3,
-                            TrackingNumber = 1234567891L
+                            PackageType = 2,
+                            Status = 4,
+                            TrackingNumber = 1234567893L,
+                            UseOldLabel = false
                         },
                         new
                         {
                             Id = 5,
-                            ContainerType = 1,
+                            Amount = 0.0,
+                            ClinicId = 2,
+                            ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
-                            DonationContainerId = 8,
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
+                            PackageType = 2,
                             Status = 1,
-                            TrackingNumber = 1234567891L
+                            TrackingNumber = 1234567894L,
+                            UseOldLabel = false
                         });
                 });
 
@@ -159,7 +281,10 @@ namespace Vein360.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ContainerId")
+                    b.Property<int?>("ApprovedUnits")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClinicId")
                         .HasColumnType("int");
 
                     b.Property<int>("ContainerTypeId")
@@ -174,34 +299,30 @@ namespace Vein360.Persistence.Migrations
                     b.Property<int>("DonorId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FedexTransactionId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LabelFileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("MasterTrackingNumber")
+                    b.Property<long?>("ReplenishmentOrderId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("RequestedUnits")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<long?>("TrackingNumber")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContainerId");
+                    b.HasIndex("ClinicId");
 
                     b.HasIndex("ContainerTypeId");
 
                     b.HasIndex("DonorId");
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("DonationContainers");
 
@@ -209,132 +330,157 @@ namespace Vein360.Persistence.Migrations
                         new
                         {
                             Id = 1,
+                            ClinicId = 1,
                             ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
+                            ReplenishmentOrderId = 1001L,
+                            RequestedUnits = 10,
                             Status = 1
                         },
                         new
                         {
                             Id = 2,
-                            ContainerId = 2,
+                            ApprovedUnits = 9,
+                            ClinicId = 1,
                             ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1002L,
+                            RequestedUnits = 9,
+                            Status = 2
                         },
                         new
                         {
                             Id = 3,
-                            ContainerId = 3,
+                            ApprovedUnits = 8,
+                            ClinicId = 1,
                             ContainerTypeId = 3,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1003L,
+                            RequestedUnits = 8,
+                            Status = 2
                         },
                         new
                         {
                             Id = 4,
-                            ContainerId = 4,
+                            ApprovedUnits = 7,
+                            ClinicId = 1,
                             ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 3,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1004L,
+                            RequestedUnits = 7,
+                            Status = 3
                         },
                         new
                         {
                             Id = 5,
-                            ContainerId = 5,
+                            ApprovedUnits = 6,
+                            ClinicId = 1,
                             ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 3,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1005L,
+                            RequestedUnits = 6,
+                            Status = 3
                         },
                         new
                         {
                             Id = 6,
-                            ContainerId = 5,
+                            ApprovedUnits = 5,
+                            ClinicId = 1,
                             ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 3,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1006L,
+                            RequestedUnits = 5,
+                            Status = 3
                         },
                         new
                         {
                             Id = 7,
-                            ContainerId = 5,
+                            ApprovedUnits = 4,
+                            ClinicId = 2,
                             ContainerTypeId = 3,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 3,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1007L,
+                            RequestedUnits = 4,
+                            Status = 3
                         },
                         new
                         {
                             Id = 8,
-                            ContainerId = 8,
+                            ApprovedUnits = 3,
+                            ClinicId = 2,
                             ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 3,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1008L,
+                            RequestedUnits = 3,
+                            Status = 3
                         },
                         new
                         {
                             Id = 9,
-                            ContainerId = 9,
+                            ApprovedUnits = 4,
+                            ClinicId = 2,
                             ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1009L,
+                            RequestedUnits = 4,
+                            Status = 3
                         },
                         new
                         {
                             Id = 10,
-                            ContainerId = 10,
+                            ApprovedUnits = 5,
+                            ClinicId = 2,
                             ContainerTypeId = 2,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1010L,
+                            RequestedUnits = 5,
+                            Status = 2
                         },
                         new
                         {
                             Id = 11,
-                            ContainerId = 11,
+                            ApprovedUnits = 6,
+                            ClinicId = 2,
                             ContainerTypeId = 3,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1011L,
+                            RequestedUnits = 6,
+                            Status = 2
                         },
                         new
                         {
                             Id = 12,
-                            ContainerId = 12,
+                            ApprovedUnits = 7,
+                            ClinicId = 2,
                             ContainerTypeId = 1,
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             DonorId = 1,
                             IsDeleted = false,
-                            Status = 2,
-                            TrackingNumber = 794971829663L
+                            ReplenishmentOrderId = 1012L,
+                            RequestedUnits = 7,
+                            Status = 2
                         });
                 });
 
@@ -355,7 +501,19 @@ namespace Vein360.Persistence.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Rejected")
+                    b.Property<int>("RejectedClogged")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RejectedDamaged")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RejectedFunction")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RejectedKinked")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RejectedOther")
                         .HasColumnType("int");
 
                     b.Property<int>("Units")
@@ -376,7 +534,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 1,
                             ProductId = 1,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -385,7 +547,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 1,
                             ProductId = 2,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -394,7 +560,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 1,
                             ProductId = 3,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -403,7 +573,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 2,
                             ProductId = 1,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -412,7 +586,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 2,
                             ProductId = 3,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -421,7 +599,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 2,
                             ProductId = 5,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -430,7 +612,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 3,
                             ProductId = 1,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -439,7 +625,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 3,
                             ProductId = 4,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -448,7 +638,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 3,
                             ProductId = 5,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -457,7 +651,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 4,
                             ProductId = 1,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -466,7 +664,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 4,
                             ProductId = 5,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -475,7 +677,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 4,
                             ProductId = 2,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -484,7 +690,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 5,
                             ProductId = 1,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -493,7 +703,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 5,
                             ProductId = 2,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         },
                         new
@@ -502,7 +716,11 @@ namespace Vein360.Persistence.Migrations
                             Accepted = 0,
                             DonationId = 5,
                             ProductId = 4,
-                            Rejected = 0,
+                            RejectedClogged = 0,
+                            RejectedDamaged = 0,
+                            RejectedFunction = 0,
+                            RejectedKinked = 0,
+                            RejectedOther = 0,
                             Units = 1
                         });
                 });
@@ -550,6 +768,8 @@ namespace Vein360.Persistence.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Products");
 
@@ -619,6 +839,139 @@ namespace Vein360.Persistence.Migrations
                             Name = "Vein360 Reprocessed ClosureFast Catheter (VEN-7-100B)",
                             Price = 1500m,
                             Type = 1
+                        });
+                });
+
+            modelBuilder.Entity("Vein360.Domain.Entities.ShippingLabel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("TrackingNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("IsDeleted");
+
+                    b.HasIndex("TrackingNumber")
+                        .IsUnique();
+
+                    b.ToTable("ShippingLabels");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClinicId = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543211L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClinicId = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543212L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ClinicId = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543213L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ClinicId = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543214L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ClinicId = 1,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543215L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ClinicId = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543216L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ClinicId = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543217L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ClinicId = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543218L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ClinicId = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543219L,
+                            Used = false
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ClinicId = 2,
+                            CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
+                            IsDeleted = false,
+                            TrackingNumber = 9876543220L,
+                            Used = false
                         });
                 });
 
@@ -853,6 +1206,8 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsDeleted");
+
                     b.ToTable("Vein360ContainerTypes");
 
                     b.HasData(
@@ -931,6 +1286,8 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("IsDeleted");
+
                     b.ToTable("Vein360Users");
 
                     b.HasData(
@@ -947,11 +1304,28 @@ namespace Vein360.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Vein360.Domain.Entities.Clinic", b =>
+                {
+                    b.HasOne("Vein360.Domain.Entities.Vein360User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Vein360.Domain.Entities.Donation", b =>
                 {
-                    b.HasOne("Vein360.Domain.Entities.DonationContainer", "DonationContainer")
+                    b.HasOne("Vein360.Domain.Entities.Clinic", "Clinic")
                         .WithMany()
-                        .HasForeignKey("DonationContainerId");
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vein360.Domain.Entities.Vein360ContainerType", "ContainerType")
+                        .WithMany()
+                        .HasForeignKey("ContainerTypeId");
 
                     b.HasOne("Vein360.Domain.Entities.Vein360User", "Donor")
                         .WithMany()
@@ -959,16 +1333,20 @@ namespace Vein360.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DonationContainer");
+                    b.Navigation("Clinic");
+
+                    b.Navigation("ContainerType");
 
                     b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.DonationContainer", b =>
                 {
-                    b.HasOne("Vein360.Domain.Entities.Vein360Container", "Container")
+                    b.HasOne("Vein360.Domain.Entities.Clinic", "Clinic")
                         .WithMany()
-                        .HasForeignKey("ContainerId");
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Vein360.Domain.Entities.Vein360ContainerType", "ContainerType")
                         .WithMany()
@@ -982,7 +1360,7 @@ namespace Vein360.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Container");
+                    b.Navigation("Clinic");
 
                     b.Navigation("ContainerType");
 
@@ -1006,6 +1384,17 @@ namespace Vein360.Persistence.Migrations
                     b.Navigation("Donation");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Vein360.Domain.Entities.ShippingLabel", b =>
+                {
+                    b.HasOne("Vein360.Domain.Entities.Clinic", "Clinic")
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clinic");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.Vein360Container", b =>

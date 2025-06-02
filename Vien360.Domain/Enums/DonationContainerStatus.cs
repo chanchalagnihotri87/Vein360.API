@@ -4,8 +4,7 @@
     {
         Requested = 1,
         Approved = 2,
-        Filled = 3,
-        Processed = 4,
-        Rejected = 5
+        Shipped = 3,
+        Rejected = 4
     }
 }
