@@ -45,7 +45,10 @@ namespace Vein360.Application.Features.Donations.SortDonation
                     donationProduct.RejectedOther = sortedDonationProduct.RejectedOther;
                 }
             }
+
             donation.Amount = request.TotalAmount;
+
+            donation.Status = DonationStatus.Processed;
 
             _donationRepo.Update(donation);
 
