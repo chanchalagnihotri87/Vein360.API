@@ -12,7 +12,7 @@ using Vein360.Persistence;
 namespace Vein360.Persistence.Migrations
 {
     [DbContext(typeof(Vein360Context))]
-    [Migration("20250602033223_Initial_Create")]
+    [Migration("20250609123846_Initial_Create")]
     partial class Initial_Create
     {
         /// <inheritdoc />
@@ -728,6 +728,46 @@ namespace Vein360.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Vein360.Domain.Entities.DonorPreference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("DefaultClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("DeletedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("DonorId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("Vein360UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefaultClinicId");
+
+                    b.HasIndex("DonorId");
+
+                    b.HasIndex("Vein360UserId");
+
+                    b.ToTable("DonorPreferences");
+                });
+
             modelBuilder.Entity("Vein360.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -1274,7 +1314,6 @@ namespace Vein360.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
@@ -1389,6 +1428,27 @@ namespace Vein360.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Vein360.Domain.Entities.DonorPreference", b =>
+                {
+                    b.HasOne("Vein360.Domain.Entities.Clinic", "Clinic")
+                        .WithMany()
+                        .HasForeignKey("DefaultClinicId");
+
+                    b.HasOne("Vein360.Domain.Entities.Vein360User", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Vein360.Domain.Entities.Vein360User", null)
+                        .WithMany("DonorPreferences")
+                        .HasForeignKey("Vein360UserId");
+
+                    b.Navigation("Clinic");
+
+                    b.Navigation("Donor");
+                });
+
             modelBuilder.Entity("Vein360.Domain.Entities.ShippingLabel", b =>
                 {
                     b.HasOne("Vein360.Domain.Entities.Clinic", "Clinic")
@@ -1414,6 +1474,11 @@ namespace Vein360.Persistence.Migrations
             modelBuilder.Entity("Vein360.Domain.Entities.Donation", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Vein360.Domain.Entities.Vein360User", b =>
+                {
+                    b.Navigation("DonorPreferences");
                 });
 #pragma warning restore 612, 618
         }

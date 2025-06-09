@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Vein360.Application.Repository.DonationsRepository;
 using Vein360.Application.Service.AuthenticationService;
 
-namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
+namespace Vein360.Application.Features.DonationsFeatures.GetDonorDonations
 {
-    public sealed class GetAllDonationsHandler : IRequestHandler<GetAllDonationsRequest, List<GetAllDonationsResponse>>
+    public sealed class GetDonorDonationsHandler : IRequestHandler<GetDonorDonationsRequest, List<GetDonorDonationsResponse>>
     {
         private readonly IAuthInfoService _authInfoService;
         private readonly IDonationRepository _donationRepository;
 
-        public GetAllDonationsHandler(
+        public GetDonorDonationsHandler(
             IAuthInfoService authInfoService,
             IDonationRepository donationRepository)
         {
@@ -24,12 +24,13 @@ namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
             _donationRepository = donationRepository;
         }
 
-        public async Task<List<GetAllDonationsResponse>> Handle(GetAllDonationsRequest request, CancellationToken cancellationToken)
+        public async Task<List<GetDonorDonationsResponse>> Handle(GetDonorDonationsRequest request, CancellationToken cancellationToken)
         {
-            var donations = await _donationRepository.GetAllAsync( cancellationToken, 
+            var donations = await _donationRepository.GetManyAsync(dnt => dnt.DonorId == _authInfoService.UserId, 
+                                                                   cancellationToken, 
                                                                    dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
 
-            var response = donations.OrderByDescending(x=> x.Id).Adapt<List<GetAllDonationsResponse>>();
+            var response = donations.OrderByDescending(x=> x.Id).Adapt<List<GetDonorDonationsResponse>>();
 
             return await Task.FromResult(response);
         }

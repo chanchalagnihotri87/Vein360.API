@@ -11,6 +11,7 @@ using Vein360.Application.Repository.ClinicRepository;
 using Vein360.Application.Repository.ContainerRepository;
 using Vein360.Application.Repository.DonationContainerRepository;
 using Vein360.Application.Repository.DonationsRepository;
+using Vein360.Application.Repository.DonorPreferenceRepository;
 using Vein360.Application.Repository.ProductRepository;
 using Vein360.Application.Repository.ShippingLabelRepository;
 using Vein360.Application.Repository.UserRepository;
@@ -20,6 +21,7 @@ using Vein360.Persistence.Repository.ClinicRepository;
 using Vein360.Persistence.Repository.ContainerRepository;
 using Vein360.Persistence.Repository.DonationConatinerRepository;
 using Vein360.Persistence.Repository.DonationRepository;
+using Vein360.Persistence.Repository.DonorPreferenceRepository;
 using Vein360.Persistence.Repository.ProductRepository;
 using Vein360.Persistence.Repository.ShippingLabelRepository;
 using Vein360.Persistence.Repository.UserRepository;
@@ -44,6 +46,7 @@ namespace Vein360.Persistence
             services.AddScoped<IContainerRepository, ContainerRepository>();
             services.AddScoped<IClinicRepository, ClinicRepository>();
             services.AddScoped<IShippingLabelRepository, ShippingLabelRepository>();
+            services.AddScoped<IDonorPreferenceRepository, DonorPreferenceRepository>();
         }
     }
 }

@@ -86,5 +86,10 @@ namespace Vein360.Persistence.Repository
             entity.UpdatedDate = DateTime.Now;
             context.Update(entity);
         }
+
+        public Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate)
+        {
+            return context.Set<T>().AnyAsync(predicate);
+        }
     }
 }

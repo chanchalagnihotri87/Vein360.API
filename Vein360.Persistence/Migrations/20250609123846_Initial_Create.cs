@@ -63,7 +63,7 @@ namespace Vein360.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false),
@@ -219,6 +219,41 @@ namespace Vein360.Persistence.Migrations
                         principalTable: "Vein360Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DonorPreferences",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DefaultClinicId = table.Column<int>(type: "int", nullable: true),
+                    DonorId = table.Column<int>(type: "int", nullable: false),
+                    Vein360UserId = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    DeletedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DonorPreferences", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DonorPreferences_Clinics_DefaultClinicId",
+                        column: x => x.DefaultClinicId,
+                        principalTable: "Clinics",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DonorPreferences_Vein360Users_DonorId",
+                        column: x => x.DonorId,
+                        principalTable: "Vein360Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DonorPreferences_Vein360Users_Vein360UserId",
+                        column: x => x.Vein360UserId,
+                        principalTable: "Vein360Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -470,6 +505,21 @@ namespace Vein360.Persistence.Migrations
                 column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonorPreferences_DefaultClinicId",
+                table: "DonorPreferences",
+                column: "DefaultClinicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DonorPreferences_DonorId",
+                table: "DonorPreferences",
+                column: "DonorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DonorPreferences_Vein360UserId",
+                table: "DonorPreferences",
+                column: "Vein360UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_IsDeleted",
                 table: "Products",
                 column: "IsDeleted");
@@ -525,6 +575,9 @@ namespace Vein360.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "DonationProduct");
+
+            migrationBuilder.DropTable(
+                name: "DonorPreferences");
 
             migrationBuilder.DropTable(
                 name: "ShippingLabels");

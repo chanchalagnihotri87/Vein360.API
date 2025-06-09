@@ -15,6 +15,8 @@ namespace Vein360.API
             app.MapAccountEndpoints();
             app.MapClinicEndpoints();
             app.MapShippingLabelEndpoints();
+            app.MapUserEndpoints();
+            app.MapDonorPreferenceEndpoints();
             
         }
     }

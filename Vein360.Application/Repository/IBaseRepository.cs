@@ -20,5 +20,7 @@ namespace Vein360.Application.Repository
         Task<ICollection<T>> GetAllIncludingDeletedAsync(CancellationToken cancellationToken = default);
         Task<ICollection<T>> GetManyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
         Task<ICollection<T>> GetManyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes);
+
+        Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate);
     }
 }
