@@ -13,6 +13,7 @@ using Vein360.Application.Features.Donations.UpdateContainerId;
 using Vein360.Application.Features.Donations.UpdateDonation;
 using Vein360.Application.Features.DonationsFeatures.GetAllDonations;
 using Vein360.Application.Features.DonationsFeatures.GetDonation;
+using Vein360.Application.Features.DonationsFeatures.GetDonorDonations;
 
 namespace Vein360.API.EndPoints
 {
@@ -25,9 +26,16 @@ namespace Vein360.API.EndPoints
     {
         public static void MapDonationEndpoints(this WebApplication app)
         {
-            app.MapGet("/donations", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
+            app.MapGet("/donations/all", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
             {
                 var donations = await mediator.Send(new GetAllDonationsRequest(), cancellationToken);
+
+                return Results.Ok(donations);
+            });
+
+            app.MapGet("/donations", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
+            {
+                var donations = await mediator.Send(new GetDonorDonationsRequest(), cancellationToken);
 
                 return Results.Ok(donations);
             });

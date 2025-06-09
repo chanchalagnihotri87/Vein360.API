@@ -12,8 +12,6 @@ namespace Vein360.Application.Features.Donations.UpdateDonation
 {
     public class UpdateDonationRequestHandler : IRequestHandler<UpdateDonationRequest, GetAllDonationsResponse>
     {
-
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuthInfoService _authInfo;
         private readonly IStorageService _storageService;

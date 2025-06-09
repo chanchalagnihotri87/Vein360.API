@@ -7,6 +7,7 @@ using Vein360.Application.Features.DonationContainers.DeleteDonationContainer;
 using Vein360.Application.Features.DonationContainers.GetAllDonationContainers;
 using Vein360.Application.Features.DonationContainers.GetAvailableDonationContainers;
 using Vein360.Application.Features.DonationContainers.GetDonationContainer;
+using Vein360.Application.Features.DonationContainers.GetDonorDonationContainers;
 using Vein360.Application.Features.DonationContainers.RejectDonationContainer;
 using Vein360.Application.Features.DonationContainers.RequestForContainer;
 using Vein360.Application.Features.DonationContainers.ShipDonationContainer;
@@ -22,7 +23,17 @@ namespace Vein360.API.EndPoints
 
         public static void MapDonationContainerEndpoints(this WebApplication app)
         {
+
             app.MapGet("/donationcontainers", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var containers = await mediator.Send(new GetDonorDonationContainersRequest(), cancellationToken);
+                return Results.Ok(containers);
+            })
+           .WithName("GetDonorDonationContainers")
+           .Produces<List<DonationConatinerDto>>(StatusCodes.Status200OK)
+           .Produces(StatusCodes.Status500InternalServerError);
+
+            app.MapGet("/donationcontainers/all", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var containers = await mediator.Send(new GetAllDonationContainerRequest(), cancellationToken);
                 return Results.Ok(containers);
