@@ -17,7 +17,7 @@ namespace Vein360.API
             app.MapShippingLabelEndpoints();
             app.MapUserEndpoints();
             app.MapDonorPreferenceEndpoints();
-            
+            app.MapProductRateEndpoints();
         }
     }
 }

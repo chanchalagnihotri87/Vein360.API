@@ -20,7 +20,8 @@ namespace Vein360.Persistence
         public DbSet<Vein360User> Vein360Users { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
         public DbSet<ShippingLabel> ShippingLabels { get; set; }
-        public DbSet<DonorPreference> DonorPreferences  { get; set; }
+        public DbSet<DonorPreference> DonorPreferences { get; set; }
+        public DbSet<UserProductRate> UserProductRates { get; set; }
 
 
 
