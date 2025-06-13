@@ -48,6 +48,8 @@ namespace Vein360.Domain.Entities
         {
             return Status != DonationStatus.Processed && Status != DonationStatus.Paid;
         }
+
+        public bool IsPaid => Status == DonationStatus.Paid;
         #endregion
 
     }

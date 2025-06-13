@@ -6,6 +6,7 @@ using Vein360.Application.Common.Dtos;
 
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
+using Vein360.Application.Features.Donations.MakePayment;
 using Vein360.Application.Features.Donations.ProcessDonation;
 using Vein360.Application.Features.Donations.SortDonation;
 using Vein360.Application.Features.Donations.Statistic;
@@ -21,6 +22,7 @@ namespace Vein360.API.EndPoints
     public record UpdateDonationRequestData(int Id, double Amount);
     public record ProcessDonationRequestData(int DonationId, List<ProcessedProductDto> Products);
     public record SortDonationRequestData(List<SortedDonationProductDto> Products, double TotalAmount);
+    public record PaymentRequestData(DateTime Date, int TransactionType, double Amount);
 
     public static class DonationEndpoints
     {
@@ -93,6 +95,13 @@ namespace Vein360.API.EndPoints
             app.MapPatch("/donations/{containerId}/sort", [Authorize] async (long containerId, SortDonationRequestData request, IMediator mediator) =>
             {
                 await mediator.Send(new SortDonationRequest(containerId, request.Products, request.TotalAmount));
+
+                return Results.Ok();
+            });
+
+            app.MapPatch("/donations/{containerId}/payment", [Authorize] async (long containerId, PaymentRequestData request, IMediator mediator) =>
+            {
+                await mediator.Send(new DonationPaymentRequest(containerId, request.Date, request.TransactionType, request.Amount));
 
                 return Results.Ok();
             });
