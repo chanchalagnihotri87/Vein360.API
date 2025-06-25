@@ -18,7 +18,7 @@ namespace Vein360.Persistence.Repository.ClinicRepository
 
         public async Task<ICollection<ListItemDto>> GetUserClinicsList(int userId, CancellationToken cancellationToken)
         {
-            return await GetAllAsQueryable().Where(x => x.UserId == userId).Select(x => new ListItemDto { Id = x.Id, Name = x.ClinicCode }).ToHashSetAsync(cancellationToken);
+            return await GetAllAsQueryable().Where(x => x.UserId == userId).Select(x => new ListItemDto { Id = x.Id, Name = x.ClinicName }).ToHashSetAsync(cancellationToken);
         }
     }
 }

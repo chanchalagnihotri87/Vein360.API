@@ -21,11 +21,11 @@ namespace Vein360.Authentication.Service
             this.configuration = configuration;
         }
 
-        public string GenerateToken(int id,string email )
+        public string GenerateToken(int id,string username )
         {
             var token = new JwtSecurityToken(
             claims: new List<Claim> { 
-                new Claim(ClaimTypes.Email, EncryptionHelper.Encrypt(email)),
+                new Claim(ClaimTypes.UserData, EncryptionHelper.Encrypt(username)),
                 new Claim(ClaimTypes.NameIdentifier, EncryptionHelper.Encrypt(id.ToString()))
             },
             expires: DateTime.Now.AddDays(1),

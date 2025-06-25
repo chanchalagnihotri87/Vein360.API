@@ -14,21 +14,17 @@ namespace Vein360.Persistence.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.ClinicCode).IsRequired();
+            builder.Property(x => x.ClinicName).IsRequired();
 
-            builder.Property(x => x.ClinicName);
+            builder.Property(x => x.AddressLine1).IsRequired();
 
-            builder.Property(x => x.StreetLine).IsRequired().HasMaxLength(35);
+            builder.Property(x => x.City).IsRequired();
 
-            builder.Property(x => x.City).IsRequired().HasMaxLength(35);
-
-            builder.Property(x => x.State).HasMaxLength(2);
+            builder.Property(x => x.State).IsRequired().HasMaxLength(2);
 
             builder.Property(x => x.Country).IsRequired().HasMaxLength(2);
 
             builder.Property(x => x.PostalCode).HasMaxLength(10);
-
-            builder.Property(x => x.Phone).HasMaxLength(15);
 
             builder.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
 

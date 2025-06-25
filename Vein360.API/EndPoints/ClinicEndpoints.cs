@@ -11,8 +11,8 @@ namespace Vein360.API.EndPoints
 {
     public static class ClinicEndpoints
     {
-        public record CreateClinicRequestData(string ClinicCode, string ClinicName, string StreetLine, string City, string State, string Country, string PostalCode, string Phone, int UserId);
-        public record UpdateClinicRequestData(int Id, string ClinicCode, string ClinicName, string StreetLine, string City, string State, string Country, string PostalCode, string Phone);
+        public record CreateClinicRequestData(string ClinicName, string ContactName, string ContactEmail, string AddressLine1, string AddressLine2, string City, string State, string Country, string PostalCode, string ContactPhone, int UserId);
+        public record UpdateClinicRequestData(int Id, string ClinicName, string ContactName, string ContactEmail, string AddressLine1, string AddressLine2, string City, string State, string Country, string PostalCode, string ContactPhone);
 
         public static void MapClinicEndpoints(this WebApplication app)
         {

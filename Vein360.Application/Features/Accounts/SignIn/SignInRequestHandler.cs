@@ -1,50 +1,81 @@
-﻿using Vein360.Application.Repository.UserRepository;
+﻿using Microsoft.AspNetCore.Identity;
+using Vein360.Application.Common.Helpers.PasswordHelper;
+using Vein360.Application.Repository;
+using Vein360.Application.Repository.UserRepository;
 using Vein360.Application.Service.AuthenticationService;
 using Vein360.Domain.Entities;
 
 namespace Vein360.Application.Features.Accounts.SignIn
 {
-    public class SignInRequestHandler : IRequestHandler<SignInRequest, string>
+    public class SignInRequestHandler : IRequestHandler<SignInRequest, AuthenticationResponseDto>
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepo;
         private readonly IAuthenticationService _authenticationService;
 
 
         public SignInRequestHandler(IUserRepository userRepo,
+                                    IUnitOfWork unitOfWork,
                                     IAuthenticationService authenticationService)
         {
             _userRepo = userRepo;
+            _unitOfWork = unitOfWork;
             _authenticationService = authenticationService;
         }
 
 
-        public async Task<string> Handle(SignInRequest request, CancellationToken cancellationToken)
+        public async Task<AuthenticationResponseDto> Handle(SignInRequest request, CancellationToken cancellationToken)
         {
+            AuthenticationResponseDto response = new AuthenticationResponseDto();
+
             Vein360User user;
 
             switch (request.role)
             {
                 case RoleType.Admin:
-                    user = await _userRepo.GetAsync(x => x.Email.ToLower() == request.email.ToLower() && x.Password == request.password && x.IsAdmin);
+                    user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower() && x.IsAdmin);
                     break;
                 case RoleType.Donor:
-                    user = await _userRepo.GetAsync(x => x.Email.ToLower() == request.email.ToLower() && x.Password == request.password && x.IsDonor);
+                    user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower() && x.IsDonor);
                     break;
                 default:
-                    user = await _userRepo.GetAsync(x => x.Email.ToLower() == request.email.ToLower() && x.Password == request.password);
+                    user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower());
                     break;
             }
-
-
 
             if (user == null)
             {
                 throw new Exception("User not found");
             }
 
-            var token = _authenticationService.GenerateToken(user.Id, user.Email);
+            var passwordStatus = PasswordHelper.VerifyPassword(user, request.password);
 
-            return token;
+            if (passwordStatus == PasswordVerificationResult.Failed)
+            {
+                throw new Exception("User not found");
+            }
+
+            if (passwordStatus == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                await ReHashAndUpdatePassword(request, user, cancellationToken);
+            }
+
+            response.Token = _authenticationService.GenerateToken(user.Id, user.Username);
+
+            response.FirstTimeLogin = user.FirstTimeLogin;
+
+            return response;
+
+            async Task ReHashAndUpdatePassword(SignInRequest request, Vein360User user, CancellationToken cancellationToken)
+            {
+                user.Password = PasswordHelper.HashPassword(user, request.password);
+
+                _userRepo.Update(user);
+
+                await _unitOfWork.SaveAsync(cancellationToken);
+            }
         }
+
+
     }
 }

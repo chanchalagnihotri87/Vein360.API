@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.Products.UpdateProduct
 {
-    public record UpdateProductRequest(int Id, string Name, string Description, decimal Price, ProductType Type) : IRequest
+    public record UpdateProductRequest(int Id, string Name, string Vein360ProductId, decimal Price, ProductType Type) : IRequest
     {
         public IFormFile? ImageFile { get; set; } = null;
     }

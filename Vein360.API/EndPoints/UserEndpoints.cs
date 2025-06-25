@@ -13,6 +13,7 @@ using Vein360.Application.Features.Products.GetAllProducts;
 using Vein360.Application.Features.Products.UpdateProduct;
 using Vein360.Application.Features.Users.CreateUser;
 using Vein360.Application.Features.Users.DeleteUser;
+using Vein360.Application.Features.Users.EncryptPasswords;
 using Vein360.Application.Features.Users.GetUser;
 using Vein360.Application.Features.Users.GetUsers;
 using Vein360.Application.Features.Users.UpdateUser;
@@ -23,8 +24,8 @@ namespace Vein360.API.EndPoints
 {
     public static class UserEndpoints
     {
-        public record CreateUserRequestData(string Email, string Test, string Password, bool IsDonor, bool IsAdmin);
-        public record UpdateUserRequestData(int Id, string Email, string Test, string Password, bool IsDonor, bool IsAdmin);
+        public record CreateUserRequestData(string Username,  string Password, bool IsDonor, bool IsAdmin);
+        public record UpdateUserRequestData(int Id, string Username, string Password, bool IsDonor, bool IsAdmin);
 
         public static void MapUserEndpoints(this WebApplication app)
         {
@@ -50,7 +51,7 @@ namespace Vein360.API.EndPoints
                 {
                     await mediator.Send(req.Adapt<CreateUserRequest>());
                 }
-                catch (DuplicateEmailException)
+                catch (DuplicateUsernameException)
                 {
 
                     return Results.BadRequest(new { duplicateEmail = true });
@@ -66,7 +67,7 @@ namespace Vein360.API.EndPoints
                 {
                     await mediator.Send(req.Adapt<UpdateUserRequest>());
                 }
-                catch (DuplicateEmailException)
+                catch (DuplicateUsernameException)
                 {
                     return Results.BadRequest(new { duplicateEmail = true });
                 }

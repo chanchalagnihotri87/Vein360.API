@@ -21,7 +21,7 @@ namespace Vein360.Authentication.Service
 
         public int UserId => Convert.ToInt32(EncryptionHelper.Decrypt(GetClaimData(ClaimTypes.NameIdentifier)));
 
-        public string Email => EncryptionHelper.Decrypt(GetClaimData(ClaimTypes.Email));
+        public string UserName => EncryptionHelper.Decrypt(GetClaimData(ClaimTypes.UserData));
 
 
         private string GetClaimData(string claimType)

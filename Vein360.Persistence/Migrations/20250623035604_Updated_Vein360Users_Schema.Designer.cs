@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vein360.Persistence;
 
@@ -11,9 +12,11 @@ using Vein360.Persistence;
 namespace Vein360.Persistence.Migrations
 {
     [DbContext(typeof(Vein360Context))]
-    partial class Vein360ContextModelSnapshot : ModelSnapshot
+    [Migration("20250623035604_Updated_Vein360Users_Schema")]
+    partial class Updated_Vein360Users_Schema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,14 +33,12 @@ namespace Vein360.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AddressLine1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AddressLine2")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
+                    b.Property<string>("ClinicCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -59,23 +60,25 @@ namespace Vein360.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
                     b.Property<string>("PostalCode")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("PrimaryContactEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryContactPhone")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("StreetLine")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
 
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetimeoffset");
@@ -95,29 +98,31 @@ namespace Vein360.Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            AddressLine1 = "CLINIC STREET LINE 1",
                             City = "HARRISON",
+                            ClinicCode = "Clinic-0001",
                             ClinicName = "ABC Clinic",
                             Country = "US",
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             IsDeleted = false,
+                            Phone = "9876543210",
                             PostalCode = "72601",
-                            PrimaryContactPhone = "9876543210",
                             State = "AR",
+                            StreetLine = "CLINIC STREET LINE 1",
                             UserId = 1
                         },
                         new
                         {
                             Id = 2,
-                            AddressLine1 = "CLINIC STREET LINE 1",
                             City = "HARRISON",
+                            ClinicCode = "Clinic-0002",
                             ClinicName = "XYZ Clinic",
                             Country = "US",
                             CreatedDate = new DateTimeOffset(new DateTime(2025, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 5, 30, 0, 0)),
                             IsDeleted = false,
+                            Phone = "9876543210",
                             PostalCode = "72601",
-                            PrimaryContactPhone = "9876543210",
                             State = "AR",
+                            StreetLine = "CLINIC STREET LINE 1",
                             UserId = 1
                         });
                 });
@@ -1661,7 +1666,7 @@ namespace Vein360.Persistence.Migrations
                             IsDeleted = false,
                             IsDonor = true,
                             Name = "Chanchal Kumar",
-                            Password = "AQAAAAIAAYagAAAAEAws2AnjTEGbr+kBOKLA6qybchEzxQaAyJcdMDkIdeT3lopkhRdv4RYFKiIdaVid3g==",
+                            Password = "chanchal",
                             Username = "chanchalagnihotri1987@gmail.com",
                             Vein360CustomerId = 0
                         });

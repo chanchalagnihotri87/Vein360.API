@@ -28,9 +28,11 @@ namespace Vein360.Application.Features.Clinics.UpdateClinic
             if (clinic != null)
             {
                 clinic.ClinicName = request.ClinicName;
-                clinic.ClinicCode = request.ClinicCode;
-                clinic.Phone = request.Phone;
-                clinic.StreetLine = request.StreetLine;
+                clinic.PrimaryContactName = request.ContactName;
+                clinic.PrimaryContactEmail = request.ContactEmail;
+                clinic.PrimaryContactPhone = request.ContactPhone;
+                clinic.AddressLine1 = request.AddressLine1;
+                clinic.AddressLine2 = request.AddressLine2;
                 clinic.City = request.City;
                 clinic.State = request.State;
                 clinic.Country = request.Country;

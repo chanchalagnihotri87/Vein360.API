@@ -22,9 +22,10 @@ namespace Vein360.Application.Features.Products.UpdateProduct
             var product = await _productRepo.GetByIdAsync(request.Id, cancellationToken);
 
             product.Name = request.Name;
+            product.Vein360ProductId = request.Vein360ProductId;
             product.Type = request.Type;
             product.Price = request.Price;
-            product.Description = request.Description;
+            
 
             if (request.ImageFile != null)
             {

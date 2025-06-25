@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Common.Exceptions
 {
-    public class DuplicateEmailException : Exception
+    public class DuplicateUsernameException : Exception
     {
     }
 }

@@ -18,7 +18,7 @@ namespace Vein360.Application.Features.DonorPreferences.GetPreferenceByEmail
 
         public async Task<DonorPreferenceDto> Handle(GetDonorPreferenceByEmailRequest request, CancellationToken cancellationToken)
         {
-            var donorPreference = await _donorPreferenceRepo.GetAsync(x => x.Donor.Email.ToLower() == request.email.ToLower());
+            var donorPreference = await _donorPreferenceRepo.GetAsync(x => x.Donor.Username.ToLower() == request.email.ToLower());
 
             return donorPreference.Adapt<DonorPreferenceDto>();
         }

@@ -29,10 +29,12 @@ namespace Vein360.Application.Features.Clinics.CreateClinic
         {
             var clinic = new Clinic
             {
-                ClinicCode = request.ClinicCode,
                 ClinicName = request.ClinicName,
-                Phone = request.Phone,
-                StreetLine = request.StreetLine,
+                PrimaryContactName = request.ContactName,
+                PrimaryContactEmail = request.ContactEmail,
+                PrimaryContactPhone = request.ContactPhone,
+                AddressLine1 = request.AddressLine1,
+                AddressLine2 = request.AddressLine2,
                 City = request.City,
                 State = request.State,
                 Country = request.Country,

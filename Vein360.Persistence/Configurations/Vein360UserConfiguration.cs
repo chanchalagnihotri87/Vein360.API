@@ -9,9 +9,9 @@ namespace Vein360.Persistence.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Email).IsRequired();
+            builder.Property(x => x.Username).IsRequired();
 
-            builder.HasIndex(x => x.Email).IsUnique();
+            builder.HasIndex(x => x.Username).IsUnique();
 
             builder.Property(x => x.Password).IsRequired();
 

@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Vein360.Application.Common.Dtos;
+using Vein360.Application.Common.Extensions;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Domain.Common;
 using Vein360.Domain.Enums;
@@ -94,17 +95,19 @@ namespace Vein360.Shipment.Service
 
             if (shippingAddress != null)
             {
+
+
                 labelRequestData.RequestedShipment.Shipper = new Shipper
                 {
                     Contact = new Contact
                     {
                         PersonName = "",
                         CompanyName = shippingAddress.CompanyName,
-                        PhoneNumber = Convert.ToInt64(shippingAddress.Phone)
+                        PhoneNumber = shippingAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(shippingAddress.Phone.RemovePhoneFormat()) : default
                     },
                     Address = new Address
                     {
-                        StreetLines = new List<string> { shippingAddress.StreetLine },
+                        StreetLines = new List<string> { shippingAddress.AddressLine1 },
                         City = shippingAddress.City,
                         StateOrProvinceCode = shippingAddress.State,
                         PostalCode = Convert.ToInt64(shippingAddress.PostalCode),

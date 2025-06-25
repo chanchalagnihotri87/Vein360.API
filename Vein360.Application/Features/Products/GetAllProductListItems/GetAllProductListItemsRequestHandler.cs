@@ -18,8 +18,8 @@ namespace Vein360.Application.Features.Products.GetAllProductListItems
 
         public async Task<ICollection<ListItemDto>> Handle(GetAllProductListItemsRequest request, CancellationToken cancellationToken)
         {
-            return _productRepo.GetAllAsync(x => new ListItemDto { Id = x.Id, Name = x.Name }, cancellationToken);
+            return _productRepo.GetAllAsync(x => new ListItemDto { Id = x.Id, Name = x.Name + " [" + x.Vein360ProductId + "]" }, cancellationToken);
         }
     }
-   
+
 }

@@ -9,6 +9,6 @@ namespace Vein360.Application.Service.AuthenticationService
     public interface IAuthInfoService
     {
         int UserId { get; }
-        string Email { get; }
+        string UserName { get; }
     }
 }

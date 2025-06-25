@@ -24,7 +24,7 @@ namespace Vein360.Application.Features.Products.CreateProduct
             var product = new Product
             {
                 Name = request.Name,
-                Description = request.Description,
+                Vein360ProductId=request.Vein360ProductId,
                 Price = request.Price,
                 Type = request.Type,
                 Image = await _storageService.StoreProductImageAsync(request.ImageFile)

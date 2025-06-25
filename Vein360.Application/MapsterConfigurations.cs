@@ -8,7 +8,11 @@ namespace Vein360.Application
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            
+            TypeAdapterConfig<Clinic, ClinicDto>
+           .NewConfig()
+           .Map(dest => dest.ContactName, src => src.PrimaryContactName)
+           .Map(dest => dest.ContactEmail, src => src.PrimaryContactEmail)
+           .Map(dest => dest.ContactPhone, src => src.PrimaryContactPhone);
         }
     }
 }

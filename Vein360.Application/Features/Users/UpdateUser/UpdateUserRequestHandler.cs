@@ -24,23 +24,23 @@ namespace Vein360.Application.Features.Users.UpdateUser
         }
         async Task IRequestHandler<UpdateUserRequest>.Handle(UpdateUserRequest request, CancellationToken cancellationToken)
         {
-            await EnsureUniqueEmail(request);
+            await EnsureUniqueUsername(request);
 
             var user = await _userRepo.GetByIdAsync(request.Id, cancellationToken);
 
             if (user != null)
             {
-                user.Email = request.Email;
+                user.Username = request.Username;
                 user.IsAdmin = request.IsAdmin;
                 user.IsDonor = request.IsDonor;
             }
 
-            async Task EnsureUniqueEmail(UpdateUserRequest request)
+            async Task EnsureUniqueUsername(UpdateUserRequest request)
             {
-                bool emailAlreadyInUse = await _userRepo.IsExistAsync(x => x.Id != request.Id && x.Email.ToLower() == request.Email.ToLower());
+                bool emailAlreadyInUse = await _userRepo.IsExistAsync(x => x.Id != request.Id && x.Username.ToLower() == request.Username.ToLower());
                 if (emailAlreadyInUse)
                 {
-                    throw new DuplicateEmailException();
+                    throw new DuplicateUsernameException();
                 }
             }
         }

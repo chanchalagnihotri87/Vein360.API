@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.Users.CreateUser
 {
-    public record CreateUserRequest(string Email, string Password, bool IsDonor, bool IsAdmin) : IRequest
+    public record CreateUserRequest(string Username, string Password, bool IsDonor, bool IsAdmin) : IRequest
     {
 
     }

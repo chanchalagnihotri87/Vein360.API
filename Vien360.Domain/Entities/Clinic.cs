@@ -8,15 +8,18 @@ namespace Vein360.Domain.Entities
 {
     public class Clinic : BaseEntity, IShippingAddress
     {
-        public string ClinicCode { get; set; }
         public string ClinicName { get; set; }
+        public string? PrimaryContactName { get; set; }
+        public string? PrimaryContactEmail { get; set; }
+        public string? PrimaryContactPhone { get; set; }
 
-        public string StreetLine { get; set; }
-        public string City { get; set; }
+        public string AddressLine1 { get; set; }
+        public string? AddressLine2 { get; set; }
+        public string? City { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
-        public string PostalCode { get; set; }
-        public string Phone { get; set; }
+        public string? PostalCode { get; set; }
+
         public int UserId { get; set; }
 
         public Vein360User User { get; set; }
@@ -26,6 +29,14 @@ namespace Vein360.Domain.Entities
             get
             {
                 return ClinicName;
+            }
+        }
+
+        public string Phone
+        {
+            get
+            {
+                return PrimaryContactPhone;
             }
         }
 

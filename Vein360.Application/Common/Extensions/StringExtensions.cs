@@ -23,5 +23,13 @@ namespace Vein360.Application.Common.Extensions
             if (str == null) return 0;
             return Convert.ToInt64(str);
         }
+
+        public static string RemovePhoneFormat(this string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+                return phoneNumber;
+            // Remove all non-numeric characters
+            return new string(phoneNumber.Where(char.IsDigit).ToArray());
+        }
     }
 }
