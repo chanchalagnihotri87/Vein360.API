@@ -12,5 +12,20 @@ namespace Vein360.Application.Common.Extensions
         {
             return number.HasValue;
         }
+        public static bool IsNotNull(this double? number)
+        {
+            return number.HasValue;
+        }
+
+
+        public static double AsDouble(this decimal number)
+        {
+            return Convert.ToDouble(number);
+        }
+
+        public static decimal AsDecimal(this double number)
+        {
+            return Convert.ToDecimal(number);
+        }
     }
 }

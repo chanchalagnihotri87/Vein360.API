@@ -16,5 +16,6 @@ namespace Vein360.Domain.Entities
         public bool PayFromSalesCredit { get; set; }
 
         public Vein360User User { get; set; }   
+        public Product Product { get; set; }
     }
 }

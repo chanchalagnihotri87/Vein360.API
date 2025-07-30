@@ -8,6 +8,6 @@ namespace Vein360.Application.Service.AuthenticationService
 {
     public interface IAuthenticationService
     {
-        string GenerateToken(int id, string username);
+        string GenerateToken(int id, string username, string role);
     }
 }

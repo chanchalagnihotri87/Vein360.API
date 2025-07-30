@@ -27,6 +27,7 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
 
             if (dbUserProductRates.HasItems())
             {
+                //Update Existing user product rates
                 foreach (var dbUserProductRate in dbUserProductRates)
                 {
                     var productRate = request.ProductRates.FirstOrDefault(x => x.ProductId == dbUserProductRate.ProductId);
@@ -42,12 +43,17 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
                     }
                 }
 
-                var deletedProductRates = dbUserProductRates.Where(dpr => !request.ProductRates.Any(rpr => rpr.ProductId == dpr.ProductId));
 
-                foreach (var deletedProductRate in deletedProductRates)
-                {
-                    _userProductRateRepo.Delete(deletedProductRate);
-                }
+
+                //Add new product rates
+                var newProductRates = request.ProductRates.Where(prodRate => !dbUserProductRates.Any(dbProdRate => dbProdRate.ProductId == prodRate.ProductId)).
+                                                           Select(prodRate => MapToUserProduct(prodRate));
+                _userProductRateRepo.CreateMany(newProductRates);
+
+
+                //Delete Old products rates which are not application now.
+                var deletedProductRates = dbUserProductRates.Where(dpr => !request.ProductRates.Any(rpr => rpr.ProductId == dpr.ProductId));
+                _userProductRateRepo.DeleteMany(deletedProductRates);
 
 
                 await _unitOfWork.SaveAsync(cancellationToken);
@@ -57,22 +63,28 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
 
             if (request.ProductRates.HasItems())
             {
-                foreach (var productRate in request.ProductRates)
+                foreach (var newProductRate in request.ProductRates)
                 {
-                    var userProductRate = new UserProductRate
-                    {
-                        UserId = request.UserId,
-                        ProductId = productRate.ProductId,
-                        SellingPrice = productRate.SellingPrice,
-                        PayToSalesCredit = productRate.PayToSalesCredit,
-                        BuyingPrice = productRate.BuyingPrice,
-                        PayFromSalesCredit = productRate.PayFromSalesCredit
-                    };
+                    UserProductRate userProductRate = MapToUserProduct(newProductRate);
 
                     _userProductRateRepo.Create(userProductRate);
                 }
 
                 await _unitOfWork.SaveAsync(cancellationToken);
+            }
+
+           
+             UserProductRate MapToUserProduct(ProductRateDto productRate)
+            {
+                return new UserProductRate
+                {
+                    UserId = request.UserId,
+                    ProductId = productRate.ProductId,
+                    SellingPrice = productRate.SellingPrice,
+                    PayToSalesCredit = productRate.PayToSalesCredit,
+                    BuyingPrice = productRate.BuyingPrice,
+                    PayFromSalesCredit = productRate.PayFromSalesCredit
+                };
             }
         }
     }

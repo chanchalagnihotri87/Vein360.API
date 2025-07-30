@@ -35,9 +35,9 @@ namespace Vein360.Application.Features.Accounts.SignIn
                 case RoleType.Admin:
                     user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower() && x.IsAdmin);
                     break;
-                case RoleType.Donor:
-                    user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower() && x.IsDonor);
-                    break;
+                //case RoleType.Donor:
+                //    user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower() && x.IsDonor);
+                //    break;
                 default:
                     user = await _userRepo.GetAsync(x => x.Username.ToLower() == request.username.ToLower());
                     break;
@@ -60,7 +60,9 @@ namespace Vein360.Application.Features.Accounts.SignIn
                 await ReHashAndUpdatePassword(request, user, cancellationToken);
             }
 
-            response.Token = _authenticationService.GenerateToken(user.Id, user.Username);
+            string role = request.role == RoleType.Admin ? "Admin" : user.IsDonor ? "Donor" : "Buyer";
+
+            response.Token = _authenticationService.GenerateToken(user.Id, user.Username, role.ToLower());
 
             response.FirstTimeLogin = user.FirstTimeLogin;
 

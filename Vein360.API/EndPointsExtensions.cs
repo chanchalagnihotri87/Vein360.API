@@ -18,6 +18,8 @@ namespace Vein360.API
             app.MapUserEndpoints();
             app.MapDonorPreferenceEndpoints();
             app.MapProductRateEndpoints();
+            app.MapUserProductEndpoints();
+            app.MapOrderEndpoints();
         }
     }
 }

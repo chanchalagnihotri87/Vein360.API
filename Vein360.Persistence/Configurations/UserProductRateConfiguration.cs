@@ -15,6 +15,8 @@ namespace Vein360.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder.HasOne(x=> x.User).WithMany().HasForeignKey(x=>x.UserId);
+
+            builder.HasOne(x=> x.Product).WithMany().HasForeignKey(x=>x.ProductId);
         }
     }
 }

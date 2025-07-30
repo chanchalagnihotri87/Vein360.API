@@ -21,12 +21,13 @@ namespace Vein360.Authentication.Service
             this.configuration = configuration;
         }
 
-        public string GenerateToken(int id,string username )
+        public string GenerateToken(int id,string username, string role )
         {
             var token = new JwtSecurityToken(
             claims: new List<Claim> { 
                 new Claim(ClaimTypes.UserData, EncryptionHelper.Encrypt(username)),
-                new Claim(ClaimTypes.NameIdentifier, EncryptionHelper.Encrypt(id.ToString()))
+                new Claim(ClaimTypes.NameIdentifier, EncryptionHelper.Encrypt(id.ToString())),
+                new Claim(ClaimTypes.Role, role)
             },
             expires: DateTime.Now.AddDays(1),
                            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetRequiredSection("JWTSecret").Value!)), SecurityAlgorithms.HmacSha256),

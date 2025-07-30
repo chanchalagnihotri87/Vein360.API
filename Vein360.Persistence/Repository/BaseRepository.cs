@@ -15,6 +15,14 @@ namespace Vein360.Persistence.Repository
             context.Add(entity);
         }
 
+        public void CreateMany(IEnumerable<T> entities)
+        {
+            foreach (var entity in entities)
+            {
+                context.Add(entity);
+            }
+        }
+
         public void Delete(T entity)
         {
             entity.IsDeleted = true;
@@ -22,6 +30,23 @@ namespace Vein360.Persistence.Repository
 
             context.Update(entity);
 
+        }
+
+        public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var entity = await GetByIdAsync(id, cancellationToken);
+            Delete(entity);
+        }
+
+        public void DeleteMany(IEnumerable<T> entities)
+        {
+            foreach (var entity in entities)
+            {
+                entity.IsDeleted = true;
+                entity.DeletedDate = DateTime.Now;
+
+                context.Update(entity);
+            }
         }
 
         public async Task<T> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -45,6 +70,11 @@ namespace Vein360.Persistence.Repository
             return await context.Set<T>().AddIncludes(includes).Where(x => !x.IsDeleted).FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<T> GetAsNoTrackingAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
+        {
+            return await context.Set<T>().AsNoTracking().AddIncludes(includes).Where(x => !x.IsDeleted).FirstOrDefaultAsync(predicate);
+        }
+
 
         public IQueryable<T> GetAllAsQueryable()
         {
@@ -54,6 +84,11 @@ namespace Vein360.Persistence.Repository
         public async Task<ICollection<T>> GetAllAsync(params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
         {
             return await context.Set<T>().AddIncludes(includes).Where(x => !x.IsDeleted).ToHashSetAsync();
+        }
+
+        public async Task<ICollection<T>> GetAllAsNoTrackingAsync(params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
+        {
+            return await context.Set<T>().AsNoTracking().AddIncludes(includes).Where(x => !x.IsDeleted).ToHashSetAsync();
         }
 
         public async Task<ICollection<T>> GetAllAsync(CancellationToken cancellationToken = default, params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
@@ -75,9 +110,19 @@ namespace Vein360.Persistence.Repository
         {
             return await context.Set<T>().Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
         }
+        public async Task<ICollection<T>> GetManyAsNoTrackingAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await context.Set<T>().AsNoTracking().Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
+        }
+
         public async Task<ICollection<T>> GetManyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
         {
             return await context.Set<T>().AddIncludes(includes).Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
+        }
+
+        public async Task<ICollection<T>> GetManyAsNoTrackingAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params Expression<Func<IQueryable<T>, IIncludableQueryable<T, object>>>[] includes)
+        {
+            return await context.Set<T>().AsNoTracking().AddIncludes(includes).Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
         }
 
 
