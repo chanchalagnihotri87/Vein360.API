@@ -9,11 +9,7 @@ namespace Vein360.Persistence.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.PackageType).HasConversion<int>();
-
             builder.Property(x => x.Status).HasConversion<int>();
-
-            builder.HasOne(x => x.ContainerType).WithMany().HasForeignKey(x => x.ContainerTypeId);
 
             builder.HasOne(x => x.Donor).WithMany().HasForeignKey(x => x.DonorId);
 

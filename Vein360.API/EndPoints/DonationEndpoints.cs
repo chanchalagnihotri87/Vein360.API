@@ -18,7 +18,7 @@ using Vein360.Application.Features.DonationsFeatures.GetDonorDonations;
 
 namespace Vein360.API.EndPoints
 {
-    public record CreateDonationRequestData(int ClinicId, int PackageType, int? ContainerTypeId, int? FedexPackagingTypeId, string TrackingNumber, List<DonationProductItemDto> Products);
+    public record CreateDonationRequestData(int ClinicId, string TrackingNumber, List<DonationProductItemDto> Products);
     public record UpdateDonationRequestData(int Id, double Amount);
     public record ProcessDonationRequestData(int DonationId, List<ProcessedProductDto> Products);
     public record SortDonationRequestData(List<SortedDonationProductDto> Products, double TotalAmount);

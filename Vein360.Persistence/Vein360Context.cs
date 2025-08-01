@@ -122,11 +122,11 @@ namespace Vein360.Persistence
                 new DonationContainer { Id = 12, ContainerTypeId = 1, ClinicId = 2, RequestedUnits = 7, ApprovedUnits = 7, Status = DonationContainerStatus.Approved, ReplenishmentOrderId = 1012, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16) });
 
             modelBuilder.Entity<Donation>().HasData(
-                new Donation { Id = 1, ClinicId = 1, PackageType = PackageType.Vein360Container, ContainerTypeId = 1, TrackingNumber = 1234567890, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
-                new Donation { Id = 2, ClinicId = 1, PackageType = PackageType.Vein360Container, ContainerTypeId = 2, TrackingNumber = 1234567891, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
-                new Donation { Id = 3, ClinicId = 1, PackageType = PackageType.Vein360Container, ContainerTypeId = 3, TrackingNumber = 1234567892, LabelFileName = "label.pdf", Status = DonationStatus.Processed, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
-                new Donation { Id = 4, ClinicId = 2, PackageType = PackageType.Vein360Container, ContainerTypeId = 1, TrackingNumber = 1234567893, LabelFileName = "label.pdf", Status = DonationStatus.Paid, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
-                new Donation { Id = 5, ClinicId = 2, PackageType = PackageType.Vein360Container, ContainerTypeId = 2, TrackingNumber = 1234567894, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] });
+                new Donation { Id = 1, ClinicId = 1, TrackingNumber = 1234567890, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
+                new Donation { Id = 2, ClinicId = 1, TrackingNumber = 1234567891, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
+                new Donation { Id = 3, ClinicId = 1, TrackingNumber = 1234567892, LabelFileName = "label.pdf", Status = DonationStatus.Processed, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
+                new Donation { Id = 4, ClinicId = 2, TrackingNumber = 1234567893, LabelFileName = "label.pdf", Status = DonationStatus.Paid, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] },
+                new Donation { Id = 5, ClinicId = 2, TrackingNumber = 1234567894, LabelFileName = "label.pdf", Status = DonationStatus.Donated, DonorId = Constants.UserId, CreatedDate = new DateTime(2025, 4, 16), Products = [] });
 
             modelBuilder.Entity<DonationProduct>().HasData(
                 new DonationProduct { Id = 1, DonationId = 1, ProductId = 1, Units = 1 }, new DonationProduct { Id = 2, DonationId = 1, ProductId = 2, Units = 1 }, new DonationProduct { Id = 3, DonationId = 1, ProductId = 3, Units = 1 },

@@ -4,14 +4,12 @@ namespace Vein360.Application.Common.Factories
 {
     public class DonationFactory
     {
-        public static Donation CreateDonation(int clinicId, PackageType packingType, int? containerType, int? fedexPackagingType, long? trackingNumber, List<DonationProductItemDto> products, int userId)
+        public static Donation CreateDonation(int clinicId, long? trackingNumber, List<DonationProductItemDto> products, int userId)
+
         {
             return new Donation
             {
                 ClinicId = clinicId,
-                PackageType = packingType,
-                ContainerTypeId = containerType,
-                FedexPackagingTypeId = fedexPackagingType,
                 TrackingNumber = trackingNumber,
                 UseOldLabel = trackingNumber.HasValue,
                 Status = DonationStatus.Donated,

@@ -22,7 +22,6 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonation
             var donation = await _donationRepo.GetAsync(x => x.Id == request.Id,
                                                             cancellationToken,
                                                             dnt=> dnt.Include(dnt=> dnt.Clinic),
-                                                            dnt=> dnt.Include(dnt=> dnt.ContainerType),
                                                             dnt => dnt.Include(x => x.Products));
 
             return donation.Adapt<GetDonationResponse>();

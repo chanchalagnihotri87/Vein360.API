@@ -50,9 +50,6 @@ namespace Vein360.Application.Features.Donations.CreateDonation
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
             Donation donation = DonationFactory.CreateDonation(request.ClinicId,
-                                                               request.PackageType,
-                                                               request.ContainerTypeId,
-                                                               request.FedexPackagingTypeId,
                                                                request.TrackingNumber,
                                                                request.Products,
                                                                _authInfo.UserId);
@@ -74,10 +71,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 {
                     var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
 
-                    var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(request.PackageType,
-                                                                            request.FedexPackagingTypeId,
-                                                                            await CalculateWeight(request, cancellationToken),
-                                                                            clinic);
+                    var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
                     string shipmentLabelFileName = null;
 
                     if (shipmentInfo.EncodedLabel.IsNotNullOrEmpty())
@@ -108,22 +102,9 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 }
             }
 
-            async Task<double> CalculateWeight(CreateDonationRequest request, CancellationToken cancellationToken)
+            double CalculateWeight(List<DonationProductItemDto> products)
             {
-
-                if (request.PackageType == PackageType.Vein360Container)
-                {
-                    var containerType = await _containerTypeRepo.GetByIdAsync(request.ContainerTypeId!.Value, cancellationToken);
-
-                    return new WeightCalculator(containerType.EstimatedWeight).CalculateWeight(request.Products.Sum(x => x.Units));
-                }
-
-                if (request.PackageType == PackageType.CustomPacking)
-                {
-                    return new WeightCalculator(ConstantsHelper.OwnPackingContainerWeight).CalculateWeight(request.Products.Sum(x => x.Units));
-                }
-
-                return 0;
+                return new WeightCalculator().CalculateWeight(products.Sum(x => x.Units));
             }
 
         }
