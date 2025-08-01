@@ -106,6 +106,11 @@ namespace Vein360.Persistence.Repository
             return await context.Set<T>().ToHashSetAsync(cancellationToken);
         }
 
+        public ICollection<TResult> GetManyAsNoTracking<TResult>(Expression<Func<T, bool>> predicate, Func<T, TResult> selector, CancellationToken cancellationToken = default)
+        {
+            return context.Set<T>().AsNoTracking().Where(x => !x.IsDeleted).Where(predicate).AsQueryable().Select(selector).ToHashSet();
+        }
+
         public async Task<ICollection<T>> GetManyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await context.Set<T>().Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
@@ -124,6 +129,7 @@ namespace Vein360.Persistence.Repository
         {
             return await context.Set<T>().AsNoTracking().AddIncludes(includes).Where(x => !x.IsDeleted).Where(predicate).ToHashSetAsync(cancellationToken);
         }
+
 
 
         public void Update(T entity)

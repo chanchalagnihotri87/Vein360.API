@@ -23,7 +23,7 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
 
         public async Task Handle(SaveProductRatesRequest request, CancellationToken cancellationToken)
         {
-            var dbUserProductRates = await _userProductRateRepo.GetManyAsync(x => x.UserId == request.UserId);
+            var dbUserProductRates = await _userProductRateRepo.GetManyAsync(x => x.UserId == request.UserId && x.Product.Trade == request.trade);
 
             if (dbUserProductRates.HasItems())
             {
@@ -34,10 +34,8 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
 
                     if (productRate != null)
                     {
-                        dbUserProductRate.SellingPrice = productRate.SellingPrice;
-                        dbUserProductRate.PayToSalesCredit = productRate.PayToSalesCredit;
-                        dbUserProductRate.BuyingPrice = productRate.BuyingPrice;
-                        dbUserProductRate.PayFromSalesCredit = productRate.PayFromSalesCredit;
+                        dbUserProductRate.Price = productRate.Price;
+                        dbUserProductRate.UseSalesCredit = productRate.UseSalesCredit;
 
                         _userProductRateRepo.Update(dbUserProductRate);
                     }
@@ -73,17 +71,15 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
                 await _unitOfWork.SaveAsync(cancellationToken);
             }
 
-           
-             UserProductRate MapToUserProduct(ProductRateDto productRate)
+
+            UserProductRate MapToUserProduct(ProductRateDto productRate)
             {
                 return new UserProductRate
                 {
                     UserId = request.UserId,
                     ProductId = productRate.ProductId,
-                    SellingPrice = productRate.SellingPrice,
-                    PayToSalesCredit = productRate.PayToSalesCredit,
-                    BuyingPrice = productRate.BuyingPrice,
-                    PayFromSalesCredit = productRate.PayFromSalesCredit
+                    Price = productRate.Price,
+                    UseSalesCredit = productRate.UseSalesCredit
                 };
             }
         }

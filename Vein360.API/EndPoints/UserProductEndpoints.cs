@@ -9,9 +9,9 @@ namespace Vein360.API.EndPoints
     {
         public static void MapUserProductEndpoints(this WebApplication app)
         {
-            app.MapGet("/user/products", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/user/products/sale", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var products = await mediator.Send(new GetUserProductsRequest());
+                var products = await mediator.Send(new GetUserSaleProductsRequest());
 
                 return Results.Ok(products);
             });

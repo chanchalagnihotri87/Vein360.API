@@ -9,13 +9,13 @@ using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.Application.Features.UserProducts.GetProducts
 {
-    public class GetUserProductsHandler : IRequestHandler<GetUserProductsRequest, List<UserProductDto>>
+    public class GetUserSaleProductsHandler : IRequestHandler<GetUserSaleProductsRequest, List<UserProductDto>>
     {
         private readonly IProductRepository _productRepo;
         private readonly IUserProductRateRepository _productRateRepo;
         private readonly IAuthInfoService _authInfo;
 
-        public GetUserProductsHandler(
+        public GetUserSaleProductsHandler(
             IProductRepository productRepo,
             IUserProductRateRepository productRateRepo,
             IAuthInfoService authInfo)
@@ -25,13 +25,13 @@ namespace Vein360.Application.Features.UserProducts.GetProducts
             _authInfo = authInfo;
         }
 
-        public async Task<List<UserProductDto>> Handle(GetUserProductsRequest request, CancellationToken cancellationToken)
+        public async Task<List<UserProductDto>> Handle(GetUserSaleProductsRequest request, CancellationToken cancellationToken)
         {
-            var products = await _productRepo.GetAllAsNoTrackingAsync();
+            var products = await _productRepo.GetSaleProductsAsNoTrackingAsync();
 
             var userProducts = products.Adapt<List<UserProductDto>>();
 
-            var userProductRates = await _productRateRepo.GetManyAsNoTrackingAsync(x => x.UserId == _authInfo.UserId);
+            var userProductRates = await _productRateRepo.GetManyAsNoTrackingAsync(x => x.UserId == _authInfo.UserId && x.Product.Trade == TradeType.Sale);
 
 
             foreach (var userProduct in userProducts)
@@ -41,13 +41,16 @@ namespace Vein360.Application.Features.UserProducts.GetProducts
                 if (userProductRate != null)
                 {
                     userProduct.IncludedInContract = true;
-                }
 
-                userProduct.BuyingPrice = userProductRate?.BuyingPrice ?? Convert.ToDouble(userProduct.Price);
-                userProduct.SellingPrice = userProductRate?.SellingPrice ?? Convert.ToDouble(userProduct.Price);
+                    if (userProductRate.Price.IsNotNull())
+                    {
+                        userProduct.Price = Convert.ToDecimal(userProductRate.Price);
+                    }
+
+                }
             }
 
-            var result= userProducts.OrderByDescending(x => x.IncludedInContract).ToList();
+            var result = userProducts.OrderByDescending(x => x.IncludedInContract).ToList();
 
             return result;
         }

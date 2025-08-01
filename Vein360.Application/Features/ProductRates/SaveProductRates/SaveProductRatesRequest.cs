@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.ProductRates.SaveProductRates
 {
-    public record SaveProductRatesRequest(int UserId, List<ProductRateDto> ProductRates) : IRequest
+    public record SaveProductRatesRequest(int UserId, TradeType trade, List<ProductRateDto> ProductRates) : IRequest
     {
     }
 }

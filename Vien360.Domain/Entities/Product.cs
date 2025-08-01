@@ -8,5 +8,6 @@
         
         public decimal Price { get; set; }
         public ProductType Type { get; set; }
+        public TradeType Trade { get; set; }
     }
 }

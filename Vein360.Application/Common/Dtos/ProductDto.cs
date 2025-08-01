@@ -14,5 +14,6 @@ namespace Vein360.Application.Common.Dtos
         public ProductType Type { get; set; }
         public decimal Price { get; set; }
         public string Image { get; set; }
+        public TradeType Trade { get; set; }
     }
 }

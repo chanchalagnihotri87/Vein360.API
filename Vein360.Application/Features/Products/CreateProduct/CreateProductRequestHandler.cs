@@ -12,9 +12,9 @@ using Vein360.Domain.Entities;
 namespace Vein360.Application.Features.Products.CreateProduct
 {
     public class CreateProductRequestHandler(
-        IProductRepository _productRepo, 
+        IProductRepository _productRepo,
         IStorageService _storageService,
-        IUnitOfWork _unitOfWork) 
+        IUnitOfWork _unitOfWork)
         :
         IRequestHandler<CreateProductRequest>
     {
@@ -24,9 +24,10 @@ namespace Vein360.Application.Features.Products.CreateProduct
             var product = new Product
             {
                 Name = request.Name,
-                Vein360ProductId=request.Vein360ProductId,
+                Vein360ProductId = request.Vein360ProductId,
                 Price = request.Price,
                 Type = request.Type,
+                Trade = request.Trade,
                 Image = await _storageService.StoreProductImageAsync(request.ImageFile)
             };
 

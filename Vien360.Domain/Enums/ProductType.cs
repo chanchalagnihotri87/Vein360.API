@@ -9,6 +9,10 @@ namespace Vein360.Domain.Enums
         [Description("IVUS Catheter")]
         IVUS = 2,
         [Description("Urology")]
-        Urology = 3
+        Urology = 3,
+        [Description("Introducer")]
+        Introducer = 4,
+        [Description("Procedure Pack")]
+        ProcedurePack = 5
     }
 }

@@ -31,19 +31,18 @@ namespace Vein360.Application.Features.UserProducts.GetProduct
             {
                 var userProductResp = userProduct.Product.Adapt<UserProductDto>();
 
-                userProductResp.BuyingPrice = userProduct.BuyingPrice ?? userProductResp.Price.AsDouble();
-
+                if (userProductResp.IsNotNull() && userProduct.Price.IsNotNull())
+                {
+                    userProductResp.Price = Convert.ToDecimal(userProduct!.Price);
+                }
 
                 return userProductResp;
             }
 
 
-
             var product = await _productRepo.GetByIdAsync(request.ProductId);
 
-            var productResp= product.Adapt<UserProductDto>();
-
-            productResp.BuyingPrice = productResp.SellingPrice = productResp.Price.AsDouble();
+            var productResp = product.Adapt<UserProductDto>();
 
             return productResp;
         }

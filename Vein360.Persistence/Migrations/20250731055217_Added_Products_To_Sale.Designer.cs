@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vein360.Persistence;
 
@@ -11,9 +12,11 @@ using Vein360.Persistence;
 namespace Vein360.Persistence.Migrations
 {
     [DbContext(typeof(Vein360Context))]
-    partial class Vein360ContextModelSnapshot : ModelSnapshot
+    [Migration("20250731055217_Added_Products_To_Sale")]
+    partial class Added_Products_To_Sale
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1569,6 +1572,9 @@ namespace Vein360.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<double?>("BuyingPrice")
+                        .HasColumnType("float");
+
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
@@ -1578,17 +1584,20 @@ namespace Vein360.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<double?>("Price")
-                        .HasColumnType("float");
+                    b.Property<bool>("PayFromSalesCredit")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("PayToSalesCredit")
+                        .HasColumnType("bit");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<double?>("SellingPrice")
+                        .HasColumnType("float");
+
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("UseSalesCredit")
-                        .HasColumnType("bit");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

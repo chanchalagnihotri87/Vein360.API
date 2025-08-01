@@ -9,9 +9,7 @@ namespace Vein360.Application.Common.Dtos
     public class ProductRateDto
     {
         public int ProductId { get; set; }
-        public double? SellingPrice { get; set; }
-        public bool PayToSalesCredit { get; set; }
-        public double? BuyingPrice { get; set; }
-        public bool PayFromSalesCredit { get; set; }
+        public double? Price { get; set; }
+        public bool UseSalesCredit { get; set; }
     }
 }

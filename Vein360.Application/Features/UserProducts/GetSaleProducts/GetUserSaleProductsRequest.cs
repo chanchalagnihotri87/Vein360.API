@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.UserProducts.GetProducts
 {
-    public class GetUserProductsRequest : IRequest<List<UserProductDto>>
+    public class GetUserSaleProductsRequest : IRequest<List<UserProductDto>>
     {
     }
 }

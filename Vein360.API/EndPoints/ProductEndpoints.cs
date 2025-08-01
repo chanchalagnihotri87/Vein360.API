@@ -8,6 +8,8 @@ using Vein360.Application.Features.Products.CreateProduct;
 using Vein360.Application.Features.Products.DeleteProduct;
 using Vein360.Application.Features.Products.GetAllProductListItems;
 using Vein360.Application.Features.Products.GetAllProducts;
+using Vein360.Application.Features.Products.GetAllSaleProducts;
+using Vein360.Application.Features.Products.GetSortProductListItems;
 using Vein360.Application.Features.Products.UpdateProduct;
 using Vein360.Application.Service.StorageService;
 using Vein360.Domain.Enums;
@@ -25,12 +27,26 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(products);
             });
 
-            app.MapGet("/products/listitems", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/products/sale", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var products = await mediator.Send(new GetAllProductListItemsRequest(), cancellationToken);
+                var products = await mediator.Send(new GetAllSaleProductsRequest(), cancellationToken);
 
                 return Results.Ok(products);
             });
+
+            app.MapGet("/products/listitems/sort", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var products = await mediator.Send(new GetSortProductListItemsRequest(), cancellationToken);
+
+                return Results.Ok(products);
+            });
+
+            //app.MapGet("/products/listitems", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            //{
+            //    var products = await mediator.Send(new GetAllProductListItemsRequest(), cancellationToken);
+
+            //    return Results.Ok(products);
+            //});
 
             app.MapPost("/products", [Authorize] async ([FromForm] CreateProductRequest req, IMediator mediator, CancellationToken cancellationToken) =>
             {
@@ -55,7 +71,7 @@ namespace Vein360.API.EndPoints
 
 
 
-            app.MapGet("/products/image/{fileName}", [Authorize] async (string fileName, CancellationToken cancellationToken, IStorageService storageService) =>
+            app.MapGet("/products/image/{fileName}",  async (string fileName, CancellationToken cancellationToken, IStorageService storageService) =>
             {
                 return Results.File(await storageService.GetProductImageAsync(fileName), contentType: storageService.GetMimeType(fileName));
             });
