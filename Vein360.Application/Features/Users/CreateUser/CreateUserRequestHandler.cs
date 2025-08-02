@@ -29,8 +29,10 @@ namespace Vein360.Application.Features.Users.CreateUser
             var user = new Vein360User
             {
                 Username = request.Username,
+                IsBuyer = request.IsBuyer,
                 IsDonor = request.IsDonor,
-                IsAdmin = request.IsAdmin
+                IsAdmin = request.IsAdmin,
+                IsApiUser = request.IsApiUser,
             };
 
             user.Password = PasswordHelper.HashPassword(user, request.Password);

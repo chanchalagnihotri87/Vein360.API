@@ -31,8 +31,12 @@ namespace Vein360.Application.Features.Users.UpdateUser
             if (user != null)
             {
                 user.Username = request.Username;
-                user.IsAdmin = request.IsAdmin;
+                user.IsBuyer = request.IsBuyer;
                 user.IsDonor = request.IsDonor;
+                user.IsAdmin = request.IsAdmin;
+                user.IsApiUser = request.IsApiUser;
+
+                await _unitOfWork.SaveAsync(cancellationToken);
             }
 
             async Task EnsureUniqueUsername(UpdateUserRequest request)

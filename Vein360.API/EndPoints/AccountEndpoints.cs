@@ -41,9 +41,19 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(new DonorAuthenticationResponse(authResponse.Token, authResponse.FirstTimeLogin, preference));
             });
 
+            app.MapPost("/accounts/buyer/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
+            {
+                var request = new SignInRequest(requestData.Username, requestData.Password, RoleType.Buyer);
+
+                var token = await mediator.Send(request);
+
+                return Results.Ok(token);
+            });
+
+
             app.MapPost("/accounts/signin", async (ApiSignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
             {
-                var request = new SignInRequest(requestData.Email, requestData.Password, RoleType.Donor);
+                var request = new SignInRequest(requestData.Email, requestData.Password, RoleType.ApiUser);
 
                 var token = await mediator.Send(request);
 

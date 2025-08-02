@@ -24,8 +24,8 @@ namespace Vein360.API.EndPoints
 {
     public static class UserEndpoints
     {
-        public record CreateUserRequestData(string Username,  string Password, bool IsDonor, bool IsAdmin);
-        public record UpdateUserRequestData(int Id, string Username, string Password, bool IsDonor, bool IsAdmin);
+        public record CreateUserRequestData(string Username,  string Password, bool IsBuyer, bool IsDonor, bool IsAdmin, bool IsApiUser);
+        public record UpdateUserRequestData(int Id, string Username, string Password, bool IsBuyer, bool IsDonor, bool IsAdmin, bool IsApiUser);
 
         public static void MapUserEndpoints(this WebApplication app)
         {

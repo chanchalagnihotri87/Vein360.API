@@ -4,6 +4,7 @@
     {
         Admin = 1,
         Donor = 2,
-        Buyer = 3
+        Buyer = 3,
+        ApiUser=4
     }
 }

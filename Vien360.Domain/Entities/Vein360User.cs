@@ -8,6 +8,8 @@
         public string Password { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsDonor { get; set; }
+        public bool IsBuyer { get; set; }
+        public bool IsApiUser { get;set; }
         public int Vein360CustomerId { get; set; }
         public bool FirstTimeLogin { get; set; } = true;
 
