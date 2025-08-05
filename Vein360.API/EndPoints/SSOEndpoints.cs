@@ -9,13 +9,6 @@ namespace Vein360.API.EndPoints
     {
         public static void MapSSOEndpoints(this WebApplication app)
         {
-
-            app.MapPost("/sso/buyer", [Authorize] () =>
-            {
-                return Results.Ok(new { redirectUrl = "http://localhost:4100/sso" });
-            });
-
-
             app.MapPost("/sso/donor/signin/{id}", async (string id, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var response = await mediator.Send(new SingleSignInRequest(id, Domain.Enums.RoleType.Donor));
