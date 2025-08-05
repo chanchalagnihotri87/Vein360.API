@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vein360.Application.Repository.ProductRepository;
 using Vein360.Application.Repository.UserProductRateRepository;
+using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.Application.Features.UserProducts.GetProduct
 {
@@ -13,19 +14,22 @@ namespace Vein360.Application.Features.UserProducts.GetProduct
     {
         private readonly IUserProductRateRepository _userProductRateRepo;
         private readonly IProductRepository _productRepo;
+        private readonly IAuthInfoService _authInfoService;
 
 
         public GetUserProductRequestHandler(
             IProductRepository productRepo,
-            IUserProductRateRepository userProductRateRepo)
+            IUserProductRateRepository userProductRateRepo,
+            IAuthInfoService authInfoService)
         {
             _productRepo = productRepo;
             _userProductRateRepo = userProductRateRepo;
+            _authInfoService = authInfoService;
         }
 
         public async Task<UserProductDto> Handle(GetUserProductRequest request, CancellationToken cancellationToken)
         {
-            var userProduct = await _userProductRateRepo.GetAsync(x => x.ProductId == request.ProductId, cancellationToken, x => x.Include(y => y.Product));
+            var userProduct = await _userProductRateRepo.GetAsync(x => x.ProductId == request.ProductId && x.UserId == _authInfoService.UserId, cancellationToken, x => x.Include(y => y.Product));
 
             if (userProduct.IsNotNull())
             {
