@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vein360.Application.Features.Products.GetAllProductListItems
+namespace Vein360.Application.Features.Products.GetSaleProductListItems
 {
     public record GetAllProductListItemsRequest : IRequest<ICollection<ListItemDto>>
     {

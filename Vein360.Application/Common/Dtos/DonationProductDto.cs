@@ -17,5 +17,6 @@ namespace Vein360.Application.Common.Dtos
         public int RejectedFunction { get; set; }
         public int RejectedKinked { get; set; }
         public int RejectedOther { get; set; }
+        public ProductDto Product { get; set; } //For donation with single product
     }
 }

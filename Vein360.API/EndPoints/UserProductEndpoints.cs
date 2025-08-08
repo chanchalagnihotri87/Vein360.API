@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Vein360.Application.Features.UserProducts.GetProduct;
 using Vein360.Application.Features.UserProducts.GetProducts;
+using Vein360.Application.Features.UserProducts.GetSortProducts;
 
 namespace Vein360.API.EndPoints
 {
@@ -12,6 +13,13 @@ namespace Vein360.API.EndPoints
             app.MapGet("/user/products/sale", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var products = await mediator.Send(new GetUserSaleProductsRequest());
+
+                return Results.Ok(products);
+            });
+
+            app.MapGet("/user/products/sort", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var products = await mediator.Send(new GetUserSortProductsRequest());
 
                 return Results.Ok(products);
             });

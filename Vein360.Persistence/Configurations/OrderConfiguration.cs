@@ -16,6 +16,8 @@ namespace Vein360.Persistence.Configurations
 
             builder.Property(x => x.Status).HasConversion<int>();
 
+            builder.Property(x => x.Quantity).HasDefaultValue(1);
+
             builder.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId);
 
             builder.HasOne(x => x.Clinic).WithMany().HasForeignKey(x => x.ClinicId);

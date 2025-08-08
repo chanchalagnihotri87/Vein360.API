@@ -25,6 +25,7 @@ namespace Vein360.Application.Features.Orders.UpdateOrder
             var order = await _orderRepo.GetByIdAsync(request.OrderId, cancellationToken);
 
             order.ProductId = request.ProductId;
+            order.Quantity = request.Quantity;
             order.ClinicId = request.ClinicId;
             order.Price = request.Price;
             order.Status = request.Status;

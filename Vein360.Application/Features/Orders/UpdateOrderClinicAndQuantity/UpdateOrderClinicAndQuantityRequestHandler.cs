@@ -7,24 +7,25 @@ using System.Threading.Tasks;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.OrderRepository;
 
-namespace Vein360.Application.Features.Orders.UpdateOrderClinic
+namespace Vein360.Application.Features.Orders.UpdateOrderClinicAndQuantity
 {
-    public class UpdateOrderClinicRequestHandler : IRequestHandler<UpdateOrderClinicRequest, OrderDto>
+    public class UpdateOrderClinicAndQuantityRequestHandler : IRequestHandler<UpdateOrderClinicAndQuantityRequest, OrderDto>
     {
         private readonly IOrderRepository _orderRepo;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateOrderClinicRequestHandler(IOrderRepository orderRepo, IUnitOfWork unitOfWork)
+        public UpdateOrderClinicAndQuantityRequestHandler(IOrderRepository orderRepo, IUnitOfWork unitOfWork)
         {
             _orderRepo = orderRepo;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OrderDto> Handle(UpdateOrderClinicRequest request, CancellationToken cancellationToken)
+        public async Task<OrderDto> Handle(UpdateOrderClinicAndQuantityRequest request, CancellationToken cancellationToken)
         {
             var order = await _orderRepo.GetByIdAsync(request.OrderId);
-         
+                        
             order.ClinicId = request.ClinicId;
+            order.Quantity = request.Quantity;
 
             _orderRepo.Update(order);
             await _unitOfWork.SaveAsync(cancellationToken);

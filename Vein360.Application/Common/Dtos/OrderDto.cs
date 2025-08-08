@@ -10,8 +10,10 @@ namespace Vein360.Application.Common.Dtos
     {
         public int Id { get; set; }
         public ProductDto Product { get; set; }
-        public ClinicListItemDto Clinic { get; set; }
+        public int Quantity { get; set; }
+        public ClinicDto Clinic { get; set; }
         public decimal Price { get; set; }
+        public decimal TotalAmount { get; set; }
         public bool Paid { get; set; }
         public OrderStatus Status { get; set; }
         public DateTimeOffset CreatedDate { get; set; }

@@ -11,5 +11,7 @@
         public string? LabelFileName { get; set; }
         public DonationStatus Status { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
+        public DonationProductDto DonationProduct { get; set; }
+        public ClinicDto Clinic { get; set; }
     }
 }

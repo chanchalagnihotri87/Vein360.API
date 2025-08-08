@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Vein360.Application.Features.Products.CreateProduct;
 using Vein360.Application.Features.Products.DeleteProduct;
-using Vein360.Application.Features.Products.GetAllProductListItems;
 using Vein360.Application.Features.Products.GetAllProducts;
 using Vein360.Application.Features.Products.GetAllSaleProducts;
+using Vein360.Application.Features.Products.GetSaleProductListItems;
 using Vein360.Application.Features.Products.GetSortProductListItems;
 using Vein360.Application.Features.Products.UpdateProduct;
 using Vein360.Application.Service.StorageService;
@@ -41,12 +41,12 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(products);
             });
 
-            //app.MapGet("/products/listitems", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
-            //{
-            //    var products = await mediator.Send(new GetAllProductListItemsRequest(), cancellationToken);
+            app.MapGet("/products/listitems/sale", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var products = await mediator.Send(new GetAllProductListItemsRequest(), cancellationToken);
 
-            //    return Results.Ok(products);
-            //});
+                return Results.Ok(products);
+            });
 
             app.MapPost("/products", [Authorize] async ([FromForm] CreateProductRequest req, IMediator mediator, CancellationToken cancellationToken) =>
             {

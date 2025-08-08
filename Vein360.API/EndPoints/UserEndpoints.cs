@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Features.Products.CreateProduct;
 using Vein360.Application.Features.Products.DeleteProduct;
-using Vein360.Application.Features.Products.GetAllProductListItems;
 using Vein360.Application.Features.Products.GetAllProducts;
 using Vein360.Application.Features.Products.UpdateProduct;
 using Vein360.Application.Features.Users.CreateUser;

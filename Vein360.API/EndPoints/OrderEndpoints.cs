@@ -9,7 +9,7 @@ using Vein360.Application.Features.Orders.GetAllOrders;
 using Vein360.Application.Features.Orders.GetMyOrders;
 using Vein360.Application.Features.Orders.GetOrder;
 using Vein360.Application.Features.Orders.UpdateOrder;
-using Vein360.Application.Features.Orders.UpdateOrderClinic;
+using Vein360.Application.Features.Orders.UpdateOrderClinicAndQuantity;
 using Vein360.Application.Features.Products.CreateProduct;
 using Vein360.Domain.Enums;
 
@@ -17,7 +17,7 @@ namespace Vein360.API.EndPoints
 {
     public static class OrderEndpoints
     {
-        public record UpdateOrderRequestData(int OrderId, int ProductId, int ClinicId, decimal Price, int Status);
+        public record UpdateOrderRequestData(int OrderId, int ProductId, int Quantity, int ClinicId, decimal Price, int Status);
 
         public static void MapOrderEndpoints(this WebApplication app)
         {
@@ -50,9 +50,9 @@ namespace Vein360.API.EndPoints
                 return Results.Ok();
             }).DisableAntiforgery();
 
-            app.MapPatch("/orders/{id}", [Authorize] async (int id, int clinicId, IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapPatch("/orders/{id}", [Authorize] async (int id, int clinicId, int quantity, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var order = await mediator.Send(new UpdateOrderClinicRequest(id, clinicId), cancellationToken);
+                var order = await mediator.Send(new UpdateOrderClinicAndQuantityRequest(id, clinicId, quantity), cancellationToken);
 
                 return Results.Ok(order);
             });

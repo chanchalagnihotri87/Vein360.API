@@ -34,6 +34,14 @@ namespace Vein360.Domain.Entities
             }
         }
 
+        public DonationProduct DonationProduct //For Return feature with single product
+        {
+            get
+            {
+                return this.Products.FirstOrDefault();
+            }
+        }
+
         public bool IsNotProcessed()
         {
             return Status != DonationStatus.Processed && Status != DonationStatus.Paid;

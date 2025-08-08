@@ -9,6 +9,7 @@ namespace Vein360.Domain.Entities
     public class Order : BaseEntity
     {
         public int ProductId { get; set; }
+        public int Quantity { get; set; } = 1;
         public int ClinicId { get; set; }
         public decimal Price { get; set; }
         public int UserId { get; set; }
@@ -17,5 +18,13 @@ namespace Vein360.Domain.Entities
         public Product Product { get; set; }
         public Clinic Clinic { get; set; }
         public Vein360User User { get; set; }
+
+        public decimal TotalAmount
+        {
+            get
+            {
+                return Price * Quantity;
+            }
+        }
     }
 }

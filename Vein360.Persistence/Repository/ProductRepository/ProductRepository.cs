@@ -14,9 +14,9 @@ namespace Vein360.Persistence.Repository.ProductRepository
             return GetManyAsNoTrackingAsync(x => x.Trade == TradeType.Sale);
         }
 
-        public Task<ICollection<Product>> GetSortProductsAsNoTrackingAsync()
+        public Task<ICollection<Product>> GetSortProductsAsNoTrackingAsync(List<int> ids)
         {
-            return GetManyAsNoTrackingAsync(x => x.Trade == TradeType.Sort);
+            return GetManyAsNoTrackingAsync(x => ids.Contains(x.Id) &&  x.Trade == TradeType.Sort);
         }
     }
 }

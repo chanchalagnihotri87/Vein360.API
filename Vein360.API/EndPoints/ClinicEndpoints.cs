@@ -6,6 +6,7 @@ using Vein360.Application.Features.Clinics.DeleteClinic;
 using Vein360.Application.Features.Clinics.GetClinic;
 using Vein360.Application.Features.Clinics.GetClinics;
 using Vein360.Application.Features.Clinics.UpdateClinic;
+using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.API.EndPoints
 {
@@ -22,6 +23,15 @@ namespace Vein360.API.EndPoints
 
                 return Results.Ok(clinics);
             });
+
+            app.MapGet("/clinics/myclinics", [Authorize] async (IMediator mediator, IAuthInfoService authInfo, CancellationToken cancellationToken) =>
+            {
+                var clinics = await mediator.Send(new GetClinicsRequest(authInfo.UserId), cancellationToken);
+
+                return Results.Ok(clinics);
+            });
+
+
 
             app.MapGet("/clinics/{userId}", [Authorize] async (int userId, IMediator mediator, CancellationToken cancellationToken) =>
             {
