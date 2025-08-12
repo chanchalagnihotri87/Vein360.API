@@ -18,11 +18,11 @@ namespace Vein360.Shipment.Service
         }
 
 
-        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress shippingAddress)
+        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress)
         {
             var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
 
-            LabelRequestData labelRequestData = GetLabelRequestData(weight: weight, shippingAddress: shippingAddress);
+            LabelRequestData labelRequestData = GetLabelRequestData(senderAddress, Vein360Address.Initialize(), weight: weight);
 
             ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
 
@@ -30,7 +30,7 @@ namespace Vein360.Shipment.Service
         }
 
 
-        private LabelRequestData GetLabelRequestData(string packagingType = "YOUR_PACKAGING", double weight = 10, IShippingAddress shippingAddress = null)
+        private LabelRequestData GetLabelRequestData(IShippingAddress senderAddress, IShippingAddress receiverAddress, string packagingType = "YOUR_PACKAGING", double weight = 10)
         {
 
             var labelRequestData = new LabelRequestData();
@@ -38,73 +38,44 @@ namespace Vein360.Shipment.Service
 
             labelRequestData.RequestedShipment = new RequestedShipment();
 
-            if (shippingAddress != null)
+            labelRequestData.RequestedShipment.Shipper = new Shipper
             {
-
-
-                labelRequestData.RequestedShipment.Shipper = new Shipper
+                Contact = new Contact
                 {
-                    Contact = new Contact
-                    {
-                        PersonName = "",
-                        CompanyName = shippingAddress.CompanyName,
-                        PhoneNumber = shippingAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(shippingAddress.Phone.RemovePhoneFormat()) : default
-                    },
-                    Address = new Address
-                    {
-                        StreetLines = new List<string> { shippingAddress.AddressLine1 },
-                        City = shippingAddress.City,
-                        StateOrProvinceCode = shippingAddress.State,
-                        PostalCode = Convert.ToInt64(shippingAddress.PostalCode),
-                        CountryCode = shippingAddress.Country
-                    }
-                };
-
-            }
-            else
-            {
-                labelRequestData.RequestedShipment.Shipper = new Shipper
+                    PersonName = "",
+                    CompanyName = senderAddress.CompanyName,
+                    PhoneNumber = senderAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(senderAddress.Phone.RemovePhoneFormat()) : default
+                },
+                Address = new Address
                 {
-                    Contact = new Contact
-                    {
-                        PersonName = "SHIPPER NAME",
-                        CompanyName = "Shipper Company Name",
-                        PhoneNumber = 9012638716
-                    },
-                    Address = new Address
-                    {
-                        StreetLines = new List<string> { "SHIPPER STREET LINE 1" },
-                        City = "HARRISON",
-                        StateOrProvinceCode = "AR",
-                        PostalCode = 72601,
-                        CountryCode = "US"
-                    }
-                };
+                    StreetLines = new List<string> { senderAddress.AddressLine1 },
+                    City = senderAddress.City,
+                    StateOrProvinceCode = senderAddress.State,
+                    PostalCode = Convert.ToInt64(senderAddress.PostalCode),
+                    CountryCode = senderAddress.Country
+                }
+            };
 
-            }
             labelRequestData.RequestedShipment.Recipients = [ new Receiver
             {
                 Contact = new Contact
                 {
-                    PersonName = "RECIPIENT NAME",
-                    CompanyName = "Recipient Company Name",
-                    PhoneNumber = 9012638716
+                    PersonName = "",
+                    CompanyName = receiverAddress.CompanyName,
+                    PhoneNumber = Convert.ToInt64(receiverAddress.Phone)
                 },
                 Address = new Address
                 {
                     StreetLines = new List<string>
                     {
-                      "RECIPIENT STREET LINE 1",
-                     "RECIPIENT STREET LINE 2"
+                      receiverAddress.AddressLine1
                     },
-                    City = "Collierville",
-                    StateOrProvinceCode = "TN",
-                    PostalCode = 38017,
-                    CountryCode = "US"
+                    City = receiverAddress.City,
+                    StateOrProvinceCode = receiverAddress.State,
+                    PostalCode =Convert.ToInt64(receiverAddress.PostalCode),
+                    CountryCode = receiverAddress.Country
                 }
             }];
-
-
 
 
             labelRequestData.RequestedShipment.ShipDatestamp = DateTime.Now.ToString("yyyy-MM-dd");
@@ -149,7 +120,7 @@ namespace Vein360.Shipment.Service
 
             try
             {
-                var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
+                var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
                 response.EnsureSuccessStatusCode();
@@ -188,7 +159,7 @@ namespace Vein360.Shipment.Service
                 TrackingNumber = trackingNumber
             };
 
-            var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
+            var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
             var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
 
@@ -207,7 +178,7 @@ namespace Vein360.Shipment.Service
                                 {"client_secret", clientSecret} };
 
 
-                var client = new HttpClient { BaseAddress = new Uri("https://apis-sandbox.fedex.com") };
+                var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
 
                 var response = await client.PostAsync("/oauth/token", new FormUrlEncodedContent(data));
 
