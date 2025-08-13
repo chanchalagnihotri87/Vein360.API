@@ -45,7 +45,7 @@ namespace Vein360.Application.Features.Orders.CreateOrder
             {
                 ProductId = request.ProductId,
                 Quantity = request.Quantity,
-                Price = product.Price,
+                Price = product.Price ?? 0,
                 ClinicId = request.ClinicId,
                 UserId = _authInfo.UserId,
                 Status = OrderStatus.Ordered

@@ -24,8 +24,8 @@ namespace Vein360.Application.Features.Products.UpdateProduct
             product.Name = request.Name;
             product.Vein360ProductId = request.Vein360ProductId;
             product.Type = request.Type;
-            product.Price = request.Price;
-            
+            product.Price = request.Trade == TradeType.Sale ? Convert.ToDecimal(request.Price) : null;
+            product.Trade = request.Trade;
 
             if (request.ImageFile != null)
             {

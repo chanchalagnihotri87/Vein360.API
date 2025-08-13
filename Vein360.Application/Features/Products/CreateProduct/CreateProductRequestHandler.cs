@@ -25,7 +25,7 @@ namespace Vein360.Application.Features.Products.CreateProduct
             {
                 Name = request.Name,
                 Vein360ProductId = request.Vein360ProductId,
-                Price = request.Price,
+                Price = request.Trade == TradeType.Sale ? Convert.ToDecimal(request.Price) : null,
                 Type = request.Type,
                 Trade = request.Trade,
                 Image = await _storageService.StoreProductImageAsync(request.ImageFile)

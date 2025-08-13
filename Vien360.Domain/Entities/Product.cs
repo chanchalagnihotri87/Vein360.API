@@ -6,7 +6,7 @@
         public string Vein360ProductId { get; set; }
         public string Image { get; set; }
         
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
         public ProductType Type { get; set; }
         public TradeType Trade { get; set; } = TradeType.Sort;
     }
