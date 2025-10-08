@@ -3,6 +3,7 @@ using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.ContainerRepository;
 using Vein360.Application.Repository.DonationContainerRepository;
+using Vein360.Application.Service.AuthenticationService;
 using Vein360.Application.Service.ReplenishmentService;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Application.Service.StorageService;
@@ -18,6 +19,7 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
         private readonly IDonationContainerRepository _donationContainerRepo;
         private readonly IContainerRepository _containerRepo;
         private readonly IReplenishmentService _replenishmentService;
+        private readonly IAuthInfoService _authInfo;
 
 
         public ApproveDonationContainerRequestHandler(
@@ -26,7 +28,8 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
             IShipmentService shipmentService,
             IDonationContainerRepository donationContainerRepo,
             IContainerRepository containerRepo,
-            IReplenishmentService replenishmentService)
+            IReplenishmentService replenishmentService,
+            IAuthInfoService authInfo)
 
         {
             _unitOfWork = unitOfWork;
@@ -35,26 +38,21 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
             _donationContainerRepo = donationContainerRepo;
             _containerRepo = containerRepo;
             _replenishmentService = replenishmentService;
+            _authInfo = authInfo;
         }
         public async Task Handle(ApproveDonationContainerRequest request, CancellationToken cancellationToken)
         {
             var donationContainer = await _donationContainerRepo.GetAsync(x => x.Id == request.DonationContainerId,
                                                                               cancellationToken);
 
-
             donationContainer.ApprovedUnits = request.ApprovedUnits;
-
          
             //Make a call to Vein360 internal system to create replenishment order
-            donationContainer.ReplenishmentOrderId = _replenishmentService.CreateReplenishmentOrder(donationContainer.ContainerTypeId, request.ApprovedUnits, donationContainer.DonorId);
+            donationContainer.ReplenishmentOrderId = _replenishmentService.CreateReplenishmentOrder(donationContainer.ContainerTypeId, request.ApprovedUnits, donationContainer.ClinicId, donationContainer.Id, _authInfo.UserName);
 
             donationContainer.MarkAsApproved();
 
             _donationContainerRepo.Update(donationContainer);
-
-         
-
-
 
             await _unitOfWork.SaveAsync(cancellationToken);
 

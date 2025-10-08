@@ -8,6 +8,6 @@ namespace Vein360.Application.Service.ReplenishmentService
 {
    public interface IReplenishmentService
     {
-        int CreateReplenishmentOrder(int containerTypeId, int units, int donorId);//Todo: Replace donorId with clinicId when implemented
+        int CreateReplenishmentOrder(int containerTypeId, int units, int clinicId, int donationContainerId, string approvedBy);//Todo: Replace donorId with clinicId when implemented
     }
 }
