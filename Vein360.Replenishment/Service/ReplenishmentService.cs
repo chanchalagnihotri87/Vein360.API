@@ -37,6 +37,8 @@ namespace Vein360.Replenishment.Service
 
             HttpClient client = new HttpClient();
 
+            client.DefaultRequestHeaders.Add("Local-Api-Key", _configuration["LocalSystemApiKey"]);
+
             client.BaseAddress = new Uri(localSystemApiUrl);
 
             var res = client.PostAsync("/create-replenishment", content).Result;
