@@ -7,6 +7,7 @@
         public int ClinicId { get; set; }
         public int RequestedUnits { get; set; }
         public int? ApprovedUnits { get; set; }
+        public long? ReplenishmentOrderId { get; set; }
         public int DonorId { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
         public DonationContainerStatus Status { get; set; }
