@@ -24,6 +24,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
         private readonly IClinicRepository _clinicalRepo;
         private readonly IStorageService _storageService;
         private readonly IShipmentService _shipmentService;
+        private readonly IPickupService _pickupService;
         private readonly IDonationRepository _donationRepository;
         private readonly IShippingLabelRepository _shippingLabelRepo;
         private readonly IVein360ContainerTypeRepository _containerTypeRepo;
@@ -33,6 +34,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                                             IClinicRepository clinicRepo,
                                             IStorageService storageService,
                                             IShipmentService shipmentService,
+                                            IPickupService pickupService,
                                             IShippingLabelRepository shippingLabelRepo,
                                             IDonationRepository donationRepository,
                                             IVein360ContainerTypeRepository containerTypeRepo)
@@ -42,6 +44,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             _clinicalRepo = clinicRepo;
             _storageService = storageService;
             _shipmentService = shipmentService;
+            _pickupService = pickupService;
             _shippingLabelRepo = shippingLabelRepo;
             _containerTypeRepo = containerTypeRepo;
             _donationRepository = donationRepository;
@@ -56,12 +59,16 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
             _donationRepository.Create(donation);
 
-            await UpdateShipmentInfo(donation);
+            var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
+
+            await UpdateShipmentLabelInfoAsync(donation);
+
+            await UpdateShipmentPickupInfoAsync();
 
             await _unitOfWork.SaveAsync(cancellationToken);
 
 
-            async Task UpdateShipmentInfo(Donation donation)
+            async Task UpdateShipmentLabelInfoAsync(Donation donation)
             {
                 if (donation.UseOldLabel)
                 {
@@ -69,7 +76,6 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 }
                 else
                 {
-                    var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
 
                     var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
                     string shipmentLabelFileName = null;
@@ -107,6 +113,15 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 return new WeightCalculator().CalculateWeight(products.Sum(x => x.Units));
             }
 
+            async Task UpdateShipmentPickupInfoAsync()
+            {
+                var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
+
+                donation.PickupTransactionId = pickupInfo.TransactionId;
+                donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
+            }
         }
+
+
     }
 }

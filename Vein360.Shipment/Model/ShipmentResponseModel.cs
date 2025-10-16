@@ -5,11 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vein360.Shipment
+namespace Vein360.Shipment.Model
 {
-
-
-
     public class ShipmentResponseModel
     {
         public string transactionId { get; set; }

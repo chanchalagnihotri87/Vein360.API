@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vein360.Application.Service.ShipmentService;
+using Vein360.Shipment.Helper;
 using Vein360.Shipment.Service;
 
 namespace Vein360.Shipment
@@ -15,6 +16,12 @@ namespace Vein360.Shipment
         public static IServiceCollection ConfigureShipment(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IShipmentService, ShipmentService>();
+
+            services.AddScoped<IFedexAuthHelper, FedexAuthHelper>();
+
+            services.AddScoped<IPickupService, PickupService>();
+
+            
 
             FedexCredential fedexCredential = GetLoadedFedexCredential(configuration);
 
