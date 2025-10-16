@@ -15,8 +15,6 @@ namespace Vein360.Application.Features.Users.UpdateUser
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepo;
 
-
-
         public UpdateUserRequestHandler(IUnitOfWork unitOfWork, IUserRepository userRepo)
         {
             _userRepo = userRepo;

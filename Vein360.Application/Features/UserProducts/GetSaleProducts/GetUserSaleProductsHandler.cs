@@ -11,18 +11,18 @@ namespace Vein360.Application.Features.UserProducts.GetProducts
 {
     public class GetUserSaleProductsHandler : IRequestHandler<GetUserSaleProductsRequest, List<UserProductDto>>
     {
+        private readonly IAuthInfoService _authInfo;
         private readonly IProductRepository _productRepo;
         private readonly IUserProductRateRepository _productRateRepo;
-        private readonly IAuthInfoService _authInfo;
 
         public GetUserSaleProductsHandler(
+            IAuthInfoService authInfo,
             IProductRepository productRepo,
-            IUserProductRateRepository productRateRepo,
-            IAuthInfoService authInfo)
+            IUserProductRateRepository productRateRepo)
         {
+            _authInfo = authInfo;
             _productRepo = productRepo;
             _productRateRepo = productRateRepo;
-            _authInfo = authInfo;
         }
 
         public async Task<List<UserProductDto>> Handle(GetUserSaleProductsRequest request, CancellationToken cancellationToken)

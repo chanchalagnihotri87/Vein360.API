@@ -22,13 +22,33 @@ namespace Vein360.Shipment.Service
 
         public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress)
         {
-            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
-
             LabelRequestData labelRequestData = GetLabelRequestData(senderAddress, Vein360Address.Initialize(), weight: weight);
 
-            ShipmentDetailDto shipmentDetail = await CreateShipmentAsync(tokenData.access_token, labelRequestData);
+            try
+            {
+                var shipmentResponseString = await CreateFedexShipmentAsync(labelRequestData);
+                var data = JsonSerializer.Deserialize<ShipmentResponseModel>(shipmentResponseString);
 
-            return shipmentDetail;
+                if (data == null)
+                {
+                    throw new InvalidOperationException("Shipment response deserialization resulted in null.");
+                }
+
+                return new ShipmentDetailDto
+                {
+                    TransactionId = data.transactionId,
+                    MasterTrackingNumber = data.masterTrackingNumber,
+                    TrackingNumber = data.trackingNumber,
+                    EncodedLabel = data.encodedLabelData,
+                    LabelUrl = data.labelUrl,
+                    LabelTrackingNumber = data.labelTrackingNumber
+                };
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
 
@@ -116,37 +136,15 @@ namespace Vein360.Shipment.Service
             return labelRequestData;
         }
 
-        private async Task<ShipmentDetailDto> CreateShipmentAsync(string accessToken, LabelRequestData labelRequestData)
+        private async Task<string> CreateFedexShipmentAsync(LabelRequestData labelRequestData)
         {
-            ShipmentDetailDto shipmentDetail = null;
+            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
 
-            try
-            {
-                var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
-                response.EnsureSuccessStatusCode();
-                string content = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<ShipmentResponseModel>(content);
-                if (data != null)
-                {
-                    shipmentDetail = new ShipmentDetailDto
-                    {
-                        TransactionId = data.transactionId,
-                        MasterTrackingNumber = data.masterTrackingNumber,
-                        TrackingNumber = data.trackingNumber,
-                        EncodedLabel = data?.encodedLabelData,
-                        LabelUrl = data?.labelUrl,
-                        LabelTrackingNumber = data?.labelTrackingNumber
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return shipmentDetail;
+            var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
+            var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
         }
 
 

@@ -12,9 +12,9 @@ using Vein360.Domain.Entities;
 namespace Vein360.Application.Features.Products.CreateProduct
 {
     public class CreateProductRequestHandler(
+        IUnitOfWork _unitOfWork,
         IProductRepository _productRepo,
-        IStorageService _storageService,
-        IUnitOfWork _unitOfWork)
+        IStorageService _storageService)
         :
         IRequestHandler<CreateProductRequest>
     {

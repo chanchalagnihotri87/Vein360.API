@@ -12,19 +12,19 @@ namespace Vein360.Application.Features.UserProducts.GetProduct
 {
     public record GetUserProductRequestHandler : IRequestHandler<GetUserProductRequest, UserProductDto>
     {
-        private readonly IUserProductRateRepository _userProductRateRepo;
+        
         private readonly IProductRepository _productRepo;
         private readonly IAuthInfoService _authInfoService;
-
+        private readonly IUserProductRateRepository _userProductRateRepo;
 
         public GetUserProductRequestHandler(
             IProductRepository productRepo,
-            IUserProductRateRepository userProductRateRepo,
-            IAuthInfoService authInfoService)
+            IAuthInfoService authInfoService,
+            IUserProductRateRepository userProductRateRepo)
         {
             _productRepo = productRepo;
-            _userProductRateRepo = userProductRateRepo;
             _authInfoService = authInfoService;
+            _userProductRateRepo = userProductRateRepo;
         }
 
         public async Task<UserProductDto> Handle(GetUserProductRequest request, CancellationToken cancellationToken)

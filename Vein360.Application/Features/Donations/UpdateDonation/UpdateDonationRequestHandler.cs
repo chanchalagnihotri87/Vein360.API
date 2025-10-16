@@ -13,25 +13,14 @@ namespace Vein360.Application.Features.Donations.UpdateDonation
     public class UpdateDonationRequestHandler : IRequestHandler<UpdateDonationRequest, GetAllDonationsResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAuthInfoService _authInfo;
-        private readonly IStorageService _storageService;
-        private readonly IShipmentService _shipmentService;
         private readonly IDonationRepository _donationRepository;
-        private readonly IDonationContainerRepository _donationContainerTypeRepo;
+
 
         public UpdateDonationRequestHandler(IUnitOfWork unitOfWork,
-                                            IAuthInfoService authInfo,
-                                            IStorageService storageService,
-                                            IShipmentService shipmentService,
-                                            IDonationRepository donationRepository,
-                                            IDonationContainerRepository donationContainerTypeRepo)
+                                            IDonationRepository donationRepository)
         {
             _unitOfWork = unitOfWork;
-            _authInfo = authInfo;
-            _storageService = storageService;
-            _shipmentService = shipmentService;
             _donationRepository = donationRepository;
-            _donationContainerTypeRepo = donationContainerTypeRepo;
         }
 
         public async Task<GetAllDonationsResponse> Handle(UpdateDonationRequest request, CancellationToken cancellationToken)

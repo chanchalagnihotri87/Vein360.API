@@ -11,6 +11,7 @@ namespace Vein360.Application.Features.Products.GetSaleProductListItems
     public class GetAllProductListItemsRequestHandler : IRequestHandler<GetAllProductListItemsRequest, ICollection<ListItemDto>>
     {
         private readonly IProductRepository _productRepo;
+
         public GetAllProductListItemsRequestHandler(IProductRepository productRepo)
         {
             _productRepo = productRepo;
@@ -18,7 +19,6 @@ namespace Vein360.Application.Features.Products.GetSaleProductListItems
 
         public async Task<ICollection<ListItemDto>> Handle(GetAllProductListItemsRequest request, CancellationToken cancellationToken)
         {
-
             return _productRepo.GetManyAsNoTracking(x => x.Trade == TradeType.Sale,
                                                          x => new ListItemDto { Id = x.Id, Name = x.Name + " [" + x.Vein360ProductId + "]" },
                                                          cancellationToken);

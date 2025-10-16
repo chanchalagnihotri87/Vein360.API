@@ -30,10 +30,14 @@ namespace Vein360.Shipment.Service
 
             try
             {
-
                 var pickupResponseString = await CreateFedexPickup(pickupRequestData);
 
                 var pickupResponse = JsonSerializer.Deserialize<PickupResponseModel>(pickupResponseString);
+
+                if (pickupResponse == null || pickupResponse.output == null)
+                {
+                    throw new InvalidOperationException("The pickup response or its output is null.");
+                }
 
                 return new ShipmentPickupDetailDto
                 {
@@ -45,8 +49,6 @@ namespace Vein360.Shipment.Service
             {
                 throw;
             }
-
-            
         }
 
         private async Task<string> CreateFedexPickup(PickupRequestData pickupRequestData)

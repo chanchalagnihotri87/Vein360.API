@@ -10,8 +10,8 @@ using Vein360.Application.Service.StorageService;
 namespace Vein360.Application.Features.Products.UpdateProduct
 {
     public class UpdateProductRequestHandler(
-        IProductRepository _productRepo,
         IUnitOfWork _unitOfWork,
+        IProductRepository _productRepo,
         IStorageService _storageService)
         :
         IRequestHandler<UpdateProductRequest>

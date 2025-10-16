@@ -20,8 +20,6 @@ namespace Vein360.Application.Features.Orders.CreateOrder
         private readonly IProductRepository _productRepo;
         private readonly IUserProductRateRepository _userProductRateRepo;
 
-
-
         public CreateOrderRequestHandler(
             IAuthInfoService authInfo,
             IOrderRepository orderRepo,

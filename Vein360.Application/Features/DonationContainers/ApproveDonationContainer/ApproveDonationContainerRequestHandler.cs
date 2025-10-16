@@ -14,31 +14,27 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
     public class ApproveDonationContainerRequestHandler : IRequestHandler<ApproveDonationContainerRequest>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IStorageService _storageService;
-        private readonly IShipmentService _shipmentService;
-        private readonly IDonationContainerRepository _donationContainerRepo;
-        private readonly IContainerRepository _containerRepo;
-        private readonly IReplenishmentService _replenishmentService;
         private readonly IAuthInfoService _authInfo;
+        private readonly IDonationContainerRepository _donationContainerRepo;
+        private readonly IReplenishmentService _replenishmentService;
+        
 
 
         public ApproveDonationContainerRequestHandler(
             IUnitOfWork unitOfWork,
+            IAuthInfoService authInfo,
             IStorageService storageService,
             IShipmentService shipmentService,
-            IDonationContainerRepository donationContainerRepo,
             IContainerRepository containerRepo,
-            IReplenishmentService replenishmentService,
-            IAuthInfoService authInfo)
+            IDonationContainerRepository donationContainerRepo,
+            IReplenishmentService replenishmentService
+            )
 
         {
             _unitOfWork = unitOfWork;
-            _storageService = storageService;
-            _shipmentService = shipmentService;
-            _donationContainerRepo = donationContainerRepo;
-            _containerRepo = containerRepo;
-            _replenishmentService = replenishmentService;
             _authInfo = authInfo;
+            _donationContainerRepo = donationContainerRepo;
+            _replenishmentService = replenishmentService;
         }
         public async Task Handle(ApproveDonationContainerRequest request, CancellationToken cancellationToken)
         {

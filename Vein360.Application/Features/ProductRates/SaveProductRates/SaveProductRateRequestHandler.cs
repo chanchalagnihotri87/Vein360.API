@@ -41,8 +41,6 @@ namespace Vein360.Application.Features.ProductRates.SaveProductRates
                     }
                 }
 
-
-
                 //Add new product rates
                 var newProductRates = request.ProductRates.Where(prodRate => !dbUserProductRates.Any(dbProdRate => dbProdRate.ProductId == prodRate.ProductId)).
                                                            Select(prodRate => MapToUserProduct(prodRate));

@@ -3,11 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vein360.Application.Common.Dtos;
-
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
 using Vein360.Application.Features.Donations.MakePayment;
-using Vein360.Application.Features.Donations.ProcessDonation;
 using Vein360.Application.Features.Donations.SortDonation;
 using Vein360.Application.Features.Donations.Statistic;
 using Vein360.Application.Features.Donations.UpdateContainerId;
@@ -68,14 +66,6 @@ namespace Vein360.API.EndPoints
                 await mediator.Send(new DeleteDonationRequest { DonationId = id });
 
                 return Results.Ok();
-            });
-
-
-            app.MapPatch("/donations/process", [Authorize] async ([FromBody] ProcessDonationRequestData request, IMediator mediator) =>
-            {
-                var response = await mediator.Send(request.Adapt<ProcessDonationRequest>());
-
-                return Results.Ok(response);
             });
 
             app.MapGet("/donations/statistic", [Authorize] async (IMediator mediator) =>

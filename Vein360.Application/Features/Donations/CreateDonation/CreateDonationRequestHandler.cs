@@ -78,19 +78,8 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 {
 
                     var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
-                    string shipmentLabelFileName = null;
 
-                    if (shipmentInfo.EncodedLabel.IsNotNullOrEmpty())
-                    {
-                        shipmentLabelFileName = await _storageService.StoreEncodedLabelAsync(shipmentInfo.TrackingNumber.ToLong(),
-                                                                                 shipmentInfo.EncodedLabel);
-                    }
-                    else if (shipmentInfo.LabelUrl.IsNotNullOrEmpty())
-                    {
-                        shipmentLabelFileName = await _storageService.StoreUrlLabelAsync(shipmentInfo.TrackingNumber.ToLong(), shipmentInfo.LabelUrl);
-                    }
-
-
+                    var shipmentLabelFileName = await StoreShipmentLabelAsync(shipmentInfo);
 
                     donation.LabelFileName = shipmentLabelFileName;
                     donation.FedexTransactionId = shipmentInfo.TransactionId;
@@ -105,6 +94,23 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                     shippingLabel.Used = true;
 
                     _shippingLabelRepo.Update(shippingLabel);
+                }
+
+                async Task<string> StoreShipmentLabelAsync(ShipmentDetailDto shipmentInfo)
+                {
+                    string shipmentLabelFileName = null;
+
+                    if (shipmentInfo.EncodedLabel.IsNotNullOrEmpty())
+                    {
+                        shipmentLabelFileName = await _storageService.StoreEncodedLabelAsync(shipmentInfo.TrackingNumber.ToLong(),
+                                                                                 shipmentInfo.EncodedLabel);
+                    }
+                    else if (shipmentInfo.LabelUrl.IsNotNullOrEmpty())
+                    {
+                        shipmentLabelFileName = await _storageService.StoreUrlLabelAsync(shipmentInfo.TrackingNumber.ToLong(), shipmentInfo.LabelUrl);
+                    }
+
+                    return shipmentLabelFileName;
                 }
             }
 
@@ -121,7 +127,5 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
             }
         }
-
-
     }
 }

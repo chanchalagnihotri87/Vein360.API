@@ -14,7 +14,6 @@ namespace Vein360.Application.Features.ProductRates.GetProductRates
         private readonly IProductRepository _productRepo;
         private readonly IUserProductRateRepository _userProductRateRepo;
 
-
         public GetProductRateRequestHandler(IProductRepository productRepo, IUserProductRateRepository userProductRateRepo)
         {
             _productRepo = productRepo;
