@@ -43,7 +43,6 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(users);
             });
 
-
             app.MapPost("/users", [Authorize] async (CreateUserRequestData req, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 try
@@ -55,7 +54,6 @@ namespace Vein360.API.EndPoints
 
                     return Results.BadRequest(new { duplicateEmail = true });
                 }
-
 
                 return Results.Ok();
             });
@@ -70,7 +68,6 @@ namespace Vein360.API.EndPoints
                 {
                     return Results.BadRequest(new { duplicateEmail = true });
                 }
-
 
                 return Results.Ok();
             });

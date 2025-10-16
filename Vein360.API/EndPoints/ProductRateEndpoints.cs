@@ -26,8 +26,6 @@ namespace Vein360.API.EndPoints
                 var productRates = await mediator.Send(new GetProductRateRequest(userId));
 
                 return Results.Ok(productRates);
-
-
             });
 
             app.MapPut("/productrates/{userId}/{trade}", async (int userId, int trade, List<ProductRateDto> productRates, IMediator mediator, IConfiguration configuration) =>
