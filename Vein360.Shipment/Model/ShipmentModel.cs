@@ -5,7 +5,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Vein360.Shipment
+namespace Vein360.Shipment.Model
 {
     public class LabelRequestData
     {

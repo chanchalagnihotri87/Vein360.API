@@ -6,21 +6,23 @@ using Vein360.Application.Common.Extensions;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Domain.Common;
 using Vein360.Domain.Enums;
+using Vein360.Shipment.Helper;
+using Vein360.Shipment.Model;
 
 namespace Vein360.Shipment.Service
 {
     public class ShipmentService : IShipmentService
     {
-        private readonly FedexCredential fedexCredential;
-        public ShipmentService(FedexCredential fedexCredential)
+        private readonly IFedexAuthHelper fedexAuthHelper;
+        public ShipmentService(IFedexAuthHelper fedexAuthHelper)
         {
-            this.fedexCredential = fedexCredential;
+            this.fedexAuthHelper = fedexAuthHelper;
         }
 
 
         public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress)
         {
-            var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
+            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
 
             LabelRequestData labelRequestData = GetLabelRequestData(senderAddress, Vein360Address.Initialize(), weight: weight);
 
@@ -108,7 +110,7 @@ namespace Vein360.Shipment.Service
 
             labelRequestData.AccountNumber = new AccountNumber
             {
-                Value = fedexCredential.AccountNumber
+                Value = fedexAuthHelper.AccountNumber
             };
 
             return labelRequestData;
@@ -120,7 +122,7 @@ namespace Vein360.Shipment.Service
 
             try
             {
-                var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
+                var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
                 response.EnsureSuccessStatusCode();
@@ -151,15 +153,15 @@ namespace Vein360.Shipment.Service
 
         public async Task CancelShipmentAsync(long trackingNumber)
         {
-            var tokenData = await AuthorizeAsync(fedexCredential.ClientId, fedexCredential.ClientSecret);
+            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
 
             var requestData = new CancelShipmentModel
             {
-                AccountNumber = new AccountNumber { Value = fedexCredential.AccountNumber },
+                AccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber },
                 TrackingNumber = trackingNumber
             };
 
-            var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
+            var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
             var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
 
@@ -167,32 +169,6 @@ namespace Vein360.Shipment.Service
         }
 
 
-        private async Task<TokenDto> AuthorizeAsync(string clientId, string clientSecret)
-        {
-            try
-            {
-
-                var data = new Dictionary<string, string>{
-                                {"grant_type", "client_credentials"},
-                                {"client_id", clientId},
-                                {"client_secret", clientSecret} };
-
-
-                var client = new HttpClient { BaseAddress = new Uri(fedexCredential.ApiUrl) };
-
-                var response = await client.PostAsync("/oauth/token", new FormUrlEncodedContent(data));
-
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-
-                return JsonSerializer.Deserialize<TokenDto>(content);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
     }
 }
