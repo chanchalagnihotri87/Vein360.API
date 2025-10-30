@@ -21,6 +21,7 @@ namespace Vein360.Domain.Entities
         public string? PostalCode { get; set; }
 
         public int UserId { get; set; }
+        public int Vein360ClinicId { get; set; }
 
         public Vein360User User { get; set; }
 

@@ -39,7 +39,8 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
         public async Task Handle(ApproveDonationContainerRequest request, CancellationToken cancellationToken)
         {
             var donationContainer = await _donationContainerRepo.GetAsync(x => x.Id == request.DonationContainerId,
-                                                                              cancellationToken);
+                                                                              cancellationToken,
+                                                                              x=> x.Include(x=>x.Clinic));
 
             donationContainer.ApprovedUnits = request.ApprovedUnits;
          
