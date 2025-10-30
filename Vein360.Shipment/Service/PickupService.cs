@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using Vein360.Application.Common.Dtos;
+using Vein360.Application.Common.Extensions;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Domain.Common;
 using Vein360.Shipment.Helper;
@@ -82,7 +83,7 @@ namespace Vein360.Shipment.Service
                     Contact = new PickupContact
                     {
                         PersonName = receiverAddress.CompanyName,
-                        PhoneNumber = Convert.ToInt64(receiverAddress.Phone)
+                        PhoneNumber = receiverAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(receiverAddress.Phone.RemovePhoneFormat()) : default
                     },
                     Address = new PickupAddress
                     {
