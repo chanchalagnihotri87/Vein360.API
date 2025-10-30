@@ -72,6 +72,11 @@ app.UseHttpsRedirection();
 
 app.MapEndpoints();
 
+app.MapGet("/fedexapiurl", (FedexCredential fedexCredential) =>
+{
+    return Results.Ok(fedexCredential.ApiUrl);
+});
+
 app.UseCors(config =>
 {
     config.
