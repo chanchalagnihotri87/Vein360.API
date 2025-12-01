@@ -112,7 +112,7 @@ namespace Vein360.Shipment.Service
 
             labelRequestData.RequestedShipment.LabelSpecification = new LabelSpecification
             {
-                ImageType = "PDF",
+                ImageType = "ZPLII",
                 LabelStockType = "PAPER_85X11_TOP_HALF_LABEL"
             };
 
