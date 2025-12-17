@@ -76,7 +76,7 @@ namespace Vein360.Shipment.Service
             pickupRequestData.OriginDetail = new OriginDetail
             {
                 PackageLocation = "FRONT",
-                ReadyDateTimestamp = DateTime.Now.AddDays(2).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                ReadyDateTimestamp = DateTime.Now.AddDays(2).Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 CustomerCloseTime = "17:00:00",
                 PickupLocation = new PickupLocation
                 {
