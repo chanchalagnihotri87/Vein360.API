@@ -76,7 +76,7 @@ namespace Vein360.Shipment.Service
             pickupRequestData.OriginDetail = new OriginDetail
             {
                 PackageLocation = "FRONT",
-                ReadyDateTimestamp = DateTime.Now.AddDays(2).Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                ReadyDateTimestamp = GetNextFedExWorkingDay(DateTime.Now.AddDays(2).Date.AddHours(14)).ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 CustomerCloseTime = "17:00:00",
                 PickupLocation = new PickupLocation
                 {
@@ -97,6 +97,17 @@ namespace Vein360.Shipment.Service
             };
 
             return pickupRequestData;
+        }
+
+        private DateTime GetNextFedExWorkingDay(DateTime date)
+        {
+            date = date.Date;
+
+            // Skip Sunday
+            if (date.DayOfWeek == DayOfWeek.Sunday)
+                date = date.AddDays(1);
+
+            return date;
         }
     }
 }
