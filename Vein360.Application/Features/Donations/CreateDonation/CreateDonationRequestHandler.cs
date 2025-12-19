@@ -121,10 +121,13 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
             async Task UpdateShipmentPickupInfoAsync()
             {
-                var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
+                //Commented due to already pickup check need to add because duplicate pickup with same date throwing error.
 
-                donation.PickupTransactionId = pickupInfo.TransactionId;
-                donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
+                //var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
+
+                //donation.PickupTransactionId = pickupInfo.TransactionId;
+                //donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
+
             }
         }
     }
