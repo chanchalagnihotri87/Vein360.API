@@ -69,6 +69,8 @@ namespace Vein360.Shipment.Service
 
         private PickupRequestData GetPickupRequestData(IShippingAddress receiverAddress)
         {
+            DateTime dateAfterTwoDaysAt9AM = DateTime.Now.Date.AddDays(2).AddHours(9);
+
             var pickupRequestData = new PickupRequestData();
             pickupRequestData.AssociatedAccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber };
 
@@ -76,7 +78,7 @@ namespace Vein360.Shipment.Service
             pickupRequestData.OriginDetail = new OriginDetail
             {
                 PackageLocation = "FRONT",
-                ReadyDateTimestamp = GetNextFedExWorkingDay(DateTime.Now.AddDays(2).Date.AddHours(14)).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                ReadyDateTimestamp = GetNextFedExWorkingDay(dateAfterTwoDaysAt9AM).ToString("o"),
                 CustomerCloseTime = "17:00:00",
                 PickupLocation = new PickupLocation
                 {
