@@ -49,6 +49,9 @@ namespace Vein360.Shipment.Model
         [JsonProperty("personName")]
         public string PersonName { get; set; }
 
+        [JsonProperty("companyName")]
+        public string CompanyName { get; set; }
+
         [JsonProperty("phoneNumber")]
         public long PhoneNumber { get; set; }
     }

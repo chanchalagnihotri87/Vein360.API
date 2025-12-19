@@ -82,7 +82,8 @@ namespace Vein360.Shipment.Service
                 {
                     Contact = new PickupContact
                     {
-                        PersonName = receiverAddress.CompanyName,
+                        PersonName = "Front Desk",
+                        CompanyName = receiverAddress.CompanyName,
                         PhoneNumber = receiverAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(receiverAddress.Phone.RemovePhoneFormat()) : default
                     },
                     Address = new PickupAddress
