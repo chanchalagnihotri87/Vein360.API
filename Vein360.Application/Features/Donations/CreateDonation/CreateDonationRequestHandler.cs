@@ -128,6 +128,8 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 //donation.PickupTransactionId = pickupInfo.TransactionId;
                 //donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
 
+                donation.PickupTransactionId = "e45934f4-be66-45b7-840f-4de2143464aa";
+                donation.PickupConfirmationCode = "CPU3864053521";
             }
         }
     }
