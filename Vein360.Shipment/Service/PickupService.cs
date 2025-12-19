@@ -81,7 +81,7 @@ namespace Vein360.Shipment.Service
             pickupRequestData.OriginDetail = new OriginDetail
             {
                 PackageLocation = "FRONT",
-                ReadyDateTimestamp = GetNextFedExWorkingDay(nextFedexWorkingDayAt9AM).ToString("o"),
+                ReadyDateTimestamp = nextFedexWorkingDayAt9AM.ToString("yyyy-MM-ddTHH:mm:ss"),
                 CustomerCloseTime = "17:00:00",
                 PickupLocation = new PickupLocation
                 {
