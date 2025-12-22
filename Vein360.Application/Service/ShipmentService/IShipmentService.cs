@@ -6,5 +6,6 @@ namespace Vein360.Application.Service.ShipmentService
     {
         Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress);
         Task CancelShipmentAsync(long trackingNumber);
+        Task CancelShipmentSafelyAsync(long trackingNumber);
     }
 }

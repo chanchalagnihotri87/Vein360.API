@@ -8,12 +8,11 @@
         public int? FedexPackagingTypeId { get; set; }
         public List<string> ProductTypes { get; set; }
         public long? TrackingNumber { get; set; }
-        public string? PickupTransactionId { get; set; }
-        public string? PickupConfirmationCode { get; set; }
         public string? LabelFileName { get; set; }
         public DonationStatus Status { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
         public DonationProductDto DonationProduct { get; set; }
         public ClinicDto Clinic { get; set; }
+        public PickupDto Pickup { get; set; }
     }
 }

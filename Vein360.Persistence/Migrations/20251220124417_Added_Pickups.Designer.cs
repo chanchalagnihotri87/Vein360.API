@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vein360.Persistence;
 
@@ -11,9 +12,11 @@ using Vein360.Persistence;
 namespace Vein360.Persistence.Migrations
 {
     [DbContext(typeof(Vein360Context))]
-    partial class Vein360ContextModelSnapshot : ModelSnapshot
+    [Migration("20251220124417_Added_Pickups")]
+    partial class Added_Pickups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,7 +95,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Clinics", (string)null);
+                    b.ToTable("Clinics");
 
                     b.HasData(
                         new
@@ -165,7 +168,7 @@ namespace Vein360.Persistence.Migrations
                     b.Property<long?>("MasterTrackingNumber")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("PickupId")
+                    b.Property<int?>("PickupId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -190,7 +193,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("PickupId");
 
-                    b.ToTable("Donations", (string)null);
+                    b.ToTable("Donations");
 
                     b.HasData(
                         new
@@ -202,7 +205,6 @@ namespace Vein360.Persistence.Migrations
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            PickupId = 0,
                             Status = 1,
                             TrackingNumber = 1234567890L,
                             UseOldLabel = false
@@ -216,7 +218,6 @@ namespace Vein360.Persistence.Migrations
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            PickupId = 0,
                             Status = 1,
                             TrackingNumber = 1234567891L,
                             UseOldLabel = false
@@ -230,7 +231,6 @@ namespace Vein360.Persistence.Migrations
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            PickupId = 0,
                             Status = 3,
                             TrackingNumber = 1234567892L,
                             UseOldLabel = false
@@ -244,7 +244,6 @@ namespace Vein360.Persistence.Migrations
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            PickupId = 0,
                             Status = 4,
                             TrackingNumber = 1234567893L,
                             UseOldLabel = false
@@ -258,7 +257,6 @@ namespace Vein360.Persistence.Migrations
                             DonorId = 1,
                             IsDeleted = false,
                             LabelFileName = "label.pdf",
-                            PickupId = 0,
                             Status = 1,
                             TrackingNumber = 1234567894L,
                             UseOldLabel = false
@@ -316,7 +314,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("IsDeleted");
 
-                    b.ToTable("DonationContainers", (string)null);
+                    b.ToTable("DonationContainers");
 
                     b.HasData(
                         new
@@ -512,7 +510,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("DonationId");
 
-                    b.ToTable("DonationPayments", (string)null);
+                    b.ToTable("DonationPayments");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.DonationProduct", b =>
@@ -556,7 +554,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("DonationProduct", (string)null);
+                    b.ToTable("DonationProduct");
 
                     b.HasData(
                         new
@@ -793,7 +791,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("Vein360UserId");
 
-                    b.ToTable("DonorPreferences", (string)null);
+                    b.ToTable("DonorPreferences");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.Order", b =>
@@ -847,7 +845,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.Pickup", b =>
@@ -888,7 +886,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("Pickups", (string)null);
+                    b.ToTable("Pickups");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.Product", b =>
@@ -947,7 +945,7 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("Vein360ProductId")
                         .IsUnique();
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
@@ -1506,7 +1504,7 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("TrackingNumber")
                         .IsUnique();
 
-                    b.ToTable("ShippingLabels", (string)null);
+                    b.ToTable("ShippingLabels");
 
                     b.HasData(
                         new
@@ -1639,7 +1637,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserProductRates", (string)null);
+                    b.ToTable("UserProductRates");
                 });
 
             modelBuilder.Entity("Vein360.Domain.Entities.Vein360Container", b =>
@@ -1678,7 +1676,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("IsDeleted");
 
-                    b.ToTable("Vein360Containers", (string)null);
+                    b.ToTable("Vein360Containers");
 
                     b.HasData(
                         new
@@ -1875,7 +1873,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasIndex("IsDeleted");
 
-                    b.ToTable("Vein360ContainerTypes", (string)null);
+                    b.ToTable("Vein360ContainerTypes");
 
                     b.HasData(
                         new
@@ -1966,7 +1964,7 @@ namespace Vein360.Persistence.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Vein360Users", (string)null);
+                    b.ToTable("Vein360Users");
 
                     b.HasData(
                         new
@@ -2013,9 +2011,7 @@ namespace Vein360.Persistence.Migrations
 
                     b.HasOne("Vein360.Domain.Entities.Pickup", "Pickup")
                         .WithMany()
-                        .HasForeignKey("PickupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PickupId");
 
                     b.Navigation("Clinic");
 
