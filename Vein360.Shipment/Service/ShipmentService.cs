@@ -166,7 +166,18 @@ namespace Vein360.Shipment.Service
             response.EnsureSuccessStatusCode();
         }
 
-
+        public Task CancelShipmentSafelyAsync(long trackingNumber)
+        {
+            try
+            {
+                return CancelShipmentAsync(trackingNumber);
+            }
+            catch
+            {
+                // Log the exception or handle it as needed, but do not rethrow
+                return Task.CompletedTask;
+            }
+        }
 
     }
 }

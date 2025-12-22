@@ -29,6 +29,7 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonorDonations
             var donations = await _donationRepository.GetManyAsync(dnt => dnt.DonorId == _authInfoService.UserId,
                                                                    cancellationToken,
                                                                    dnt => dnt.Include(x => x.Clinic),
+                                                                   dnt => dnt.Include(x => x.Pickup),
                                                                    dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
 
             var response = donations.OrderByDescending(x => x.Id).Adapt<List<GetDonorDonationsResponse>>();

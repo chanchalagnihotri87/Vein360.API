@@ -25,7 +25,7 @@ namespace Vein360.Persistence
         public DbSet<UserProductRate> UserProductRates { get; set; }
         public DbSet<DonationPayment> DonationPayments { get; set; }
         public DbSet<Order> Orders { get; set; }
-
+        public DbSet<Pickup> Pickups { get; set; }
 
 
 

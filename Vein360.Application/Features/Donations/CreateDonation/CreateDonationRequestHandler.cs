@@ -7,6 +7,7 @@ using Vein360.Application.Repository;
 using Vein360.Application.Repository.ClinicRepository;
 using Vein360.Application.Repository.DonationContainerRepository;
 using Vein360.Application.Repository.DonationsRepository;
+using Vein360.Application.Repository.PickupRepository;
 using Vein360.Application.Repository.ShippingLabelRepository;
 using Vein360.Application.Repository.Vein360ContainerTypeRepository;
 using Vein360.Application.Service.AuthenticationService;
@@ -21,52 +22,63 @@ namespace Vein360.Application.Features.Donations.CreateDonation
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuthInfoService _authInfo;
 
+        private readonly IPickupRepository _pickupRepo;
+        private readonly IPickupService _pickupService;
         private readonly IClinicRepository _clinicalRepo;
         private readonly IStorageService _storageService;
         private readonly IShipmentService _shipmentService;
-        private readonly IPickupService _pickupService;
         private readonly IDonationRepository _donationRepository;
         private readonly IShippingLabelRepository _shippingLabelRepo;
-        private readonly IVein360ContainerTypeRepository _containerTypeRepo;
+
+
 
         public CreateDonationRequestHandler(IUnitOfWork unitOfWork,
                                             IAuthInfoService authInfo,
+                                            IPickupRepository pickupRepo,
                                             IClinicRepository clinicRepo,
                                             IStorageService storageService,
                                             IShipmentService shipmentService,
                                             IPickupService pickupService,
                                             IShippingLabelRepository shippingLabelRepo,
-                                            IDonationRepository donationRepository,
-                                            IVein360ContainerTypeRepository containerTypeRepo)
+                                            IDonationRepository donationRepository
+                                            )
         {
             _authInfo = authInfo;
             _unitOfWork = unitOfWork;
+            _pickupRepo = pickupRepo;
             _clinicalRepo = clinicRepo;
             _storageService = storageService;
             _shipmentService = shipmentService;
             _pickupService = pickupService;
             _shippingLabelRepo = shippingLabelRepo;
-            _containerTypeRepo = containerTypeRepo;
             _donationRepository = donationRepository;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
             Donation donation = DonationFactory.CreateDonation(request.ClinicId,
-                                                               request.TrackingNumber,
-                                                               request.Products,
-                                                               _authInfo.UserId);
-
-            _donationRepository.Create(donation);
+                                                                   request.TrackingNumber,
+                                                                   request.Products,
+                                                                   _authInfo.UserId);
 
             var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
 
-            await UpdateShipmentLabelInfoAsync(donation);
+            try
+            {
+                _donationRepository.Create(donation);
 
-            await UpdateShipmentPickupInfoAsync();
+                await UpdateShipmentLabelInfoAsync(donation);
 
-            await _unitOfWork.SaveAsync(cancellationToken);
+                await UpdateShipmentPickupInfoAsync();
 
+                await _unitOfWork.SaveAsync(cancellationToken);
+            }
+            catch (Exception)
+            {
+                await RollbackFedexShipmentAndPickup();
+
+                throw;
+            }
 
             async Task UpdateShipmentLabelInfoAsync(Donation donation)
             {
@@ -76,7 +88,6 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 }
                 else
                 {
-
                     var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
 
                     var shipmentLabelFileName = await StoreShipmentLabelAsync(shipmentInfo);
@@ -121,15 +132,37 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
             async Task UpdateShipmentPickupInfoAsync()
             {
-                //Commented due to already pickup check need to add because duplicate pickup with same date throwing error.
+                var pickupDateTime = _pickupService.GetPickupDateTime();
 
-                //var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
+                // if there is already a pickup for the clinic on the same date, use that pickup info
+                var previousSameDayPickup = await _pickupRepo.GetAsync(x => x.ClinicId == donation.ClinicId && x.PickupDateTime >= pickupDateTime.Date && x.PickupDateTime < pickupDateTime.AddDays(1).Date);
+                if (previousSameDayPickup.IsNotNull())
+                {
+                    donation.PickupId = previousSameDayPickup.Id;
+                    return;
+                }
 
-                //donation.PickupTransactionId = pickupInfo.TransactionId;
-                //donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
+                // otherwise, create a new pickup and assign its info to the donation
+                var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
+                var newPickup = PickupFactory.CreatePickup(donation.ClinicId, pickupInfo.TransactionId, pickupInfo.ConfirmationCode, pickupDateTime); ;
+                _pickupRepo.Create(newPickup);
 
-                donation.PickupTransactionId = "e45934f4-be66-45b7-840f-4de2143464aa";
-                donation.PickupConfirmationCode = "CPU3864053521";
+                donation.Pickup = newPickup;
+            }
+
+            async Task RollbackFedexShipmentAndPickup()
+            {
+                // Cancel Pickup only if it's newly created
+                if (donation.Pickup.IsNotNull())
+                {
+                    await _pickupService.CancelPickupSafelyAsync(donation.Pickup.PickupConfirmationCode, donation.Pickup.PickupDateTime);
+                }
+
+                // Cancel Shipment if created
+                if (donation.TrackingNumber.IsNotNull())
+                {
+                    await _shipmentService.CancelShipmentSafelyAsync(donation.TrackingNumber!.Value);
+                }
             }
         }
     }

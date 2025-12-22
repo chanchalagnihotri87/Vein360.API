@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -56,23 +57,30 @@ namespace Vein360.Shipment.Service
         {
             var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
 
-            var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+            };
+
+            var client = new HttpClient(handler) { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
 
             var response = await client.PostAsJsonAsync("/pickup/v1/pickups", pickupRequestData);
 
-            response.EnsureSuccessStatusCode();
+            var responseString = await response.Content.ReadAsStringAsync();
 
-            return await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"FedEx Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
+            }
+
+            return responseString;
         }
 
         private PickupRequestData GetPickupRequestData(IShippingAddress receiverAddress)
         {
-            DateTime dateAfterTwoDays = DateTime.Now.Date.AddDays(2);
-           DateTime nextFedexWorkingDay= GetNextFedExWorkingDay(dateAfterTwoDays);
-            DateTime nextFedexWorkingDayAt9AM = nextFedexWorkingDay.AddHours(9);
-
+            var pickupDateTime = GetPickupDateTime();
 
             var pickupRequestData = new PickupRequestData();
             pickupRequestData.AssociatedAccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber };
@@ -81,7 +89,7 @@ namespace Vein360.Shipment.Service
             pickupRequestData.OriginDetail = new OriginDetail
             {
                 PackageLocation = "FRONT",
-                ReadyDateTimestamp = nextFedexWorkingDayAt9AM.ToString("yyyy-MM-ddTHH:mm:ss"),
+                ReadyDateTimestamp = pickupDateTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                 CustomerCloseTime = "17:00:00",
                 PickupLocation = new PickupLocation
                 {
@@ -105,15 +113,70 @@ namespace Vein360.Shipment.Service
             return pickupRequestData;
         }
 
-        private DateTime GetNextFedExWorkingDay(DateTime date)
+        public DateTime GetPickupDateTime()
         {
-            date = date.Date;
+            DateTime dateAfterTwoDays = DateTime.Now.Date.AddDays(2);
+            DateTime nextFedexWorkingDay = GetNextFedExWorkingDay(dateAfterTwoDays);
+            DateTime nextFedexWorkingDayAt9AM = nextFedexWorkingDay.AddHours(9);
 
-            // Skip Sunday
-            if (date.DayOfWeek == DayOfWeek.Sunday)
-                date = date.AddDays(1);
+            return nextFedexWorkingDayAt9AM;
 
-            return date;
+
+            DateTime GetNextFedExWorkingDay(DateTime date)
+            {
+                date = date.Date;
+
+                // Skip Sunday
+                if (date.DayOfWeek == DayOfWeek.Sunday)
+                    date = date.AddDays(1);
+
+                return date;
+            }
+        }
+
+        public async Task CancelPickupAsync(string pickupConfirmationCode, DateTime pickupDateTime)
+        {
+            var cancelPickupRequestData = new CancelPickupModel
+            {
+                CarrierCode = "FDXG",
+                AssociatedAccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber },
+                PickupConfirmationCode = pickupConfirmationCode,
+                ScheduledDate = pickupDateTime.ToString("yyyy-MM-dd")
+            };
+
+
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+            };
+
+            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
+
+            var client = new HttpClient() { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
+
+            var response = await client.PutAsJsonAsync("/pickup/v1/pickups/cancel", cancelPickupRequestData);
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"FedEx Pickup API Error: {responseString} \n\n Request Data: {JsonSerializer.Serialize(cancelPickupRequestData)}");
+            }
+
+        }
+
+        public async Task CancelPickupSafelyAsync(string pickupConfirmationCode, DateTime pickupDateTime)
+        {
+            try
+            {
+                await CancelPickupAsync(pickupConfirmationCode, pickupDateTime);
+            }
+            catch (Exception)
+            {
+                //Log cancel pickup error
+            }
         }
     }
 }

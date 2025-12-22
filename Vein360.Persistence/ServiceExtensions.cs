@@ -14,11 +14,13 @@ using Vein360.Application.Repository.DonationsRepository;
 using Vein360.Application.Repository.DonorPreferenceRepository;
 using Vein360.Application.Repository.OrderRepository;
 using Vein360.Application.Repository.PaymentRepository;
+using Vein360.Application.Repository.PickupRepository;
 using Vein360.Application.Repository.ProductRepository;
 using Vein360.Application.Repository.ShippingLabelRepository;
 using Vein360.Application.Repository.UserProductRateRepository;
 using Vein360.Application.Repository.UserRepository;
 using Vein360.Application.Repository.Vein360ContainerTypeRepository;
+using Vein360.Application.Service.ShipmentService;
 using Vein360.Persistence.Repository;
 using Vein360.Persistence.Repository.ClinicRepository;
 using Vein360.Persistence.Repository.ContainerRepository;
@@ -27,6 +29,7 @@ using Vein360.Persistence.Repository.DonationRepository;
 using Vein360.Persistence.Repository.DonorPreferenceRepository;
 using Vein360.Persistence.Repository.OrderRepository;
 using Vein360.Persistence.Repository.PaymentRepository;
+using Vein360.Persistence.Repository.PickupRepository;
 using Vein360.Persistence.Repository.ProductRepository;
 using Vein360.Persistence.Repository.ShippingLabelRepository;
 using Vein360.Persistence.Repository.UserProductRateRepository;
@@ -56,6 +59,7 @@ namespace Vein360.Persistence
             services.AddScoped<IUserProductRateRepository, UserProductRateRepository>();
             services.AddScoped<IDonationPaymentRepository, DonationPaymentRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IPickupRepository, PickupRepository>();
         }
     }
 }
