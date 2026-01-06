@@ -26,10 +26,11 @@ namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
 
         public async Task<List<GetAllDonationsResponse>> Handle(GetAllDonationsRequest request, CancellationToken cancellationToken)
         {
-            var donations = await _donationRepository.GetAllAsync( cancellationToken, 
-                                                                   dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
+            var donations = await _donationRepository.GetAllAsync(cancellationToken,
+                                                                   dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product),
+                                                                   dnt => dnt.Include(x => x.Donor));
 
-            var response = donations.OrderByDescending(x=> x.Id).Adapt<List<GetAllDonationsResponse>>();
+            var response = donations.OrderByDescending(x => x.Id).Adapt<List<GetAllDonationsResponse>>();
 
             return await Task.FromResult(response);
         }
