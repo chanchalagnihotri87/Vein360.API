@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Shipment.Helper
 {
-    public class FedexDataHelper
+    public class FedexPackageHelper
     {
         private static readonly List<FedexPackage> FedexPackages = new()
         {

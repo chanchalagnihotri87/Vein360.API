@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace Vein360.Shipment.Helper
         public string ApiUrl { get; }   
         public long AccountNumber { get; }
         Task<TokenDto> GetAccessTokenAsync();
+        Task<HttpClient> GetAuthorizedHttpClientAsync();
     }
 
     public class FedexAuthHelper: IFedexAuthHelper
@@ -59,6 +62,25 @@ namespace Vein360.Shipment.Helper
             {
                 throw ex;
             }
+        }
+
+
+        public async Task<HttpClient> GetAuthorizedHttpClientAsync()
+        {
+            // Get access token
+            var tokenData = await GetAccessTokenAsync();
+
+            // Configure HttpClientHandler for automatic decompression
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+            };
+
+            // Create HttpClient with authorization header
+            var client = new HttpClient(handler) { BaseAddress = new Uri(ApiUrl) };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
+
+            return client;
         }
 
     }

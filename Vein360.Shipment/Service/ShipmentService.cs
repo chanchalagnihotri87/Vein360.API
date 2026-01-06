@@ -20,39 +20,45 @@ namespace Vein360.Shipment.Service
         }
 
 
-        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress)
+        public async Task<ShipmentDetailDto> CreateDonationShipmentAsync(double weight, IShippingAddress senderAddress, AddressDto formattedSenderAddress, string shipDate )
         {
-            LabelRequestData labelRequestData = GetLabelRequestData(senderAddress, Vein360Address.Initialize(), weight: weight);
+            // Build Label Request Data
+            LabelRequestData labelRequestData = BuildLabelRequestData(senderAddress, formattedSenderAddress, Vein360Address.Initialize(), shipDate, weight: weight);
 
-            try
+
+
+            // Call FedEx Shipment API
+            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
+            var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+
+            // Handle non-success response
+            if (!response.IsSuccessStatusCode)
             {
-                var shipmentResponseString = await CreateFedexShipmentAsync(labelRequestData);
-                var data = JsonSerializer.Deserialize<ShipmentResponseModel>(shipmentResponseString);
-
-                if (data == null)
-                {
-                    throw new InvalidOperationException("Shipment response deserialization resulted in null.");
-                }
-
-                return new ShipmentDetailDto
-                {
-                    TransactionId = data.transactionId,
-                    MasterTrackingNumber = data.masterTrackingNumber,
-                    TrackingNumber = data.trackingNumber,
-                    EncodedLabel = data.encodedLabelData,
-                    LabelUrl = data.labelUrl,
-                    LabelTrackingNumber = data.labelTrackingNumber
-                };
-
+                throw new InvalidOperationException($"FedEx error on Create Shipment using Shipment API Error: {responseString}. Request Data: {JsonSerializer.Serialize(labelRequestData)}");
             }
-            catch (Exception ex)
+
+            // Deserialize response
+            var data = JsonSerializer.Deserialize<ShipmentResponseModel>(responseString);
+
+
+            // Return Shipment Detail
+            return new ShipmentDetailDto
             {
-                throw;
-            }
+                TransactionId = data.transactionId,
+                MasterTrackingNumber = data.masterTrackingNumber,
+                TrackingNumber = data.trackingNumber,
+                EncodedLabel = data.encodedLabelData,
+                LabelUrl = data.labelUrl,
+                LabelTrackingNumber = data.labelTrackingNumber
+            };
+
+
         }
 
-
-        private LabelRequestData GetLabelRequestData(IShippingAddress senderAddress, IShippingAddress receiverAddress, string packagingType = "YOUR_PACKAGING", double weight = 10)
+        // Private Methods
+        private LabelRequestData BuildLabelRequestData(IShippingAddress senderAddress, AddressDto formattedSenderAddress, IShippingAddress receiverAddress, string shipDate, string packagingType = "YOUR_PACKAGING", double weight = 10)
         {
 
             var labelRequestData = new LabelRequestData();
@@ -68,13 +74,13 @@ namespace Vein360.Shipment.Service
                     CompanyName = senderAddress.CompanyName,
                     PhoneNumber = senderAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(senderAddress.Phone.RemovePhoneFormat()) : default
                 },
-                Address = new Address
+                Address = new ShipmentAddress
                 {
-                    StreetLines = new List<string> { senderAddress.AddressLine1 },
-                    City = senderAddress.City,
-                    StateOrProvinceCode = senderAddress.State,
-                    PostalCode = Convert.ToInt64(senderAddress.PostalCode),
-                    CountryCode = senderAddress.Country
+                    StreetLines = formattedSenderAddress.StreetLines,
+                    City = formattedSenderAddress.City,
+                    StateOrProvinceCode = formattedSenderAddress.StateOrProvinceCode,
+                    PostalCode = formattedSenderAddress.PostalCode,
+                    CountryCode = formattedSenderAddress.CountryCode
                 }
             };
 
@@ -86,7 +92,7 @@ namespace Vein360.Shipment.Service
                     CompanyName = receiverAddress.CompanyName,
                     PhoneNumber = Convert.ToInt64(receiverAddress.Phone)
                 },
-                Address = new Address
+                Address = new ShipmentAddress
                 {
                     StreetLines = new List<string>
                     {
@@ -94,15 +100,15 @@ namespace Vein360.Shipment.Service
                     },
                     City = receiverAddress.City,
                     StateOrProvinceCode = receiverAddress.State,
-                    PostalCode =Convert.ToInt64(receiverAddress.PostalCode),
+                    PostalCode = receiverAddress.PostalCode,
                     CountryCode = receiverAddress.Country
                 }
             }];
 
 
-            labelRequestData.RequestedShipment.ShipDatestamp = DateTime.Now.ToString("yyyy-MM-dd");
+            labelRequestData.RequestedShipment.ShipDatestamp = shipDate;
             labelRequestData.RequestedShipment.ServiceType = "FEDEX_GROUND";
-            labelRequestData.RequestedShipment.PackagingType = packagingType; //"YOUR_PACKAGING";
+            labelRequestData.RequestedShipment.PackagingType = packagingType;
             labelRequestData.RequestedShipment.PickupType = "USE_SCHEDULED_PICKUP";
             labelRequestData.RequestedShipment.BlockInsightVisibility = false;
             labelRequestData.RequestedShipment.ShippingChargesPayment = new ShippingChargesPayment
@@ -136,33 +142,20 @@ namespace Vein360.Shipment.Service
             return labelRequestData;
         }
 
-        private async Task<string> CreateFedexShipmentAsync(LabelRequestData labelRequestData)
-        {
-            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
-
-            var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
-            var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
-        }
-
-
-
         public async Task CancelShipmentAsync(long trackingNumber)
         {
-            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
-
+            // Build Cancel Shipment Request Data
             var requestData = new CancelShipmentModel
             {
                 AccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber },
                 TrackingNumber = trackingNumber
             };
 
-            var client = new HttpClient { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
+            // Call FedEx Shipment Cancel API
+            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
             var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
 
+            // Handle non-success response
             response.EnsureSuccessStatusCode();
         }
 
@@ -170,11 +163,14 @@ namespace Vein360.Shipment.Service
         {
             try
             {
+                // Attempt to cancel the shipment
                 return CancelShipmentAsync(trackingNumber);
             }
             catch
             {
-                // Log the exception or handle it as needed, but do not rethrow
+                //Log cancel shipment error
+
+                // Swallow any exceptions to ensure safe cancellation
                 return Task.CompletedTask;
             }
         }

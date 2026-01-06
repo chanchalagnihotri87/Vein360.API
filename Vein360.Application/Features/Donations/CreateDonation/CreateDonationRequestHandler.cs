@@ -29,6 +29,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
         private readonly IShipmentService _shipmentService;
         private readonly IDonationRepository _donationRepository;
         private readonly IShippingLabelRepository _shippingLabelRepo;
+        private readonly IAddressValidationService _addressValidationService;
 
 
 
@@ -40,7 +41,8 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                                             IShipmentService shipmentService,
                                             IPickupService pickupService,
                                             IShippingLabelRepository shippingLabelRepo,
-                                            IDonationRepository donationRepository
+                                            IDonationRepository donationRepository,
+                                            IAddressValidationService addressValidationService
                                             )
         {
             _authInfo = authInfo;
@@ -52,24 +54,26 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             _pickupService = pickupService;
             _shippingLabelRepo = shippingLabelRepo;
             _donationRepository = donationRepository;
+            _addressValidationService = addressValidationService;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
-            Donation donation = DonationFactory.CreateDonation(request.ClinicId,
-                                                                   request.TrackingNumber,
-                                                                   request.Products,
-                                                                   _authInfo.UserId);
-
-            var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
-
+            Donation donation = DonationFactory.CreateDonation(request.ClinicId, request.TrackingNumber,
+                                                               request.Products, _authInfo.UserId);
             try
             {
                 _donationRepository.Create(donation);
 
-                await UpdateShipmentLabelInfoAsync(donation);
+                var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
 
-                await UpdateShipmentPickupInfoAsync();
+                var formattedClinicAddress = await _addressValidationService.ValidateAddressAsync(clinic);
+
+                // Create Shipment Pickup and Pickup Info in Donation
+                var pickupTime = await UpdateShipmentPickupInfoAsync(donation, clinic, formattedClinicAddress);
+
+                // Create Shipment Label and Shipment Info in Donation
+                await UpdateShipmentLabelInfoAsync(donation, pickupTime, clinic, formattedClinicAddress);
 
                 await _unitOfWork.SaveAsync(cancellationToken);
             }
@@ -80,25 +84,67 @@ namespace Vein360.Application.Features.Donations.CreateDonation
                 throw;
             }
 
-            async Task UpdateShipmentLabelInfoAsync(Donation donation)
+            async Task<IPickupTime> UpdateShipmentPickupInfoAsync(Donation donation, Clinic clinic, AddressDto formattedClinicAddress)
             {
+                //Get available pickup times from Fedex
+                var availablePickupTimes = await _pickupService.CheckPickupAvailability(clinic.PostalCode, clinic.Country);
+
+                if (availablePickupTimes.IsEmpty() || availablePickupTimes.All(x => x.ReadyDateTime.IsNull()))
+                {
+                    throw new Exception("Pickup is not available.");
+                }
+
+
+                // first, check if there's an existing pickup for the same clinic on the any available day
+                foreach (var availablePickupTime in availablePickupTimes)
+                {
+                    var pickupDateTime = availablePickupTime!.ReadyDateTime;
+
+                    var previousSameDayPickup = await _pickupRepo.GetAsync(x => x.ClinicId == donation.ClinicId && x.PickupDateTime >= pickupDateTime.Date && x.PickupDateTime < pickupDateTime.AddDays(1).Date);
+                    if (previousSameDayPickup.IsNotNull())
+                    {
+                        donation.PickupId = previousSameDayPickup.Id;
+                        return availablePickupTime;
+                    }
+                }
+
+
+                // otherwise, create a new pickup and assign its info to the donation
+                var pickupInfo = await _pickupService.CreatePickupAsync(clinic, availablePickupTimes, formattedClinicAddress);
+                var newPickup = PickupFactory.CreatePickup(donation.ClinicId, pickupInfo.TransactionId, pickupInfo.ConfirmationCode, pickupInfo.PickupTime.ReadyDateTime); ;
+                _pickupRepo.Create(newPickup);
+
+                donation.Pickup = newPickup;
+
+                return pickupInfo.PickupTime;
+            }
+
+            async Task UpdateShipmentLabelInfoAsync(Donation donation, IPickupTime pickupTime, Clinic clinic, AddressDto formattedClinicAddress)
+            {
+                // If using old label, just mark it as used and return
                 if (donation.UseOldLabel)
                 {
-                    await MarkShippingLabelAsUsed(donation.TrackingNumber!.Value, cancellationToken);
-                }
-                else
-                {
-                    var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
-
-                    var shipmentLabelFileName = await StoreShipmentLabelAsync(shipmentInfo);
-
-                    donation.LabelFileName = shipmentLabelFileName;
-                    donation.FedexTransactionId = shipmentInfo.TransactionId;
-                    donation.MasterTrackingNumber = shipmentInfo.MasterTrackingNumber.ToLong();
-                    donation.TrackingNumber = shipmentInfo.TrackingNumber.ToLong();
+                    await MarkOldShippingLabelAsUsed(donation.TrackingNumber!.Value, cancellationToken);
+                    return;
                 }
 
-                async Task MarkShippingLabelAsUsed(long trackingNumber, CancellationToken cancellationToken)
+
+                // otherwise, create a new shipment
+                var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic, formattedClinicAddress, pickupTime.ReadyDateString);
+
+                // Store shipment label
+                var shipmentLabelFileName = await StoreShipmentLabelAsync(shipmentInfo);
+
+                // Update donation with shipment info
+                donation.LabelFileName = shipmentLabelFileName;
+                donation.FedexTransactionId = shipmentInfo.TransactionId;
+                donation.MasterTrackingNumber = shipmentInfo.MasterTrackingNumber.ToLong();
+                donation.TrackingNumber = shipmentInfo.TrackingNumber.ToLong();
+
+
+
+                // Local functions
+                async Task MarkOldShippingLabelAsUsed(long trackingNumber, CancellationToken cancellationToken)
                 {
                     var shippingLabel = await _shippingLabelRepo.GetLabelByTrackingNumber(trackingNumber, cancellationToken);
 
@@ -106,7 +152,6 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
                     _shippingLabelRepo.Update(shippingLabel);
                 }
-
                 async Task<string> StoreShipmentLabelAsync(ShipmentDetailDto shipmentInfo)
                 {
                     string shipmentLabelFileName = null;
@@ -123,31 +168,10 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
                     return shipmentLabelFileName;
                 }
-            }
-
-            double CalculateWeight(List<DonationProductItemDto> products)
-            {
-                return new WeightCalculator().CalculateWeight(products.Sum(x => x.Units));
-            }
-
-            async Task UpdateShipmentPickupInfoAsync()
-            {
-                var pickupDateTime = _pickupService.GetPickupDateTime();
-
-                // if there is already a pickup for the clinic on the same date, use that pickup info
-                var previousSameDayPickup = await _pickupRepo.GetAsync(x => x.ClinicId == donation.ClinicId && x.PickupDateTime >= pickupDateTime.Date && x.PickupDateTime < pickupDateTime.AddDays(1).Date);
-                if (previousSameDayPickup.IsNotNull())
+                double CalculateWeight(List<DonationProductItemDto> products)
                 {
-                    donation.PickupId = previousSameDayPickup.Id;
-                    return;
+                    return new WeightCalculator().CalculateWeight(products.Sum(x => x.Units));
                 }
-
-                // otherwise, create a new pickup and assign its info to the donation
-                var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
-                var newPickup = PickupFactory.CreatePickup(donation.ClinicId, pickupInfo.TransactionId, pickupInfo.ConfirmationCode, pickupDateTime); ;
-                _pickupRepo.Create(newPickup);
-
-                donation.Pickup = newPickup;
             }
 
             async Task RollbackFedexShipmentAndPickup()

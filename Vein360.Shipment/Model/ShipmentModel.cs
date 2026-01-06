@@ -25,7 +25,7 @@ namespace Vein360.Shipment.Model
         public long Value { get; set; }
     }
 
-    public class Address
+    public class ShipmentAddress
     {
         [JsonProperty("streetLines")]
         public List<string> StreetLines { get; set; }
@@ -37,7 +37,7 @@ namespace Vein360.Shipment.Model
         public string StateOrProvinceCode { get; set; }
 
         [JsonProperty("postalCode")]
-        public long PostalCode { get; set; }
+        public string PostalCode { get; set; }
 
         [JsonProperty("countryCode")]
         public string CountryCode { get; set; }
@@ -91,7 +91,7 @@ namespace Vein360.Shipment.Model
         public Contact Contact { get; set; }
 
         [JsonProperty("address")]
-        public Address Address { get; set; }
+        public ShipmentAddress Address { get; set; }
     }
 
     public class RequestedPackageLineItem
@@ -151,7 +151,7 @@ namespace Vein360.Shipment.Model
         public Contact Contact { get; set; }
 
         [JsonProperty("address")]
-        public Address Address { get; set; }
+        public ShipmentAddress Address { get; set; }
     }
 
     public class ShippingChargesPayment
