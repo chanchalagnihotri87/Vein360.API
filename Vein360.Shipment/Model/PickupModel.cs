@@ -68,7 +68,7 @@ namespace Vein360.Shipment.Model
         public string StateOrProvinceCode { get; set; }
 
         [JsonProperty("postalCode")]
-        public long PostalCode { get; set; }
+        public string PostalCode { get; set; }
 
         [JsonProperty("countryCode")]
         public string CountryCode { get; set; }

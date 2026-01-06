@@ -48,7 +48,7 @@ builder.Services.ConfigurePersistence(builder.Configuration);
 
 builder.Services.ConfigureApplication();
 
-builder.Services.ConfigureShipment(builder.Configuration);
+builder.Services.ConfigureShipment(builder.Configuration, builder.Environment.IsDevelopment());
 
 builder.Services.ConfigureStorage(builder.Environment.IsDevelopment());
 

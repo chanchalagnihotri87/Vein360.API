@@ -9,9 +9,9 @@ namespace Vein360.Application.Service.ShipmentService
 {
     public interface IPickupService
     {
-        Task<ShipmentPickupDetailDto> CreatePickupAsync(IShippingAddress senderAddress);
+        Task<ShipmentPickupDetailDto> CreatePickupAsync(IShippingAddress senderAddress, IEnumerable<IPickupTime> availablePickupTimes, AddressDto formattedAddress);
         Task CancelPickupAsync(string pickupConfirmationCode, DateTime pickupDateTime);
         Task CancelPickupSafelyAsync(string pickupConfirmationCode, DateTime pickupDateTime);
-        DateTime GetPickupDateTime();
+        Task<IEnumerable<AvailableTimeDto>> CheckPickupAvailability(string postalCode, string countryCode);
     }
 }

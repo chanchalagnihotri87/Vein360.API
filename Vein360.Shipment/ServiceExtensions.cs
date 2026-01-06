@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vein360.Application.Service.ShipmentService;
+using Vein360.Application.Service.StorageService;
 using Vein360.Shipment.Helper;
 using Vein360.Shipment.Service;
 
@@ -13,7 +14,7 @@ namespace Vein360.Shipment
 {
     public static class ServiceExtensions
     {
-        public static IServiceCollection ConfigureShipment(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureShipment(this IServiceCollection services, IConfiguration configuration, bool isDevelopment)
         {
             services.AddScoped<IShipmentService, ShipmentService>();
 
@@ -21,7 +22,16 @@ namespace Vein360.Shipment
 
             services.AddScoped<IPickupService, PickupService>();
 
-            
+
+            if (isDevelopment)
+            {
+                services.AddScoped<IAddressValidationService, LocalAddressValidationService>();
+            }
+            else
+            {
+                services.AddScoped<IAddressValidationService, FedexAddressValidationService>();
+            }
+
 
             FedexCredential fedexCredential = GetLoadedFedexCredential(configuration);
 

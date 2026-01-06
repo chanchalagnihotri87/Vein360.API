@@ -12,6 +12,7 @@ using Vein360.Application.Common.Dtos;
 using Vein360.Application.Common.Extensions;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Domain.Common;
+using Vein360.Domain.Entities;
 using Vein360.Shipment.Helper;
 using Vein360.Shipment.Model;
 
@@ -26,116 +27,95 @@ namespace Vein360.Shipment.Service
             this.fedexAuthHelper = fedexAuthHelper;
         }
 
-        public async Task<ShipmentPickupDetailDto> CreatePickupAsync(IShippingAddress senderAddress)
+
+        public async Task<ShipmentPickupDetailDto> CreatePickupAsync(IShippingAddress senderAddress, IEnumerable<IPickupTime> availablePickupTimes, AddressDto formattedAddress)
         {
-            PickupRequestData pickupRequestData = GetPickupRequestData(senderAddress);
 
-            try
+            // Try each available pickup time to create pickup until one succeeds
+            foreach (var pickupTime in availablePickupTimes.OrderBy(x => x.ReadyDateTime))
             {
-                var pickupResponseString = await CreateFedexPickup(pickupRequestData);
+                PickupRequestData pickupRequestData = BuildPickupRequestData(senderAddress, pickupTime, formattedAddress);
 
-                var pickupResponse = JsonSerializer.Deserialize<PickupResponseModel>(pickupResponseString);
+                // Call FedEx Pickup API
+                var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
+                var response = await client.PostAsJsonAsync("/pickup/v1/pickups", pickupRequestData);
+                var responseString = await response.Content.ReadAsStringAsync();
 
-                if (pickupResponse == null || pickupResponse.output == null)
+                // Retry if is is a Not_Working_Day error otherwise throw exception
+                if (!response.IsSuccessStatusCode)
                 {
-                    throw new InvalidOperationException("The pickup response or its output is null.");
+
+                    var pickupError = JsonSerializer.Deserialize<PickupErrorResponseModel>(responseString);
+
+                    // If it's a not working day error, try the next available pickup time
+                    if (pickupError!.IsNotWorkingDayError)
+                    {
+                        continue;
+                    }
+
+                    throw new InvalidOperationException($"FedEx Error on Creating Pickup using Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
                 }
 
+
+                // Deserialize pickup response
+                var pickupResponse = JsonSerializer.Deserialize<PickupResponseModel>(responseString);
+
+                // Validate pickup response
+                if (pickupResponse.IsNull() || pickupResponse.output.IsNull()) { throw new InvalidOperationException("The pickup response or its output is null."); }
+
+
+                // Return successful pickup detail
                 return new ShipmentPickupDetailDto
                 {
                     TransactionId = pickupResponse.transactionId,
                     ConfirmationCode = pickupResponse.output.pickupConfirmationCode,
+                    PickupTime = pickupTime
                 };
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
 
-        private async Task<string> CreateFedexPickup(PickupRequestData pickupRequestData)
-        {
-            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
-
-            var handler = new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-            };
-
-            var client = new HttpClient(handler) { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
-
-            var response = await client.PostAsJsonAsync("/pickup/v1/pickups", pickupRequestData);
-
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException($"FedEx Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
             }
 
-            return responseString;
-        }
+            // If all available pickup times failed to create pickup, throw exception
+            throw new InvalidOperationException("Failed to create pickup with all available pickup times.");
 
-        private PickupRequestData GetPickupRequestData(IShippingAddress receiverAddress)
-        {
-            var pickupDateTime = GetPickupDateTime();
 
-            var pickupRequestData = new PickupRequestData();
-            pickupRequestData.AssociatedAccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber };
-
-            pickupRequestData.CarrierCode = "FDXG";
-            pickupRequestData.OriginDetail = new OriginDetail
+            // Local function
+            PickupRequestData BuildPickupRequestData(IShippingAddress receiverAddress, IPickupTime pickupTimeInfo, AddressDto formattedAddress)
             {
-                PackageLocation = "FRONT",
-                ReadyDateTimestamp = pickupDateTime.ToString("yyyy-MM-ddTHH:mm:ss"),
-                CustomerCloseTime = "17:00:00",
-                PickupLocation = new PickupLocation
+                var pickupRequestData = new PickupRequestData();
+                pickupRequestData.AssociatedAccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber };
+
+                pickupRequestData.CarrierCode = "FDXG";
+                pickupRequestData.OriginDetail = new OriginDetail
                 {
-                    Contact = new PickupContact
+                    PackageLocation = "FRONT",
+                    ReadyDateTimestamp = pickupTimeInfo.ReadyDateTimeString,
+                    CustomerCloseTime = pickupTimeInfo.CloseTime,
+                    PickupLocation = new PickupLocation
                     {
-                        PersonName = "Front Desk",
-                        CompanyName = receiverAddress.CompanyName,
-                        PhoneNumber = receiverAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(receiverAddress.Phone.RemovePhoneFormat()) : default
-                    },
-                    Address = new PickupAddress
-                    {
-                        StreetLines = new List<string> { receiverAddress.AddressLine1 },
-                        City = receiverAddress.City,
-                        StateOrProvinceCode = receiverAddress.State,
-                        PostalCode = Convert.ToInt64(receiverAddress.PostalCode),
-                        CountryCode = receiverAddress.Country
+                        Contact = new PickupContact
+                        {
+                            PersonName = "Front Desk",
+                            CompanyName = receiverAddress.CompanyName,
+                            PhoneNumber = receiverAddress.Phone.RemovePhoneFormat().IsNotNullOrEmpty() ? Convert.ToInt64(receiverAddress.Phone.RemovePhoneFormat()) : default
+                        },
+                        Address = new PickupAddress
+                        {
+                            StreetLines = formattedAddress.StreetLines,
+                            City = formattedAddress.City,
+                            StateOrProvinceCode = formattedAddress.StateOrProvinceCode,
+                            PostalCode = formattedAddress.PostalCode,
+                            CountryCode = formattedAddress.CountryCode
+                        }
                     }
-                }
-            };
+                };
 
-            return pickupRequestData;
-        }
-
-        public DateTime GetPickupDateTime()
-        {
-            DateTime dateAfterTwoDays = DateTime.Now.Date.AddDays(2);
-            DateTime nextFedexWorkingDay = GetNextFedExWorkingDay(dateAfterTwoDays);
-            DateTime nextFedexWorkingDayAt9AM = nextFedexWorkingDay.AddHours(9);
-
-            return nextFedexWorkingDayAt9AM;
-
-
-            DateTime GetNextFedExWorkingDay(DateTime date)
-            {
-                date = date.Date;
-
-                // Skip Sunday
-                if (date.DayOfWeek == DayOfWeek.Sunday)
-                    date = date.AddDays(1);
-
-                return date;
+                return pickupRequestData;
             }
         }
 
         public async Task CancelPickupAsync(string pickupConfirmationCode, DateTime pickupDateTime)
         {
+            // Build cancel pickup request data
             var cancelPickupRequestData = new CancelPickupModel
             {
                 CarrierCode = "FDXG",
@@ -145,38 +125,77 @@ namespace Vein360.Shipment.Service
             };
 
 
-            var handler = new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
-            };
-
-            var tokenData = await fedexAuthHelper.GetAccessTokenAsync();
-
-            var client = new HttpClient() { BaseAddress = new Uri(fedexAuthHelper.ApiUrl) };
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenData.access_token);
-
+            // Call FedEx Pickup API
+            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
             var response = await client.PutAsJsonAsync("/pickup/v1/pickups/cancel", cancelPickupRequestData);
-
             var responseString = await response.Content.ReadAsStringAsync();
 
+            // Handle cancel pickup response
             if (!response.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException($"FedEx Pickup API Error: {responseString} \n\n Request Data: {JsonSerializer.Serialize(cancelPickupRequestData)}");
+                throw new InvalidOperationException($"FedEx Error on Canceling Pickup using Pickup API. \n Error: {responseString} \n\n Request Data: {JsonSerializer.Serialize(cancelPickupRequestData)}");
             }
 
         }
+
 
         public async Task CancelPickupSafelyAsync(string pickupConfirmationCode, DateTime pickupDateTime)
         {
             try
             {
+                // Attempt to cancel the pickup
                 await CancelPickupAsync(pickupConfirmationCode, pickupDateTime);
             }
             catch (Exception)
             {
                 //Log cancel pickup error
+
+                // Swallow the exception to ensure safe cancellation
             }
         }
+
+        public async Task<IEnumerable<AvailableTimeDto>> CheckPickupAvailability(string postalCode, string countryCode)
+        {
+            // Build pickup availability request data
+            var pickupAvailabilityRequestData = new PickupAvailabilityModel
+            {
+                PickupAddress = new PickupAvailabilityAddress { PostalCode = postalCode, CountryCode = countryCode }
+            };
+
+            // Call FedEx Pickup Availability API
+            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
+            var response = await client.PostAsJsonAsync($"/pickup/v1/pickups/availabilities", pickupAvailabilityRequestData);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+
+            // Handle pickup availability response
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"FedEx Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupAvailabilityRequestData)}");
+            }
+            var availabilityResponse = JsonSerializer.Deserialize<PickupAvailabilityResponseModel>(responseString);
+
+            if (availabilityResponse.IsNull() || availabilityResponse!.output.options.IsEmpty()) { return []; }
+
+
+            // Filter suitable availability options
+            var suitableOptions = new FedexPickupAvailabilityHelper(availabilityResponse.output.options).GetSuitableAvailabilityOptions(); ;
+
+            if (suitableOptions.IsEmpty())
+            {
+                return [];
+            }
+
+            // Map to AvailableTimeDto and return
+            return suitableOptions.Select(suitableOption => new AvailableTimeDto
+            {
+                ReadyDateString = suitableOption.PickupDate,
+                ReadyDateTimeString = suitableOption.PickupDateTime,
+                CloseTime = FedexPickupAvailabilityHelper.DefaultClinicCloseTime.TimeString
+            }).OrderBy(x => x.ReadyDateTime);
+        }
+
+
+
     }
 }
