@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using Vein360.Application.Common.Dtos;
+using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Common.Extensions;
 using Vein360.Application.Service.ShipmentService;
 using Vein360.Domain.Common;
@@ -75,7 +76,9 @@ namespace Vein360.Shipment.Service
             }
 
             // If all available pickup times failed to create pickup, throw exception
-            throw new InvalidOperationException("Failed to create pickup with all available pickup times.");
+            throw new PickupNotAvaliable();
+
+
 
 
             // Local function
@@ -137,8 +140,6 @@ namespace Vein360.Shipment.Service
             }
 
         }
-
-
         public async Task CancelPickupSafelyAsync(string pickupConfirmationCode, DateTime pickupDateTime)
         {
             try

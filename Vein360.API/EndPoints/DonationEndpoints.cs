@@ -1,11 +1,15 @@
 ﻿using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Vein360.API.Erros;
 using Vein360.Application.Common.Dtos;
+using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Features.Donations.CreateDonation;
 using Vein360.Application.Features.Donations.DeleteDonation;
 using Vein360.Application.Features.Donations.MakePayment;
+using Vein360.Application.Features.Donations.ReschedulePickup;
 using Vein360.Application.Features.Donations.SortDonation;
 using Vein360.Application.Features.Donations.Statistic;
 using Vein360.Application.Features.Donations.UpdateContainerId;
@@ -74,6 +78,36 @@ namespace Vein360.API.EndPoints
 
                 return Results.Ok(statistic);
             });
+
+            app.MapPatch("/donations/{id}/pickup/reschedule", [Authorize] async (int id, IMediator mediator) =>
+            {
+                try
+                {
+                    var rescheduledDonation = await mediator.Send(new RescheduleDonationPickupRequest(id));
+
+                    return Results.Ok(rescheduledDonation);
+                }
+                catch (PickupNotAvaliable)
+                {
+                    var error = new ApiError
+                    {
+                        StatusCode = 409,
+                        Message = "Unable to schedule pickup at this time. Please try again later."
+                    };
+
+                    return Results.Json(error, statusCode: 409);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
+
+
+            });
+
+
+            //Integration with Existing System End Points
 
             app.MapPatch("/donations/{trackingNumber}/container/{containerId}", [Authorize] async (long trackingNumber, long containerId, IMediator mediator) =>
             {
