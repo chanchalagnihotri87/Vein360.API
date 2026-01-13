@@ -37,10 +37,14 @@ namespace Vein360.API.EndPoints
                 return Results.Ok(donations);
             });
 
-            app.MapGet("/donations", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
+            app.MapGet("/donations", [Authorize] async (IMediator mediator, ILogger<Program> logger, CancellationToken cancellationToken, HttpContext context) =>
             {
+                logger.LogInformation("Entered in donations endpoint");
+                
                 var donations = await mediator.Send(new GetDonorDonationsRequest(), cancellationToken);
 
+                logger.LogInformation("Exited from donations endpoint");
+                
                 return Results.Ok(donations);
             });
 
