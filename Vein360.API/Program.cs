@@ -17,7 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
+
 builder.Logging.AddAzureWebAppDiagnostics();
+
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
 
 var corsOrigins = builder.Configuration.GetRequiredSection("CorsOrigin").Value!.Split(",");
