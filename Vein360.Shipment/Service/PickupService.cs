@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -23,9 +24,12 @@ namespace Vein360.Shipment.Service
     {
         private readonly IFedexAuthHelper fedexAuthHelper;
 
-        public PickupService(IFedexAuthHelper fedexAuthHelper)
+        private ILogger<PickupService> _logger;
+
+        public PickupService(IFedexAuthHelper fedexAuthHelper, ILogger<PickupService> logger)
         {
             this.fedexAuthHelper = fedexAuthHelper;
+            this._logger = logger;
         }
 
 
@@ -54,6 +58,9 @@ namespace Vein360.Shipment.Service
                         continue;
                     }
 
+
+                    _logger.LogError($"FedEx Pickup API Error on Creating Pickup: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
+
                     throw new InvalidOperationException($"FedEx Error on Creating Pickup using Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
                 }
 
@@ -76,6 +83,8 @@ namespace Vein360.Shipment.Service
             }
 
             // If all available pickup times failed to create pickup, throw exception
+            _logger.LogError("No pickup option available. All attempts to create pickup failed. Times {Times}", JsonSerializer.Serialize(availablePickupTimes));
+
             throw new PickupNotAvaliable();
 
 
@@ -136,6 +145,8 @@ namespace Vein360.Shipment.Service
             // Handle cancel pickup response
             if (!response.IsSuccessStatusCode)
             {
+                _logger.LogError($"FedEx Pickup API Error on Canceling Pickup: {responseString} \n\n Request Data: {JsonSerializer.Serialize(cancelPickupRequestData)}");
+
                 throw new InvalidOperationException($"FedEx Error on Canceling Pickup using Pickup API. \n Error: {responseString} \n\n Request Data: {JsonSerializer.Serialize(cancelPickupRequestData)}");
             }
 
@@ -172,6 +183,7 @@ namespace Vein360.Shipment.Service
             // Handle pickup availability response
             if (!response.IsSuccessStatusCode)
             {
+
                 throw new InvalidOperationException($"FedEx Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupAvailabilityRequestData)}");
             }
             var availabilityResponse = JsonSerializer.Deserialize<PickupAvailabilityResponseModel>(responseString);

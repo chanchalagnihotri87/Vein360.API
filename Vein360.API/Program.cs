@@ -19,6 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Logging.AddAzureWebAppDiagnostics();
 
+
+builder.Logging.AddAzureWebAppDiagnostics();
+
 var corsOrigins = builder.Configuration.GetRequiredSection("CorsOrigin").Value!.Split(",");
 var jwtSecret = builder.Configuration.GetRequiredSection("JWTSecret").Value!;
 var jwtIssuer = builder.Configuration.GetRequiredSection("JWTIssuer").Value!;

@@ -23,6 +23,7 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonorDonations
             IDonationRepository donationRepository,
             ILogger<GetDonorDonationsHandler> logger)
         {
+            _logger = logger;
             _authInfoService = authInfoService;
             _donationRepository = donationRepository;
             _logger = logger;

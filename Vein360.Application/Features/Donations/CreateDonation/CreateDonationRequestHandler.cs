@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Vein360.Application.Common.Factories;
 using Vein360.Application.Common.Helpers;
 using Vein360.Application.Common.Helpers.Costants;
@@ -25,13 +26,15 @@ namespace Vein360.Application.Features.Donations.CreateDonation
         private readonly IClinicRepository _clinicalRepo;
         private readonly IDonationRepository _donationRepository;
         private readonly IDonationShippingDetailHandler _donationShippingDetailHandler;
+        private readonly ILogger<CreateDonationRequestHandler> _logger;
 
         public CreateDonationRequestHandler(IUnitOfWork unitOfWork,
                                             IAuthInfoService authInfo,
                                             IPickupRepository pickupRepo,
                                             IClinicRepository clinicRepo,
                                             IDonationRepository donationRepository,
-                                            IDonationShippingDetailHandler donationShippingDetailHandler
+                                            IDonationShippingDetailHandler donationShippingDetailHandler,
+                                            ILogger<CreateDonationRequestHandler> logger
                                             )
         {
             _authInfo = authInfo;
@@ -43,6 +46,9 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
+
+            _logger.LogInformation("Started Creating Donation for Clinic: {ClinicId}, and User: {User}", request.ClinicId, _authInfo.UserId);
+
             Donation donation = DonationFactory.CreateDonation(request.ClinicId, request.TrackingNumber,
                                                                request.Products, _authInfo.UserId);
 
@@ -53,7 +59,10 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             await _donationShippingDetailHandler.HandleAsync(clinic, donation, cancellationToken);
 
             await _unitOfWork.SaveAsync(cancellationToken);
+
+            _logger.LogInformation("Created Donation (Id: {Id}) for Clinic: {ClinicId}, and User: {User}", donation.Id, request.ClinicId, _authInfo.UserId);
         }
+
     }
 }
 

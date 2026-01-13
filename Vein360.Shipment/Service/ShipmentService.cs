@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.Extensions.Logging;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Vein360.Application.Common.Dtos;
@@ -13,10 +14,12 @@ namespace Vein360.Shipment.Service
 {
     public class ShipmentService : IShipmentService
     {
-        private readonly IFedexAuthHelper fedexAuthHelper;
-        public ShipmentService(IFedexAuthHelper fedexAuthHelper)
+        private readonly IFedexAuthHelper _fedexAuthHelper;
+        private readonly ILogger<IShipmentService> _logger;
+        public ShipmentService(IFedexAuthHelper fedexAuthHelper, ILogger<IShipmentService> logger)
         {
-            this.fedexAuthHelper = fedexAuthHelper;
+            _logger= logger;
+            _fedexAuthHelper = fedexAuthHelper;
         }
 
 
@@ -26,9 +29,8 @@ namespace Vein360.Shipment.Service
             LabelRequestData labelRequestData = BuildLabelRequestData(senderAddress, formattedSenderAddress, Vein360Address.Initialize(), shipDate, weight: weight);
 
 
-
             // Call FedEx Shipment API
-            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
+            var client = await _fedexAuthHelper.GetAuthorizedHttpClientAsync();
             var response = await client.PostAsJsonAsync("/ship/v1/shipments", labelRequestData);
             var responseString = await response.Content.ReadAsStringAsync();
 
@@ -36,6 +38,8 @@ namespace Vein360.Shipment.Service
             // Handle non-success response
             if (!response.IsSuccessStatusCode)
             {
+                _logger.LogError("FedEx Shipment API Error: {ResponseString}. Request Data: {RequestData}", responseString, JsonSerializer.Serialize(labelRequestData));
+
                 throw new InvalidOperationException($"FedEx error on Create Shipment using Shipment API Error: {responseString}. Request Data: {JsonSerializer.Serialize(labelRequestData)}");
             }
 
@@ -136,7 +140,7 @@ namespace Vein360.Shipment.Service
 
             labelRequestData.AccountNumber = new AccountNumber
             {
-                Value = fedexAuthHelper.AccountNumber
+                Value = _fedexAuthHelper.AccountNumber
             };
 
             return labelRequestData;
@@ -147,13 +151,25 @@ namespace Vein360.Shipment.Service
             // Build Cancel Shipment Request Data
             var requestData = new CancelShipmentModel
             {
-                AccountNumber = new AccountNumber { Value = fedexAuthHelper.AccountNumber },
+                AccountNumber = new AccountNumber { Value = _fedexAuthHelper.AccountNumber },
                 TrackingNumber = trackingNumber
             };
 
             // Call FedEx Shipment Cancel API
-            var client = await fedexAuthHelper.GetAuthorizedHttpClientAsync();
+            var client = await _fedexAuthHelper.GetAuthorizedHttpClientAsync();
             var response = await client.PutAsJsonAsync("/ship/v1/shipments/cancel", requestData);
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+
+            // Handle non-success response
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("FedEx Shipment Cancel API Error: {ResponseString}. Request Data: {RequestData}", responseString, JsonSerializer.Serialize(requestData));
+
+                throw new InvalidOperationException($"FedEx error on Create Shipment using Shipment API Error: {responseString}. Request Data: {JsonSerializer.Serialize(requestData)}");
+            }
+
 
             // Handle non-success response
             response.EnsureSuccessStatusCode();
@@ -168,8 +184,6 @@ namespace Vein360.Shipment.Service
             }
             catch
             {
-                //Log cancel shipment error
-
                 // Swallow any exceptions to ensure safe cancellation
                 return Task.CompletedTask;
             }

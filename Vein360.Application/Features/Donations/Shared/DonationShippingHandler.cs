@@ -1,4 +1,5 @@
-﻿using Vein360.Application.Common.Exceptions;
+﻿using Microsoft.Extensions.Logging;
+using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Common.Factories;
 using Vein360.Application.Common.Helpers.WeightCalculator;
 using Vein360.Application.Repository.PickupRepository;
@@ -17,6 +18,7 @@ namespace Vein360.Application.Features.Donations.Shared
         private readonly IShipmentService _shipmentService;
         private readonly IShippingLabelRepository _shippingLabelRepo;
         private readonly IAddressValidationService _addressValidationService;
+        private readonly ILogger<IDonationShippingDetailHandler> _logger;
 
         private ShipmentPickupDetailDto newPickup;
         private ShipmentDetailDto newShipment;
@@ -28,8 +30,10 @@ namespace Vein360.Application.Features.Donations.Shared
             IStorageService storageService,
             IShipmentService shipmentService,
             IShippingLabelRepository shippingLabelRepo,
-            IAddressValidationService addressValidationService)
+            IAddressValidationService addressValidationService,
+            ILogger<IDonationShippingDetailHandler> logger)
         {
+            _logger = logger;
             _pickupRepo = pickupRepo;
             _pickupService = pickupService;
             _storageService = storageService;
@@ -104,10 +108,13 @@ namespace Vein360.Application.Features.Donations.Shared
 
             //create a new pickup and assign its info to the donation
             this.newPickup = await _pickupService.CreatePickupAsync(clinic, availablePickupTimes, formattedClinicAddress);
-            var newPickup = PickupFactory.CreatePickup(donation.ClinicId, this.newPickup.TransactionId, this.newPickup.ConfirmationCode, this.newPickup.PickupTime.ReadyDateTime); ;
-            _pickupRepo.Create(newPickup);
 
-            donation.Pickup = newPickup;
+            _logger.LogInformation($"Created new pickup for Clinic Id: {clinic.Id} with Confirmation Code: {this.newPickup.ConfirmationCode}");
+
+            var newDBPickup = PickupFactory.CreatePickup(donation.ClinicId, this.newPickup.TransactionId, this.newPickup.ConfirmationCode, this.newPickup.PickupTime.ReadyDateTime); ;
+            _pickupRepo.Create(newDBPickup);
+
+            donation.Pickup = newDBPickup;
 
             return this.newPickup.PickupTime;
         }
@@ -124,6 +131,8 @@ namespace Vein360.Application.Features.Donations.Shared
 
             // otherwise, create a new shipment
             this.newShipment = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(donation.Products), clinic, formattedClinicAddress, pickupTime.ReadyDateString);
+
+            _logger.LogInformation($"Created Shipment for Clinic Id: {clinic.Id} with Tracking Number: {this.newShipment.TrackingNumber}");
 
             // Store shipment label
             var shipmentLabelFileName = await StoreShipmentLabelAsync(this.newShipment);
