@@ -44,12 +44,7 @@ namespace Vein360.Persistence
         public static void ConfigurePersistence(this IServiceCollection services, IConfiguration configuration)
         {
 
-            services.AddDbContextPool<Vein360Context>(options =>
-            {
-                options.UseSqlServer(configuration.GetConnectionString("Vein360Context"));
-                options.EnableSensitiveDataLogging(false);
-            }
-            );
+            services.AddDbContextPool<Vein360Context>(options => options.UseSqlServer(configuration.GetConnectionString("Vein360Context")));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDonationRepository, DonationRepository>();
