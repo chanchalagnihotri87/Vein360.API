@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Mapster;
+using Vein360.Application.Service.ShipmentService;
+using Vein360.Application.Features.Donations.Shared;
 
 namespace Vein360.Application
 {
@@ -17,6 +19,8 @@ namespace Vein360.Application
             {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
+
+            services.AddScoped<IDonationShippingDetailHandler, DonationShippingDetailHandler>();
 
             return services;
         }

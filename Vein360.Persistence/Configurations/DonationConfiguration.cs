@@ -15,6 +15,8 @@ namespace Vein360.Persistence.Configurations
 
             builder.HasOne(x => x.Clinic).WithMany().HasForeignKey(x => x.ClinicId).OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(x => x.Pickup).WithMany().HasForeignKey(x => x.PickupId);
+
             builder.HasMany(x => x.Products);
 
             builder.HasIndex(x => x.IsDeleted);

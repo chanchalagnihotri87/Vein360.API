@@ -18,6 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Logging.AddAzureWebAppDiagnostics();
+
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+
+
 var corsOrigins = builder.Configuration.GetRequiredSection("CorsOrigin").Value!.Split(",");
 var jwtSecret = builder.Configuration.GetRequiredSection("JWTSecret").Value!;
 var jwtIssuer = builder.Configuration.GetRequiredSection("JWTIssuer").Value!;
@@ -48,7 +53,7 @@ builder.Services.ConfigurePersistence(builder.Configuration);
 
 builder.Services.ConfigureApplication();
 
-builder.Services.ConfigureShipment(builder.Configuration);
+builder.Services.ConfigureShipment(builder.Configuration, builder.Environment.IsDevelopment());
 
 builder.Services.ConfigureStorage(builder.Environment.IsDevelopment());
 

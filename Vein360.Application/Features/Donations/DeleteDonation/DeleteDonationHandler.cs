@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vein360.Application.Common.Extensions;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.DonationsRepository;
+using Vein360.Application.Repository.PickupRepository;
 using Vein360.Application.Repository.ShippingLabelRepository;
 using Vein360.Application.Service.ShipmentService;
 
@@ -15,29 +16,44 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
     public class DeleteDonationHandler : IRequestHandler<DeleteDonationRequest>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPickupService _pickupService;
         private readonly IDonationRepository _donationRepo;
         private readonly IShipmentService _shipmentService;
         private readonly IShippingLabelRepository _shippingLabelRepo;
 
+
         public DeleteDonationHandler(IUnitOfWork unitOfWork,
+                                     IPickupService pickupService,
                                      IDonationRepository donationRepo,
                                      IShipmentService shipmentService,
                                      IShippingLabelRepository shippingLabelRepo)
         {
             _unitOfWork = unitOfWork;
             _donationRepo = donationRepo;
+            _pickupService = pickupService;
             _shipmentService = shipmentService;
             _shippingLabelRepo = shippingLabelRepo;
         }
 
         public async Task Handle(DeleteDonationRequest request, CancellationToken cancellationToken)
         {
-            var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken);
+            var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken, x => x.Include(x => x.Pickup));
 
 
             if (donation.IsNotProcessed() && donation.TrackingNumber.IsNotNull() && !donation.UseOldLabel)
             {
-                await _shipmentService.CancelShipmentAsync(donation.TrackingNumber!.Value);
+                await _shipmentService.CancelShipmentSafelyAsync(donation.TrackingNumber!.Value);
+            }
+
+
+            if (DateTime.Now.CompareTo(donation.Pickup.PickupDateTime) < 0) //Current time is earlier than PickupDateTime
+            {
+                var otherDonationUsingThisPickup = await _donationRepo.IsExistAsync(x => !x.IsDeleted && x.PickupId == donation.PickupId && x.Id != donation.Id);
+
+                if (!otherDonationUsingThisPickup)
+                {
+                    await _pickupService.CancelPickupSafelyAsync(donation.Pickup.PickupConfirmationCode, donation.Pickup.PickupDateTime);
+                }
             }
 
             _donationRepo.Delete(donation);

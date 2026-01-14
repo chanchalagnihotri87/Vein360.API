@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Common.Dtos
 {
-  public  class ShipmentPickupDetailDto
+    public class ShipmentPickupDetailDto
     {
         public string TransactionId { get; set; }
         public string ConfirmationCode { get; set; }
+        public IPickupTime PickupTime { get; set; }
     }
 }

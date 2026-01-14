@@ -17,5 +17,11 @@ namespace Vein360.Application.Common.Extensions
         {
             return enumerable != null && enumerable.Any();
         }
+
+
+        public static bool IsEmpty(this IEnumerable<object> enumerable)
+        {
+            return enumerable == null || !enumerable.Any();
+        }
     }
 }

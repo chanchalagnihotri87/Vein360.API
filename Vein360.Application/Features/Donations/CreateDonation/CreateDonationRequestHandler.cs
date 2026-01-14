@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Vein360.Application.Common.Factories;
 using Vein360.Application.Common.Helpers;
 using Vein360.Application.Common.Helpers.Costants;
 using Vein360.Application.Common.Helpers.WeightCalculator;
+using Vein360.Application.Features.Donations.Shared;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.ClinicRepository;
 using Vein360.Application.Repository.DonationContainerRepository;
 using Vein360.Application.Repository.DonationsRepository;
+using Vein360.Application.Repository.PickupRepository;
 using Vein360.Application.Repository.ShippingLabelRepository;
 using Vein360.Application.Repository.Vein360ContainerTypeRepository;
 using Vein360.Application.Service.AuthenticationService;
@@ -20,112 +23,46 @@ namespace Vein360.Application.Features.Donations.CreateDonation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuthInfoService _authInfo;
-
         private readonly IClinicRepository _clinicalRepo;
-        private readonly IStorageService _storageService;
-        private readonly IShipmentService _shipmentService;
-        private readonly IPickupService _pickupService;
         private readonly IDonationRepository _donationRepository;
-        private readonly IShippingLabelRepository _shippingLabelRepo;
-        private readonly IVein360ContainerTypeRepository _containerTypeRepo;
+        private readonly IDonationShippingDetailHandler _donationShippingDetailHandler;
+        private readonly ILogger<CreateDonationRequestHandler> _logger;
 
         public CreateDonationRequestHandler(IUnitOfWork unitOfWork,
                                             IAuthInfoService authInfo,
+                                            IPickupRepository pickupRepo,
                                             IClinicRepository clinicRepo,
-                                            IStorageService storageService,
-                                            IShipmentService shipmentService,
-                                            IPickupService pickupService,
-                                            IShippingLabelRepository shippingLabelRepo,
                                             IDonationRepository donationRepository,
-                                            IVein360ContainerTypeRepository containerTypeRepo)
+                                            IDonationShippingDetailHandler donationShippingDetailHandler,
+                                            ILogger<CreateDonationRequestHandler> logger
+                                            )
         {
             _authInfo = authInfo;
             _unitOfWork = unitOfWork;
             _clinicalRepo = clinicRepo;
-            _storageService = storageService;
-            _shipmentService = shipmentService;
-            _pickupService = pickupService;
-            _shippingLabelRepo = shippingLabelRepo;
-            _containerTypeRepo = containerTypeRepo;
             _donationRepository = donationRepository;
+            _donationShippingDetailHandler = donationShippingDetailHandler;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
-            Donation donation = DonationFactory.CreateDonation(request.ClinicId,
-                                                               request.TrackingNumber,
-                                                               request.Products,
-                                                               _authInfo.UserId);
+
+            _logger.LogInformation("Started Creating Donation for Clinic: {ClinicId}, and User: {User}", request.ClinicId, _authInfo.UserId);
+
+            Donation donation = DonationFactory.CreateDonation(request.ClinicId, request.TrackingNumber,
+                                                               request.Products, _authInfo.UserId);
 
             _donationRepository.Create(donation);
 
             var clinic = await _clinicalRepo.GetByIdAsync(donation.ClinicId);
 
-            await UpdateShipmentLabelInfoAsync(donation);
-
-            await UpdateShipmentPickupInfoAsync();
+            await _donationShippingDetailHandler.HandleAsync(clinic, donation, cancellationToken);
 
             await _unitOfWork.SaveAsync(cancellationToken);
 
-
-            async Task UpdateShipmentLabelInfoAsync(Donation donation)
-            {
-                if (donation.UseOldLabel)
-                {
-                    await MarkShippingLabelAsUsed(donation.TrackingNumber!.Value, cancellationToken);
-                }
-                else
-                {
-
-                    var shipmentInfo = await _shipmentService.CreateDonationShipmentAsync(CalculateWeight(request.Products), clinic);
-
-                    var shipmentLabelFileName = await StoreShipmentLabelAsync(shipmentInfo);
-
-                    donation.LabelFileName = shipmentLabelFileName;
-                    donation.FedexTransactionId = shipmentInfo.TransactionId;
-                    donation.MasterTrackingNumber = shipmentInfo.MasterTrackingNumber.ToLong();
-                    donation.TrackingNumber = shipmentInfo.TrackingNumber.ToLong();
-                }
-
-                async Task MarkShippingLabelAsUsed(long trackingNumber, CancellationToken cancellationToken)
-                {
-                    var shippingLabel = await _shippingLabelRepo.GetLabelByTrackingNumber(trackingNumber, cancellationToken);
-
-                    shippingLabel.Used = true;
-
-                    _shippingLabelRepo.Update(shippingLabel);
-                }
-
-                async Task<string> StoreShipmentLabelAsync(ShipmentDetailDto shipmentInfo)
-                {
-                    string shipmentLabelFileName = null;
-
-                    if (shipmentInfo.EncodedLabel.IsNotNullOrEmpty())
-                    {
-                        shipmentLabelFileName = await _storageService.StoreEncodedLabelAsync(shipmentInfo.TrackingNumber.ToLong(),
-                                                                                 shipmentInfo.EncodedLabel);
-                    }
-                    else if (shipmentInfo.LabelUrl.IsNotNullOrEmpty())
-                    {
-                        shipmentLabelFileName = await _storageService.StoreUrlLabelAsync(shipmentInfo.TrackingNumber.ToLong(), shipmentInfo.LabelUrl);
-                    }
-
-                    return shipmentLabelFileName;
-                }
-            }
-
-            double CalculateWeight(List<DonationProductItemDto> products)
-            {
-                return new WeightCalculator().CalculateWeight(products.Sum(x => x.Units));
-            }
-
-            async Task UpdateShipmentPickupInfoAsync()
-            {
-                var pickupInfo = await _pickupService.CreatePickupAsync(clinic);
-
-                donation.PickupTransactionId = pickupInfo.TransactionId;
-                donation.PickupConfirmationCode = pickupInfo.ConfirmationCode;
-            }
+            _logger.LogInformation("Created Donation (Id: {Id}) for Clinic: {ClinicId}, and User: {User}", donation.Id, request.ClinicId, _authInfo.UserId);
         }
+
     }
 }
+

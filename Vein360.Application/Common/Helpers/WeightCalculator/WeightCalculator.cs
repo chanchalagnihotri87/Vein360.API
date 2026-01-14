@@ -8,16 +8,12 @@ namespace Vein360.Application.Common.Helpers.WeightCalculator
 {
     public class WeightCalculator
     {
-        private const double oneProductWeight = 0.3;
+        private const double oneProductWeight = 0.3; //pounds(lbs)
 
-        private double containerWeight = 6;
+        private double containerWeight = 6; //pounds (lbs)
 
         public WeightCalculator() { }
 
-        //public WeightCalculator(double containerWeight)
-        //{
-        //    this.containerWeight = containerWeight;
-        //}
 
         public double CalculateWeight(int productCount)
         {

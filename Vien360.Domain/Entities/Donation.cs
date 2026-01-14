@@ -15,12 +15,11 @@ namespace Vein360.Domain.Entities
         public int DonorId { get; set; }
         public long? ContainerId { get; set; }
         public double Amount { get; set; }
-        public string? PickupTransactionId { get; set; }
-        public string? PickupConfirmationCode { get; set; }
+        public int PickupId { get; set; }
         public required ICollection<DonationProduct> Products { get; set; }
         public Vein360User Donor { get; set; }
         public Clinic Clinic { get; set; }
-
+        public Pickup Pickup { get; set; }
 
         #region GetProperties
         public List<string> ProductTypes
