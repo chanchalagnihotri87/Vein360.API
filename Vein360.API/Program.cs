@@ -70,6 +70,8 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+app.MapGet("/", () => "Vein360 API is running...");
+
 app.MapEndpoints();
 
 app.UseCors(config =>
