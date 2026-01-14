@@ -45,7 +45,7 @@ namespace Vein360.Application.Features.DonationContainers.ApproveDonationContain
             donationContainer.ApprovedUnits = request.ApprovedUnits;
 
             //Make a call to Vein360 internal system to create replenishment order
-            donationContainer.ReplenishmentOrderId = _replenishmentService.CreateReplenishmentOrder(donationContainer.ContainerTypeId, request.ApprovedUnits, donationContainer.ClinicId, donationContainer.Id, _authInfo.UserName);
+            donationContainer.ReplenishmentOrderId = _replenishmentService.CreateReplenishmentOrder(donationContainer.ContainerTypeId, request.ApprovedUnits, donationContainer.Clinic.Vein360ClinicId, donationContainer.Id, _authInfo.UserName);
 
             donationContainer.MarkAsApproved();
 
