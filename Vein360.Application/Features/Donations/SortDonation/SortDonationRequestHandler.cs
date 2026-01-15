@@ -26,7 +26,7 @@ namespace Vein360.Application.Features.Donations.SortDonation
         public async Task Handle(SortDonationRequest request, CancellationToken cancellationToken)
         {
             var donation = await _donationRepo.GetAsync(x => x.ContainerId == request.ContainerId, cancellationToken,
-                                         x => x.Include(x => x.Products));
+                                         x => x.Include(x => x.Products).ThenInclude(x => x.Product));
 
             //Get Rates of all donation products
             var productRates = _userProductRateRepo.GetManyAsNoTracking(x => x.UserId == donation.DonorId, x => x).ToList();
@@ -39,7 +39,7 @@ namespace Vein360.Application.Features.Donations.SortDonation
 
             foreach (var donationProduct in donation.Products)
             {
-                var sortedDonationProduct = request.Products.FirstOrDefault(x => x.ProductId == donationProduct.ProductId);
+                var sortedDonationProduct = request.Products.FirstOrDefault(x => x.ProductId == donationProduct.Product.Vein360ProductId);
 
                 if (sortedDonationProduct != null)
                 {
@@ -51,7 +51,7 @@ namespace Vein360.Application.Features.Donations.SortDonation
                     donationProduct.RejectedKinked = sortedDonationProduct.RejectedKinked;
                     donationProduct.RejectedOther = sortedDonationProduct.RejectedOther;
 
-                    donation.Amount += CalculateAmount(sortedDonationProduct);
+                    donation.Amount += CalculateAmount(donationProduct.ProductId, sortedDonationProduct.AcceptedUnits);
                 }
 
                 donation.Status = DonationStatus.Processed;
@@ -61,14 +61,14 @@ namespace Vein360.Application.Features.Donations.SortDonation
                 await _unitOfWork.SaveAsync(cancellationToken);
             }
 
-            double CalculateAmount(SortedDonationProductDto sortedDonationProduct)
+            double CalculateAmount(int productId, int acceptedUnits)
             {
                 if (productRates != null && productRates.Count > 0)
                 {
-                    var productRate = productRates.FirstOrDefault(x => x.ProductId == sortedDonationProduct.ProductId);
+                    var productRate = productRates.FirstOrDefault(x => x.ProductId == productId);
                     if (productRate != null && productRate.Price != null)
                     {
-                        return productRate.Price.Value * sortedDonationProduct.AcceptedUnits;
+                        return productRate.Price.Value * acceptedUnits;
                     }
                 }
 
