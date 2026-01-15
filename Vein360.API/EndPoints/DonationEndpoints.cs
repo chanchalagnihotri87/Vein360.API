@@ -23,7 +23,7 @@ namespace Vein360.API.EndPoints
     public record CreateDonationRequestData(int ClinicId, string TrackingNumber, List<DonationProductItemDto> Products);
     public record UpdateDonationRequestData(int Id, double Amount);
     public record ProcessDonationRequestData(int DonationId, List<ProcessedProductDto> Products);
-    public record SortDonationRequestData(List<SortedDonationProductDto> Products, double TotalAmount);
+    public record SortDonationRequestData(List<SortedDonationProductDto> Products);
     public record PaymentRequestData(DateTime Date, int TransactionType, double Amount);
 
     public static class DonationEndpoints
@@ -122,7 +122,7 @@ namespace Vein360.API.EndPoints
 
             app.MapPatch("/donations/{containerId}/sort", [Authorize] async (long containerId, SortDonationRequestData request, IMediator mediator) =>
             {
-                await mediator.Send(new SortDonationRequest(containerId, request.Products, request.TotalAmount));
+                await mediator.Send(new SortDonationRequest(containerId, request.Products));
 
                 return Results.Ok();
             });
