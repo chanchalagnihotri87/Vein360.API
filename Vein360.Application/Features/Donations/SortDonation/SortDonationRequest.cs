@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.Donations.SortDonation
 {
-    public record SortDonationRequest(long ContainerId, List<SortedDonationProductDto> Products, double TotalAmount) : IRequest
+    public record SortDonationRequest(long ContainerId, List<SortedDonationProductDto> Products) : IRequest
     {
     }
 }
