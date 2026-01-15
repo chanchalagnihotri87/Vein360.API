@@ -42,6 +42,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             _clinicalRepo = clinicRepo;
             _donationRepository = donationRepository;
             _donationShippingDetailHandler = donationShippingDetailHandler;
+            _logger = logger;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
