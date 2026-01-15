@@ -23,7 +23,12 @@ namespace Vein360.Shipment
             services.AddScoped<IPickupService, PickupService>();
 
 
-            if (isDevelopment)
+            FedexCredential fedexCredential = GetLoadedFedexCredential(configuration);
+
+            services.AddSingleton(fedexCredential);
+
+
+            if (fedexCredential.ApiUrl.Contains("sandbox"))
             {
                 services.AddScoped<IAddressValidationService, LocalAddressValidationService>();
             }
@@ -31,12 +36,6 @@ namespace Vein360.Shipment
             {
                 services.AddScoped<IAddressValidationService, FedexAddressValidationService>();
             }
-
-
-            FedexCredential fedexCredential = GetLoadedFedexCredential(configuration);
-
-            services.AddSingleton(fedexCredential);
-
 
 
             return services;
