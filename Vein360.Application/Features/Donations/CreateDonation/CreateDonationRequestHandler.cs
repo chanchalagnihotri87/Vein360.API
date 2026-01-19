@@ -42,12 +42,13 @@ namespace Vein360.Application.Features.Donations.CreateDonation
             _clinicalRepo = clinicRepo;
             _donationRepository = donationRepository;
             _donationShippingDetailHandler = donationShippingDetailHandler;
+            _logger = logger;
         }
 
         public async Task Handle(CreateDonationRequest request, CancellationToken cancellationToken)
         {
 
-            _logger.LogInformation("Started Creating Donation for Clinic: {ClinicId}, and User: {User}", request.ClinicId, _authInfo.UserId);
+            _logger.LogInformation("Started Creating Donation for Clinic: {ClinicId}", request.ClinicId);
 
             Donation donation = DonationFactory.CreateDonation(request.ClinicId, request.TrackingNumber,
                                                                request.Products, _authInfo.UserId);
@@ -60,7 +61,7 @@ namespace Vein360.Application.Features.Donations.CreateDonation
 
             await _unitOfWork.SaveAsync(cancellationToken);
 
-            _logger.LogInformation("Created Donation (Id: {Id}) for Clinic: {ClinicId}, and User: {User}", donation.Id, request.ClinicId, _authInfo.UserId);
+            _logger.LogInformation("Created Donation (Id: {Id}) for Clinic: {ClinicId}", donation.Id, request.ClinicId);
         }
 
     }
