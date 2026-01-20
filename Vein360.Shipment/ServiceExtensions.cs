@@ -28,14 +28,17 @@ namespace Vein360.Shipment
             services.AddSingleton(fedexCredential);
 
 
-            if (fedexCredential.ApiUrl.Contains("sandbox"))
-            {
-                services.AddScoped<IAddressValidationService, LocalAddressValidationService>();
-            }
-            else
-            {
-                services.AddScoped<IAddressValidationService, FedexAddressValidationService>();
-            }
+            // VALIDATED ADDRESS THROWING ERROR ON PRODUCTION, USING LOCAL SERVICE FOR NOW
+            //if (fedexCredential.ApiUrl.Contains("sandbox"))
+            //{
+            //    services.AddScoped<IAddressValidationService, LocalAddressValidationService>();
+            //}
+            //else
+            //{
+            //    services.AddScoped<IAddressValidationService, FedexAddressValidationService>();
+            //}
+
+            services.AddScoped<IAddressValidationService, LocalAddressValidationService>();
 
 
             return services;
