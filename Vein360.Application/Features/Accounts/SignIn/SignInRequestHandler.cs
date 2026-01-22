@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Common.Helpers.PasswordHelper;
 using Vein360.Application.Repository;
 using Vein360.Application.Repository.UserRepository;
@@ -48,14 +49,14 @@ namespace Vein360.Application.Features.Accounts.SignIn
 
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new UserNotFoundException();
             }
 
             var passwordStatus = PasswordHelper.VerifyPassword(user, request.password);
 
             if (passwordStatus == PasswordVerificationResult.Failed)
             {
-                throw new Exception("User not found");
+                throw new UserNotFoundException();
             }
 
             if (passwordStatus == PasswordVerificationResult.SuccessRehashNeeded)
