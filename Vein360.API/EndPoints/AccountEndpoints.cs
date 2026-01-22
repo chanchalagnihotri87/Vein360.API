@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Vein360.API.Erros;
 using Vein360.Application.Common.Dtos;
 using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Features.Accounts.ChangePassword;
@@ -32,13 +33,25 @@ namespace Vein360.API.EndPoints
 
             app.MapPost("/accounts/donor/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
             {
-                var request = new SignInRequest(requestData.Username, requestData.Password, RoleType.Donor);
+                try
+                {
+                    var request = new SignInRequest(requestData.Username, requestData.Password, RoleType.Donor);
 
-                var authResponse = await mediator.Send(request);
+                    var authResponse = await mediator.Send(request);
 
-                var preference = await mediator.Send(new GetDonorPreferenceByEmailRequest(request.username));
+                    var preference = await mediator.Send(new GetDonorPreferenceByEmailRequest(request.username));
 
-                return Results.Ok(new DonorAuthenticationResponse(authResponse.Token, authResponse.FirstTimeLogin, preference));
+                    return Results.Ok(new DonorAuthenticationResponse(authResponse.Token, authResponse.FirstTimeLogin, preference));
+                }
+                catch (UserNotFoundException) {
+                    var error = new ApiError
+                    {
+                        StatusCode = 409,
+                        Message = "The email address or password you entered is invalid."
+                    };
+
+                    return Results.Json(error, statusCode: 409);
+                }
             });
 
             app.MapPost("/accounts/buyer/signin", async (SignInRequestData requestData, IMediator mediator, IConfiguration configuration) =>
