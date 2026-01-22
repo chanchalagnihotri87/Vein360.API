@@ -11,7 +11,7 @@ namespace Vein360.Shipment
     {
         public string CompanyName { get; set; } = "Vein360 LLC";
 
-        public string AddressLine1 { get; set; } = "4460 Lake Forest Drive Suite 230";
+        public string AddressLine1 { get; set; } = "4460 Lake Forest Drive Suite 218";
         public string AddressLine2 { get; set; } = string.Empty;
         public string City { get; set; } = "Blue Ash";
         public string State { get; set; } = "OH";
