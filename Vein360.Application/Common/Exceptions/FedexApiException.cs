@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Vein360.Application.Common.Exceptions
+{
+    public class FedexApiException : Exception
+    {
+        public FedexApiException(string message) : base(message)
+        {
+        }
+    }
+}

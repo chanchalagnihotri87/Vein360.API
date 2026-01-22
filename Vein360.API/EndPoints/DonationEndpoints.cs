@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
 using Vein360.API.Erros;
 using Vein360.Application.Common.Dtos;
 using Vein360.Application.Common.Exceptions;
@@ -40,11 +41,11 @@ namespace Vein360.API.EndPoints
             app.MapGet("/donations", [Authorize] async (IMediator mediator, ILogger<Program> logger, CancellationToken cancellationToken, HttpContext context) =>
             {
                 logger.LogInformation("Entered in donations endpoint");
-                
+
                 var donations = await mediator.Send(new GetDonorDonationsRequest(), cancellationToken);
 
                 logger.LogInformation("Exited from donations endpoint");
-                
+
                 return Results.Ok(donations);
             });
 
@@ -57,16 +58,32 @@ namespace Vein360.API.EndPoints
 
             app.MapPost("/donations", [Authorize] async ([FromBody] CreateDonationRequestData donation, IMediator mediator) =>
             {
-                await mediator.Send(donation.Adapt<CreateDonationRequest>());
+                try
+                {
+                    await mediator.Send(donation.Adapt<CreateDonationRequest>());
 
-                return Results.Ok();
+                    return Results.Ok();
+                }
+                catch (PickupNotAvaliable)
+                {
+                    return ReturnCreatePickupErrorDueToPickupService();
+                }
+                catch (FedexApiException)
+                {
+                    return ReturnCreatePickupErrorDueToPickupService();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
             });
 
             app.MapPut("/donations", [Authorize] async ([FromBody] UpdateDonationRequestData donation, IMediator mediator) =>
             {
-                await mediator.Send(donation.Adapt<UpdateDonationRequest>());
+                var updatedDonation = await mediator.Send(donation.Adapt<UpdateDonationRequest>());
 
-                return Results.Ok();
+                return Results.Ok(updatedDonation);
             });
 
             app.MapDelete("/donations/{id}", [Authorize] async (int id, IMediator mediator) =>
@@ -93,21 +110,16 @@ namespace Vein360.API.EndPoints
                 }
                 catch (PickupNotAvaliable)
                 {
-                    var error = new ApiError
-                    {
-                        StatusCode = 409,
-                        Message = "Unable to schedule pickup at this time. Please try again later."
-                    };
-
-                    return Results.Json(error, statusCode: 409);
+                    return ReturnReschedulePickupErrorDueToPickupService();
+                }
+                catch (FedexApiException)
+                {
+                    return ReturnReschedulePickupErrorDueToPickupService();
                 }
                 catch (Exception)
                 {
                     throw;
                 }
-
-
-
             });
 
 
@@ -133,6 +145,29 @@ namespace Vein360.API.EndPoints
 
                 return Results.Ok();
             });
+        }
+
+        private static IResult ReturnReschedulePickupErrorDueToPickupService()
+        {
+            var error = new ApiError
+            {
+                StatusCode = 409,
+                Message = "We're unable to reschedule the pickup at this time because the pickup service is temporarily unavailable. Please try again later."
+            };
+
+            return Results.Json(error, statusCode: 409);
+        }
+
+        private static IResult ReturnCreatePickupErrorDueToPickupService()
+        {
+            var error = new ApiError
+            {
+                StatusCode = 409,
+                //Message = "Sorry, we are unable to create return. Pickup service is down at this time. Please try again later."
+                Message = "We're unable to create return at this time because the pickup service is temporarily unavailable. Please try again later."
+            };
+
+            return Results.Json(error, statusCode: 409);
         }
     }
 }

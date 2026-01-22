@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using Vein360.API;
+using Vein360.API.Middlewares;
 using Vein360.Application;
 using Vein360.Authentication;
 using Vein360.Persistence;
@@ -74,6 +75,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapGet("/", () => "Vein360 API is running...");
 

@@ -61,7 +61,7 @@ namespace Vein360.Shipment.Service
 
                     _logger.LogError($"FedEx Pickup API Error on Creating Pickup: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
 
-                    throw new InvalidOperationException($"FedEx Error on Creating Pickup using Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
+                    throw new FedexApiException($"FedEx Error on Creating Pickup using Pickup API Error: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
                 }
 
 
