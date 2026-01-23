@@ -13,17 +13,19 @@ namespace Vein360.Shipment.Model
         public List<PickupError> errors { get; set; }
 
         public bool IsNotWorkingDayError => errors.Any(x => x.code == PickupErrorCodes.PICKUPDATE_NOT_WORKINGDAY);
+        public bool GroundServicesUnavailableError => errors.Any(x => x.code == PickupErrorCodes.GROUND_SERVICES_UNAVAILABLE);
 
         public class PickupErrorCodes
         {
             public const string PICKUPDATE_NOT_WORKINGDAY = "PICKUPDATE.NOT.WORKINGDAY";
+            public const string GROUND_SERVICES_UNAVAILABLE = "GROUND.SERVICES.UNAVAILABLE";
         }
 
     }
 
-public class PickupError
-{
-    public string code { get; set; }
-    public string message { get; set; }
-}
+    public class PickupError
+    {
+        public string code { get; set; }
+        public string message { get; set; }
+    }
 }
