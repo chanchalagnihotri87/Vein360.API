@@ -12,5 +12,11 @@
         public DateTimeOffset? DeletedDate { get; set; } = null;
         public bool IsDeleted { get; set; } = false;
 
+        public void MarkAsDeleted()
+        {
+            IsDeleted = true;
+            DeletedDate = DateTime.Now;
+        }
+
     }
 }
