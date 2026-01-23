@@ -40,10 +40,6 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
             var donation = await _donationRepo.GetAsync(x => x.Id == request.DonationId, cancellationToken, x => x.Include(x => x.Pickup));
 
 
-            if (donation.IsNotProcessed() && donation.TrackingNumber.IsNotNull() && !donation.UseOldLabel)
-            {
-                await _shipmentService.CancelShipmentSafelyAsync(donation.TrackingNumber!.Value);
-            }
 
 
             if (DateTime.Now.CompareTo(donation.Pickup.PickupDateTime) < 0) //Current time is earlier than PickupDateTime
@@ -53,8 +49,15 @@ namespace Vein360.Application.Features.Donations.DeleteDonation
                 if (!otherDonationUsingThisPickup)
                 {
                     await _pickupService.CancelPickupSafelyAsync(donation.Pickup.PickupConfirmationCode, donation.Pickup.PickupDateTime);
+                    donation.Pickup.MarkAsDeleted();
                 }
             }
+
+            if (donation.IsNotProcessed() && donation.TrackingNumber.IsNotNull() && !donation.UseOldLabel)
+            {
+                await _shipmentService.CancelShipmentSafelyAsync(donation.TrackingNumber!.Value);
+            }
+
 
             _donationRepo.Delete(donation);
 

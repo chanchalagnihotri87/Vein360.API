@@ -25,8 +25,7 @@ namespace Vein360.Persistence.Repository
 
         public void Delete(T entity)
         {
-            entity.IsDeleted = true;
-            entity.DeletedDate = DateTime.Now;
+            entity.MarkAsDeleted();
 
             context.Update(entity);
 
