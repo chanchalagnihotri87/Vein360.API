@@ -53,11 +53,10 @@ namespace Vein360.Shipment.Service
                     var pickupError = JsonSerializer.Deserialize<PickupErrorResponseModel>(responseString);
 
                     // If it's a not working day error, try the next available pickup time
-                    if (pickupError!.IsNotWorkingDayError)
+                    if (pickupError!.IsNotWorkingDayError || pickupError.GroundServicesUnavailableError)
                     {
                         continue;
                     }
-
 
                     _logger.LogError($"FedEx Pickup API Error on Creating Pickup: {responseString}. Request Data: {JsonSerializer.Serialize(pickupRequestData)}");
 
@@ -69,7 +68,7 @@ namespace Vein360.Shipment.Service
                 var pickupResponse = JsonSerializer.Deserialize<PickupResponseModel>(responseString);
 
                 // Validate pickup response
-                if (pickupResponse.IsNull() || pickupResponse.output.IsNull()) { throw new InvalidOperationException("The pickup response or its output is null."); }
+                if (pickupResponse.IsNull() || pickupResponse.output.IsNull()) { throw new FedexApiException("The pickup response or its output is null."); }
 
 
                 // Return successful pickup detail
