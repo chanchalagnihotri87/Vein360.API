@@ -11,7 +11,7 @@ using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
 {
-    public sealed class GetAllDonationsHandler : IRequestHandler<GetAllDonationsRequest, List<GetAllDonationsResponse>>
+    public sealed class GetAllDonationsHandler : IRequestHandler<GetAllDonationsRequest, PagedResponse<GetAllDonationsResponse>>
     {
         private readonly IAuthInfoService _authInfoService;
         private readonly IDonationRepository _donationRepository;
@@ -24,15 +24,30 @@ namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
             _donationRepository = donationRepository;
         }
 
-        public async Task<List<GetAllDonationsResponse>> Handle(GetAllDonationsRequest request, CancellationToken cancellationToken)
+        public async Task<PagedResponse<GetAllDonationsResponse>> Handle(GetAllDonationsRequest request, CancellationToken cancellationToken)
         {
-            var donations = await _donationRepository.GetAllAsync(cancellationToken,
-                                                                   dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product),
-                                                                   dnt => dnt.Include(x => x.Donor));
+            var response = new PagedResponse<GetAllDonationsResponse>();
 
-            var response = donations.OrderByDescending(x => x.Id).Adapt<List<GetAllDonationsResponse>>();
+            var query = _donationRepository.GetAllAsQueryableNoTracking();
 
-            return await Task.FromResult(response);
+
+            response.CalculateTotalPages(await query.CountAsync());
+
+            response.CalculateSkipCount(request.Page);
+
+            response.Items = query.OrderByDescending(x => x.Id).Skip(response.Skip).Take(response.PageSize).Select(x => new GetAllDonationsResponse
+            {
+                Id = x.Id,
+                TrackingNumber = x.TrackingNumber,
+                Status = x.Status,
+                CreatedDate = x.CreatedDate,
+                Donor = new UserListItemDto
+                {
+                    Name = x.Donor.Name,
+                },
+            }).ToHashSet();
+
+            return response;
         }
     }
 }

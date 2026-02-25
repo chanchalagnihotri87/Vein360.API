@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.Orders.GetMyOrders
 {
-    public class GetMyOrdersRequest : IRequest<List<OrderDto>>
+    public record GetMyOrdersRequest(int? Page) : IRequest<PagedResponse<OrderDto>>
     {
     }
 }

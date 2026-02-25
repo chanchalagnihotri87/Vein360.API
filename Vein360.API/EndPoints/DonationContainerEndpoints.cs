@@ -24,18 +24,18 @@ namespace Vein360.API.EndPoints
         public static void MapDonationContainerEndpoints(this WebApplication app)
         {
 
-            app.MapGet("/donationcontainers", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donationcontainers", [Authorize] async (int? page,IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var containers = await mediator.Send(new GetDonorDonationContainersRequest(), cancellationToken);
+                var containers = await mediator.Send(new GetDonorDonationContainersRequest(page), cancellationToken);
                 return Results.Ok(containers);
             })
            .WithName("GetDonorDonationContainers")
            .Produces<List<DonationConatinerDto>>(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status500InternalServerError);
 
-            app.MapGet("/donationcontainers/all", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/donationcontainers/all", [Authorize] async (int? page, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var containers = await mediator.Send(new GetAllDonationContainerRequest(), cancellationToken);
+                var containers = await mediator.Send(new GetAllDonationContainerRequest(page), cancellationToken);
                 return Results.Ok(containers);
             })
             .WithName("GetAllDonationContainers")

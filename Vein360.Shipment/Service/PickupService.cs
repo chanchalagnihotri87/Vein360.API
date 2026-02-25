@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 using Vein360.Application.Common.Dtos;
 using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Common.Extensions;
-using Vein360.Application.Service.ShipmentService;
-using Vein360.Domain.Common;
+using Vein360.Domain.Common;using Vein360.Application.Service.ShipmentService;
+
 using Vein360.Domain.Entities;
 using Vein360.Shipment.Helper;
 using Vein360.Shipment.Model;
 
 namespace Vein360.Shipment.Service
 {
-    public class PickupService : IPickupService
+    public class PickupService : IPickupService                                                                                                                                                                                                     
     {
         private readonly IFedexAuthHelper fedexAuthHelper;
 
