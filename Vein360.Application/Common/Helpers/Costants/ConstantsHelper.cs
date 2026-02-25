@@ -9,5 +9,7 @@ namespace Vein360.Application.Common.Helpers.Costants
     public static class ConstantsHelper
     {
         public const double OwnPackingContainerWeight = 6; // weight for the container in lbs
+        public const int PageSize = 10;
+        public const int DefaultPageNo = 1;
     }
 }

@@ -7,12 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vein360.Application.Common.Helpers.Costants;
 using Vein360.Application.Repository.DonationsRepository;
 using Vein360.Application.Service.AuthenticationService;
 
 namespace Vein360.Application.Features.DonationsFeatures.GetDonorDonations
 {
-    public sealed class GetDonorDonationsHandler : IRequestHandler<GetDonorDonationsRequest, List<GetDonorDonationsResponse>>
+    public sealed class GetDonorDonationsHandler : IRequestHandler<GetDonorDonationsRequest, PagedResponse<GetDonorDonationsResponse>>
     {
         private readonly IAuthInfoService _authInfoService;
         private readonly IDonationRepository _donationRepository;
@@ -29,21 +30,61 @@ namespace Vein360.Application.Features.DonationsFeatures.GetDonorDonations
             _logger = logger;
         }
 
-        public async Task<List<GetDonorDonationsResponse>> Handle(GetDonorDonationsRequest request, CancellationToken cancellationToken)
+        public async Task<PagedResponse<GetDonorDonationsResponse>> Handle(GetDonorDonationsRequest request, CancellationToken cancellationToken)
         {
+            var response = new PagedResponse<GetDonorDonationsResponse>();
+
             _logger.LogInformation("Fetching donations for donor with ID: {UserId}", _authInfoService.UserId);
 
-            var donations = await _donationRepository.GetManyAsync(dnt => dnt.DonorId == _authInfoService.UserId,
-                                                                   cancellationToken,
-                                                                   dnt => dnt.Include(x => x.Clinic),
-                                                                   dnt => dnt.Include(x => x.Pickup),
-                                                                   dnt => dnt.Include(x => x.Products).ThenInclude(x => x.Product));
+            var query = _donationRepository.GetManyAsQueryableNoTracking(dnt => dnt.DonorId == _authInfoService.UserId);
 
-            _logger.LogInformation("Found {DonationCount} donations for donor with ID: {UserId}", donations.Count, _authInfoService.UserId);
+            response.CalculateTotalPages(await query.CountAsync(cancellationToken));
 
-            var response = donations.OrderByDescending(x => x.Id).Adapt<List<GetDonorDonationsResponse>>();
+            response.CalculateSkipCount(request.Page);
 
-            return await Task.FromResult(response);
+            response.Items = await query.OrderByDescending(X => X.Id).Skip(response.Skip).Take(response.PageSize).Select(x => new GetDonorDonationsResponse
+            {
+                Id = x.Id,
+                TrackingNumber = x.TrackingNumber,
+                CreatedDate = x.CreatedDate,
+                Status = x.Status,
+                LabelFileName = x.LabelFileName,
+                DonationProducts = x.Products.Select(x => new DonationProductDto
+                {
+                    Product = new ProductDto
+                    {
+                        Id = x.Product!.Id,
+                        Name = x.Product!.Name,
+                        Type = x.Product!.Type,
+                        Image = x.Product!.Image
+                    },
+                    Units = x.Units,
+                    Accepted = x.Accepted,
+                    Rejected = x.Rejected,
+                }),
+                Pickup = new PickupDto
+                {
+                    PickupTransactionId = x.Pickup.PickupTransactionId,
+                    PickupConfirmationCode = x.Pickup.PickupConfirmationCode,
+                    PickupDateTime = x.Pickup.PickupDateTime
+                },
+                Clinic = new ClinicDto
+                {
+                    Id = x.Clinic.Id,
+                    ClinicName = x.Clinic.ClinicName,
+                    AddressLine1 = x.Clinic.AddressLine1,
+                    AddressLine2 = x.Clinic.AddressLine2,
+                    City = x.Clinic.City,
+                    State = x.Clinic.State,
+                    Country = x.Clinic.Country,
+                    PostalCode = x.Clinic.PostalCode
+
+                }
+            }).ToHashSetAsync(cancellationToken);
+
+            _logger.LogInformation("Found {DonationCount} donations for donor with ID: {UserId}", response.Items.Count(), _authInfoService.UserId);
+
+            return response;
         }
     }
 }

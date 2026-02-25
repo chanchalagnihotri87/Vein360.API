@@ -31,22 +31,23 @@ namespace Vein360.API.EndPoints
     {
         public static void MapDonationEndpoints(this WebApplication app)
         {
-            app.MapGet("/donations/all", [Authorize] async (IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
+            app.MapGet("/donations/all", [Authorize] async (int? Page, IMediator mediator, CancellationToken cancellationToken, HttpContext context) =>
             {
-                var donations = await mediator.Send(new GetAllDonationsRequest(), cancellationToken);
+                var donations = await mediator.Send(new GetAllDonationsRequest(Page), cancellationToken);
 
                 return Results.Ok(donations);
             });
 
-            app.MapGet("/donations", [Authorize] async (IMediator mediator, ILogger<Program> logger, CancellationToken cancellationToken, HttpContext context) =>
+            app.MapGet("/donations", [Authorize] async (int? page, IMediator mediator, ILogger<Program> logger, CancellationToken cancellationToken, HttpContext context) =>
             {
                 logger.LogInformation("Entered in donations endpoint");
 
-                var donations = await mediator.Send(new GetDonorDonationsRequest(), cancellationToken);
+
+                var response = await mediator.Send(new GetDonorDonationsRequest(page), cancellationToken);
 
                 logger.LogInformation("Exited from donations endpoint");
 
-                return Results.Ok(donations);
+                return Results.Ok(response);
             });
 
             app.MapGet("/donations/{id}", [Authorize] async (int id, IMediator mediator, CancellationToken cancellationToken) =>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.DonationContainers.GetDonorDonationContainers
 {
-    public record GetDonorDonationContainersRequest:IRequest<List<DonationConatinerDto>>
+    public record GetDonorDonationContainersRequest(int? Page):IRequest<PagedResponse<DonationConatinerDto>>
     {
     }
 }

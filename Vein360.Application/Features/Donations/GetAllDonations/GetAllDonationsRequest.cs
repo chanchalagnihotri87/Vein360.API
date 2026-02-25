@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Vein360.Application.Features.DonationsFeatures.GetAllDonations
 {
-    public sealed record GetAllDonationsRequest: IRequest<List<GetAllDonationsResponse>>
+    public sealed record GetAllDonationsRequest(int? Page): IRequest<PagedResponse<GetAllDonationsResponse>>
     {
     }
 }

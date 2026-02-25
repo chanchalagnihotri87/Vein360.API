@@ -7,7 +7,7 @@ using Vein360.Application.Common.Dtos;
 
 namespace Vein360.Application.Features.DonationContainers.GetAllDonationContainers
 {
-    public class GetAllDonationContainerRequest : IRequest<List<DonationConatinerDto>>
+    public record GetAllDonationContainerRequest(int? Page) : IRequest<PagedResponse<DonationConatinerDto>>
     {
     }
 }

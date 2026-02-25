@@ -13,7 +13,7 @@ namespace Vein360.Shipment.Service
     {
         public Task<AddressDto> ValidateAddressAsync(IShippingAddress address)
         {
-            return Task.FromResult(new AddressDto
+            return Task.FromResult(new AddressDto   
             {
                 StreetLines = new List<string> { address.AddressLine1 },
                 City = address.City,

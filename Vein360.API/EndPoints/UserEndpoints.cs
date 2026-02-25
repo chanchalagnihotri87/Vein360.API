@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using Vein360.API.Erros;
 using Vein360.Application.Common.Exceptions;
 using Vein360.Application.Features.Products.CreateProduct;
 using Vein360.Application.Features.Products.DeleteProduct;
@@ -51,8 +52,13 @@ namespace Vein360.API.EndPoints
                 }
                 catch (DuplicateUsernameException)
                 {
+                    var error = new ApiError
+                    {
+                        StatusCode = 409,
+                        Message = "A user with this email address already exists, please use different email."
+                    };
 
-                    return Results.BadRequest(new { duplicateEmail = true });
+                    return Results.Json(error, statusCode: 409);
                 }
 
                 return Results.Ok();

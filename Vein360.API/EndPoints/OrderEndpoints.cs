@@ -21,11 +21,11 @@ namespace Vein360.API.EndPoints
 
         public static void MapOrderEndpoints(this WebApplication app)
         {
-            app.MapGet("/orders/myorders", [Authorize] async (IMediator mediator, CancellationToken cancellationToken) =>
+            app.MapGet("/orders/myorders", [Authorize] async (int? page, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var orders = await mediator.Send(new GetMyOrdersRequest(), cancellationToken);
+                var response = await mediator.Send(new GetMyOrdersRequest(page), cancellationToken);
 
-                return Results.Ok(orders);
+                return Results.Ok(response);
             });
 
             app.MapGet("/orders/{id}", [Authorize] async (int id, IMediator mediator, CancellationToken cancellationToken) =>
